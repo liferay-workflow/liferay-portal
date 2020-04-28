@@ -62,7 +62,7 @@ public class ScriptingContextBuilderImpl implements ScriptingContextBuilder {
 			).put(
 				"kaleoInstanceToken", executionContext.getKaleoInstanceToken()
 			).put(
-				"workflowContext", workflowContext
+				"workflowContext", java.util.Collections.unmodifiableMap(workflowContext)
 			).build();
 
 		KaleoTaskInstanceToken kaleoTaskInstanceToken =
