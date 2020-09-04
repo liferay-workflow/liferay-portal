@@ -13,7 +13,7 @@
 import ClayIcon from '@clayui/icon';
 import ClayLayout from '@clayui/layout';
 import ClayModal from '@clayui/modal';
-import React, {useMemo} from 'react';
+import React from 'react';
 
 import ContentView from '../../../../shared/components/content-view/ContentView.es';
 import RetryButton from '../../../../shared/components/list/RetryButton.es';
@@ -38,23 +38,18 @@ const Body = ({
 		SLAs[result.status === 'Stopped' ? 'resolved' : 'open'].push(result);
 	});
 
-	const statesProps = useMemo(
-		() => ({
-			errorProps: {
-				actionButton: (
-					<RetryButton
-						onClick={() => setRetry((retry) => retry + 1)}
-					/>
-				),
-				className: 'py-8',
-				hideAnimation: true,
-				message: Liferay.Language.get('unable-to-retrieve-data'),
-				messageClassName: 'small',
-			},
-			loadingProps: {className: 'py-8'},
-		}),
-		[setRetry]
-	);
+	const statesProps = {
+		errorProps: {
+			actionButton: (
+				<RetryButton onClick={() => setRetry((retry) => retry + 1)} />
+			),
+			className: 'py-8',
+			hideAnimation: true,
+			message: Liferay.Language.get('unable-to-retrieve-data'),
+			messageClassName: 'small',
+		},
+		loadingProps: {className: 'py-8'},
+	};
 
 	return (
 		<ClayModal.Body>
