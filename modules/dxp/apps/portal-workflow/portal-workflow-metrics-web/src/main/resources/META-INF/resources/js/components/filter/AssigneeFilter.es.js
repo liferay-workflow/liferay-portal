@@ -45,7 +45,7 @@ const AssigneeFilter = ({
 		withoutRouteParams: options.withoutRouteParams,
 	});
 
-	const defaultItem = useMemo(() => (items ? items[0] : undefined), [items]);
+	const defaultItem = useMemo(() => items[0], [items]);
 
 	const filterName = useFilterName(
 		options.multiple,

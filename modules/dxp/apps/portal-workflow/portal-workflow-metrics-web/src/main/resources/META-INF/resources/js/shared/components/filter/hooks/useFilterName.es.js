@@ -9,8 +9,6 @@
  * distribution rights of the Software.
  */
 
-import {useMemo} from 'react';
-
 const useFilterName = (
 	multiple,
 	selectedItems = [],
@@ -31,15 +29,13 @@ const useFilterNameWithLabel = ({
 	title,
 	withSelectionTitle,
 }) => {
-	return useMemo(() => {
-		if (!multiple && withSelectionTitle && selectedItems.length) {
-			const [{resultName, [labelPropertyName]: label}] = selectedItems;
+	if (!multiple && withSelectionTitle && selectedItems.length) {
+		const [{resultName, [labelPropertyName]: label}] = selectedItems;
 
-			return resultName || label;
-		}
+		return resultName || label;
+	}
 
-		return title;
-	}, [labelPropertyName, multiple, selectedItems, title, withSelectionTitle]);
+	return title;
 };
 
 export {useFilterName, useFilterNameWithLabel};
