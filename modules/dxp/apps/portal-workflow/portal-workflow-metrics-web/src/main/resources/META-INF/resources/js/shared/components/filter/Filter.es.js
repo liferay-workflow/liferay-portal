@@ -11,7 +11,7 @@
 
 import ClayIcon from '@clayui/icon';
 import getCN from 'classnames';
-import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 
 import {useFilter} from '../../hooks/useFilter.es';
 import {useRouter} from '../../hooks/useRouter.es';
@@ -49,6 +49,7 @@ const Filter = ({
 }) => {
 	const {dispatchFilter} = useFilter({withoutRouteParams});
 	const [expanded, setExpanded] = useState(false);
+	const [filteredItems, setFilteredItems] = useState([]);
 	const [searchTerm, setSearchTerm] = useState('');
 	const [changed, setChanged] = useState(false);
 
@@ -56,33 +57,20 @@ const Filter = ({
 	const routerProps = useRouter();
 	const wrapperRef = useRef();
 
-	const classes = useMemo(
-		() => ({
-			children: getCN(
-				'custom dropdown-menu',
-				children && 'show',
-				position && `dropdown-menu-${position}`
-			),
-			custom: getCN('btn dropdown-toggle nav-link', buttonClassName),
-			dropdown: getCN('dropdown nav-item', elementClasses),
-			menu: getCN(
-				'dropdown-menu',
-				expanded && 'show',
-				position && `dropdown-menu-${position}`
-			),
-		}),
-		[buttonClassName, children, elementClasses, expanded, position]
-	);
-
-	const filteredItems = useMemo(() => {
-		return searchTerm
-			? items.filter((item) =>
-					item[labelPropertyName]
-						.toLowerCase()
-						.includes(searchTerm.toLowerCase())
-			  )
-			: items;
-	}, [items, labelPropertyName, searchTerm]);
+	const classes = {
+		children: getCN(
+			'custom dropdown-menu',
+			children && 'show',
+			position && `dropdown-menu-${position}`
+		),
+		custom: getCN('btn dropdown-toggle nav-link', buttonClassName),
+		dropdown: getCN('dropdown nav-item', elementClasses),
+		menu: getCN(
+			'dropdown-menu',
+			expanded && 'show',
+			position && `dropdown-menu-${position}`
+		),
+	};
 
 	const applyFilterChanges = useCallback(() => {
 		if (!withoutRouteParams) {
@@ -182,6 +170,18 @@ const Filter = ({
 		};
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [applyFilterChanges, expanded, changed]);
+
+	useEffect(() => {
+		setFilteredItems(
+			searchTerm
+				? items.filter((item) =>
+						item[labelPropertyName]
+							.toLowerCase()
+							.includes(searchTerm.toLowerCase())
+				  )
+				: items
+		);
+	}, [items, labelPropertyName, searchTerm]);
 
 	return (
 		<li className={classes.dropdown} ref={wrapperRef} {...otherProps}>
