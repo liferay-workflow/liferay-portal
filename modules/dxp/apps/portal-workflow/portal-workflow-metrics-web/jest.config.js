@@ -9,11 +9,8 @@
  * distribution rights of the Software.
  */
 
-const enzyme = require('enzyme');
-const EnzymeAdapter = require('enzyme-adapter-react-16');
-
 window.AUI = () => ({
-	use: (module, callback) => callback(),
+	use: (module, callback) => callback(module),
 });
 
 const languageMap = {
@@ -52,27 +49,3 @@ window.Liferay = {
 	},
 	authToken: 'auth',
 };
-
-// eslint-disable-next-line no-console
-global.console = {error: jest.fn(), log: console.log, warn: console.warn};
-
-global.localStorage = (() => {
-	let store = {};
-
-	return {
-		clear() {
-			store = {};
-		},
-		getItem(key) {
-			return store[key];
-		},
-		setItem(key, value) {
-			store[key] = value.toString();
-		},
-	};
-})();
-
-enzyme.configure({adapter: new EnzymeAdapter()});
-
-global.mount = enzyme.mount;
-global.shallow = enzyme.shallow;
