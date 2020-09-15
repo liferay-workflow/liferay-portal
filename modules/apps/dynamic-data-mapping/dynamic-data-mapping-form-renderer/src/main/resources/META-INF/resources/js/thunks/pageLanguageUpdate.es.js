@@ -125,6 +125,7 @@ export default function pageLanguageUpdate({
 	preserveValue,
 	prevDataRecordValues,
 	prevEditingLanguageId,
+	readOnly,
 }) {
 	return (dispatch) => {
 		const newDataRecordValues = getDataRecordValues({
@@ -142,7 +143,7 @@ export default function pageLanguageUpdate({
 					dataRecordValues: newDataRecordValues,
 					namespace: portletNamespace,
 					pathThemeImages: themeDisplay.getPathThemeImages(),
-					readOnly: false,
+					readOnly,
 				}),
 				headers: {
 					'Accept-Language': nextEditingLanguageId.replace('_', '-'),

@@ -45,6 +45,7 @@ const Form = React.forwardRef(
 			pages,
 			paginationMode,
 			portletNamespace,
+			readOnly,
 			rules,
 			successPageSettings,
 			...otherProps
@@ -119,6 +120,7 @@ const Form = React.forwardRef(
 					pages,
 					paginationMode,
 					portletNamespace,
+					readOnly,
 					rules,
 					successPageSettings,
 					...otherProps,
@@ -152,6 +154,7 @@ const Form = React.forwardRef(
 						preserveValue,
 						prevDataRecordValues: dataRecordValues,
 						prevEditingLanguageId: editingLanguageId,
+						readOnly
 					})
 				),
 			validate,
@@ -212,6 +215,7 @@ const Form = React.forwardRef(
 				pages={pages}
 				paginationMode={paginationMode}
 				portletNamespace={portletNamespace}
+				readOnly={readOnly}
 				rules={rules}
 				successPageSettings={successPageSettings}
 				{...otherProps}
