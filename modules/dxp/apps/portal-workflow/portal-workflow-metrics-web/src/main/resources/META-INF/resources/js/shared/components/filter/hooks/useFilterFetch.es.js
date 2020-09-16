@@ -22,6 +22,7 @@ import {useFilterState} from './useFilterState.es';
 
 const useFilterFetch = ({
 	filterKey,
+	labelPropertyName = 'label',
 	prefixKey,
 	requestBody: data = {},
 	propertyKey,
@@ -40,7 +41,12 @@ const useFilterFetch = ({
 	);
 
 	const parseResponse = ({data = {}}) => {
+		data.items.sort((current, next) =>
+			current[labelPropertyName]?.localeCompare(next[labelPropertyName])
+		);
+
 		const mergedItems = mergeItemsArray(staticItems, data.items);
+
 		const mappedItems = buildFilterItems({
 			items: mergedItems,
 			propertyKey,
