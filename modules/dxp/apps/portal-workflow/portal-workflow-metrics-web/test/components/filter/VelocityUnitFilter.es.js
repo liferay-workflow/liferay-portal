@@ -47,8 +47,8 @@ describe('The velocity unit filter component should', () => {
 		const filterItems = container.querySelectorAll('.dropdown-item');
 
 		expect(filterItems[0]).toHaveTextContent('inst-day');
-		expect(filterItems[1]).toHaveTextContent('inst-month');
-		expect(filterItems[2]).toHaveTextContent('inst-week');
+		expect(filterItems[1]).toHaveTextContent('inst-week');
+		expect(filterItems[2]).toHaveTextContent('inst-month');
 	});
 
 	test('Be rendered with active option "Weeks"', async () => {

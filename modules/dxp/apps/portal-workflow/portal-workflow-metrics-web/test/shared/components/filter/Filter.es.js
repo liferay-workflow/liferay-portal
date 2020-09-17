@@ -45,8 +45,8 @@ describe('The filter component should', () => {
 
 		const filterItems = container.querySelectorAll('.dropdown-item');
 
-		expect(filterItems[0]).toHaveTextContent('OnTime');
-		expect(filterItems[1]).toHaveTextContent('Overdue');
+		expect(filterItems[0]).toHaveTextContent('Overdue');
+		expect(filterItems[1]).toHaveTextContent('OnTime');
 		expect(filterItems[2]).toHaveTextContent('Untracked');
 
 		const activeItem = container.querySelector('.active');
