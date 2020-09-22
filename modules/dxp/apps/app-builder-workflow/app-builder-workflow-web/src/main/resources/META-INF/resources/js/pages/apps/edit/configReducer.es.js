@@ -284,19 +284,28 @@ export default (state, action) => {
 			};
 		}
 		case UPDATE_STEP: {
-			const {step, stepIndex} = {...action};
+			const {step: currentStep, stepIndex} = {...action};
 
 			if (stepIndex > 0) {
-				state.steps[
-					stepIndex - 1
-				].appWorkflowTransitions[0].transitionTo = step.name;
+				const previousStep = state.steps?.[stepIndex - 1];
+				const nextStep = state.steps?.[stepIndex + 1];
+
+				if (previousStep?.appWorkflowTransitions?.[0]) {
+					previousStep.appWorkflowTransitions[0].transitionTo =
+						currentStep.name;
+				}
+
+				if (nextStep?.appWorkflowTransitions?.[1]) {
+					nextStep.appWorkflowTransitions[1].transitionTo =
+						currentStep.name;
+				}
 			}
 
-			state.steps[stepIndex] = step;
+			state.steps[stepIndex] = currentStep;
 
 			return {
 				...state,
-				currentStep: step,
+				currentStep,
 			};
 		}
 		case UPDATE_STEP_ACTION: {
