@@ -21,7 +21,6 @@ import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
-
 import com.liferay.data.engine.rest.client.dto.v2_0.DataRecord;
 import com.liferay.data.engine.rest.client.http.HttpInvoker;
 import com.liferay.data.engine.rest.client.pagination.Page;
@@ -57,9 +56,7 @@ import com.liferay.portal.vulcan.resource.EntityModelResource;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-
 import java.text.DateFormat;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -70,16 +67,13 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import javax.annotation.Generated;
-
 import javax.ws.rs.core.MultivaluedHashMap;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Level;
-
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -862,6 +856,32 @@ public abstract class BaseDataRecordResourceTestCase {
 	}
 
 	@Test
+	public void testPatchDataRecord() throws Exception {
+		DataRecord postDataRecord = testPatchDataRecord_addDataRecord();
+
+		DataRecord randomPatchDataRecord = randomPatchDataRecord();
+
+		DataRecord patchDataRecord = dataRecordResource.patchDataRecord(
+			postDataRecord.getId(), randomPatchDataRecord);
+
+		DataRecord expectedPatchDataRecord = postDataRecord.clone();
+
+		_beanUtilsBean.copyProperties(
+			expectedPatchDataRecord, randomPatchDataRecord);
+
+		DataRecord getDataRecord = dataRecordResource.getDataRecord(
+			patchDataRecord.getId());
+
+		assertEquals(expectedPatchDataRecord, getDataRecord);
+		assertValid(getDataRecord);
+	}
+
+	protected DataRecord testPatchDataRecord_addDataRecord() throws Exception {
+		throw new UnsupportedOperationException(
+			"This method needs to be implemented");
+	}
+
+	@Test
 	public void testPutDataRecord() throws Exception {
 		DataRecord postDataRecord = testPutDataRecord_addDataRecord();
 
@@ -1120,9 +1140,11 @@ public abstract class BaseDataRecordResourceTestCase {
 					return false;
 				}
 			}
+
+			return true;
 		}
 
-		return true;
+		return false;
 	}
 
 	protected java.util.Collection<EntityField> getEntityFields()
