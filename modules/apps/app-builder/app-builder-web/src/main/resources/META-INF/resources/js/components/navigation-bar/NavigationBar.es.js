@@ -25,8 +25,8 @@ export default withRouter(({match: {url}, tabs}) => {
 
 	return (
 		<ClayNavigationBar triggerLabel={tabs.find(({active}) => active).label}>
-			{tabs.map(({exact, label, path}, index) => (
-				<Item key={index}>
+			{tabs.map(({active, exact, label, path}, index) => (
+				<Item active={active} key={index}>
 					<NavLink
 						activeClassName="active"
 						className="nav-link"
