@@ -49,7 +49,7 @@ exports[`ViewObject renders 1`] = `
               class="nav-item"
             >
               <a
-                class="nav-link"
+                class="nav-link active"
                 href="#//form-views"
               >
                 form-views
