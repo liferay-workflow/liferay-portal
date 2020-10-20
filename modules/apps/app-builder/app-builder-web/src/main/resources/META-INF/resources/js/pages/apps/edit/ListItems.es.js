@@ -15,39 +15,18 @@
 import {ClayRadio, ClayRadioGroup} from '@clayui/form';
 import ClayTable from '@clayui/table';
 import classNames from 'classnames';
-import React, {useContext} from 'react';
+import React from 'react';
 
 import {withLoading} from '../../../components/loading/Loading.es';
 import {withEmpty} from '../../../components/table/EmptyState.es';
 import {getLocalizedValue} from '../../../utils/lang.es';
 import {fromNow} from '../../../utils/time.es';
-import EditAppContext, {
-	UPDATE_DATA_LAYOUT_ID,
-	UPDATE_DATA_LIST_VIEW_ID,
-} from './EditAppContext.es';
 
 const {Body, Cell, Head, Row} = ClayTable;
 
-const ListItems = ({defaultLanguageId, itemType, items}) => {
-	const {
-		dispatch,
-		state: {
-			app: {dataLayoutId, dataListViewId},
-		},
-	} = useContext(EditAppContext);
-
-	const itemId = itemType === 'DATA_LAYOUT' ? dataLayoutId : dataListViewId;
-
+const ListItems = ({defaultLanguageId, itemId, items, onChange}) => {
 	const onItemIdChange = (id) => {
-		const type =
-			itemType === 'DATA_LAYOUT'
-				? UPDATE_DATA_LAYOUT_ID
-				: UPDATE_DATA_LIST_VIEW_ID;
-
-		dispatch({
-			id,
-			type,
-		});
+		onChange(id);
 	};
 
 	return (
@@ -78,12 +57,14 @@ const ListItems = ({defaultLanguageId, itemType, items}) => {
 						<Cell align="left">
 							{getLocalizedValue(defaultLanguageId, name)}
 						</Cell>
-						<Cell>{fromNow(dateCreated)}</Cell>
-						<Cell>{fromNow(dateModified)}</Cell>
+						<Cell>{dateCreated && fromNow(dateCreated)}</Cell>
+						<Cell>{dateModified && fromNow(dateModified)}</Cell>
 						<Cell align={'right'}>
 							<ClayRadioGroup
 								inline
-								onSelectedValueChange={() => onItemIdChange(id)}
+								onSelectedValueChange={(id) =>
+									onItemIdChange(id)
+								}
 								selectedValue={itemId}
 							>
 								<ClayRadio value={id} />
