@@ -838,6 +838,8 @@ definition {
 
 		App.selectTableView(tableViewName = "My Table View 1");
 
+		Button.clickNext();
+
 		App.toggleDeploy(deployOption = "Widget");
 
 		App.clickDeploy();

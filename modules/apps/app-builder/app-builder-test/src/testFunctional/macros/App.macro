@@ -11,6 +11,8 @@ definition {
 
 		AppBuilderAdmin.setName(title = "${appTitle}");
 
+		Button.clickNext();
+
 		App.toggleDeploy(deployOption = "${deployOption}");
 
 		if (isSet(menuOption) && isSet(siteOptionList)) {
