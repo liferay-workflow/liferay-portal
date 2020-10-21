@@ -93,7 +93,7 @@ exports[`EditApp renders 1`] = `
                 </div>
               </li>
               <li
-                class="multi-step-item"
+                class="multi-step-item multi-step-item-expand"
               >
                 <div
                   class="multi-step-divider"
@@ -105,6 +105,22 @@ exports[`EditApp renders 1`] = `
                     class="multi-step-icon"
                   >
                     3
+                  </button>
+                </div>
+              </li>
+              <li
+                class="multi-step-item"
+              >
+                <div
+                  class="multi-step-divider"
+                />
+                <div
+                  class="multi-step-indicator"
+                >
+                  <button
+                    class="multi-step-icon"
+                  >
+                    4
                   </button>
                 </div>
               </li>
