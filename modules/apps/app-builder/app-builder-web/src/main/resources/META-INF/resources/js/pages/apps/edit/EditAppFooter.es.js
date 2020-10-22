@@ -150,7 +150,7 @@ export default withRouter(
 								{Liferay.Language.get('previous')}
 							</Button>
 						)}
-						{currentStep < 2 && (
+						{currentStep < 3 && (
 							<Button
 								disabled={
 									(currentStep === 0 && !dataLayoutId) ||
@@ -164,7 +164,7 @@ export default withRouter(
 								{Liferay.Language.get('next')}
 							</Button>
 						)}
-						{currentStep === 2 && (
+						{currentStep === 3 && (
 							<Button
 								disabled={
 									appDeployments.length === 0 ||
