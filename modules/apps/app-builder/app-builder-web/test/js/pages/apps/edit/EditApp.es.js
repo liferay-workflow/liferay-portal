@@ -71,6 +71,7 @@ describe('EditApp', () => {
 		fetch
 			.mockResponseOnce(JSON.stringify(items))
 			.mockResponseOnce(JSON.stringify(items))
+			.mockResponseOnce(JSON.stringify(items))
 			.mockResponseOnce(JSON.stringify());
 
 		const {
@@ -145,6 +146,16 @@ describe('EditApp', () => {
 			container.querySelector('.multi-step-item.active').textContent
 		).toBe('3');
 
+		next = queryByText('next');
+
+		await act(async () => {
+			await fireEvent.click(next);
+		});
+
+		expect(
+			container.querySelector('.multi-step-item.active').textContent
+		).toBe('4');
+
 		const deploy = queryByText('deploy');
 
 		expect(deploy.disabled).toBe(true);
@@ -163,12 +174,12 @@ describe('EditApp', () => {
 		});
 
 		const {appDeployments, dataLayoutId, dataListViewId} = JSON.parse(
-			fetch.mock.calls[2][1].body
+			fetch.mock.calls[3][1].body
 		);
 		const itemsId = items.items[0].id;
 
 		expect(spySuccessToast.mock.calls.length).toBe(1);
-		expect(fetch.mock.calls.length).toBe(3);
+		expect(fetch.mock.calls.length).toBe(4);
 
 		expect(appDeployments[0]).toStrictEqual({
 			settings: {},
@@ -182,6 +193,7 @@ describe('EditApp', () => {
 
 	it('create an app standalone with error', async () => {
 		fetch
+			.mockResponseOnce(JSON.stringify(items))
 			.mockResponseOnce(JSON.stringify(items))
 			.mockResponseOnce(JSON.stringify(items))
 			.mockRejectOnce('Bad request');
@@ -240,6 +252,12 @@ describe('EditApp', () => {
 			await fireEvent.click(next);
 		});
 
+		next = queryByText('next');
+
+		await act(async () => {
+			await fireEvent.click(next);
+		});
+
 		const deploy = queryByText('deploy');
 
 		const [, standalone] = queryAllByRole('checkbox');
@@ -251,12 +269,12 @@ describe('EditApp', () => {
 		});
 
 		const {dataLayoutId, dataListViewId} = JSON.parse(
-			fetch.mock.calls[2][1].body
+			fetch.mock.calls[3][1].body
 		);
 		const itemsId = items.items[1].id;
 
 		expect(spyErrorToast.mock.calls.length).toBe(1);
-		expect(fetch.mock.calls.length).toBe(3);
+		expect(fetch.mock.calls.length).toBe(4);
 
 		expect({dataLayoutId, dataListViewId}).toStrictEqual({
 			dataLayoutId: itemsId,
