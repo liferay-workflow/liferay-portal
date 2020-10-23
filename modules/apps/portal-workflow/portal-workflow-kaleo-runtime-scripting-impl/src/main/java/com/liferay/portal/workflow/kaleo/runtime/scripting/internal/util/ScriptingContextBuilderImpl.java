@@ -27,6 +27,7 @@ import com.liferay.portal.workflow.kaleo.runtime.util.WorkflowContextUtil;
 
 import java.io.Serializable;
 
+import java.util.Collections;
 import java.util.Map;
 
 import org.osgi.service.component.annotations.Component;
@@ -62,7 +63,7 @@ public class ScriptingContextBuilderImpl implements ScriptingContextBuilder {
 			).put(
 				"kaleoInstanceToken", executionContext.getKaleoInstanceToken()
 			).put(
-				"workflowContext", java.util.Collections.unmodifiableMap(workflowContext)
+				"workflowContext", Collections.unmodifiableMap(workflowContext)
 			).build();
 
 		KaleoTaskInstanceToken kaleoTaskInstanceToken =
