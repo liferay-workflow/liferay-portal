@@ -138,6 +138,7 @@ public class WorkflowInstanceResourceImpl
 				objectReviewed = ObjectReviewedUtil.toObjectReviewed(
 					contextAcceptLanguage.getPreferredLocale(),
 					workflowInstance.getWorkflowContext());
+				state = workflowInstance.getState();
 				workflowDefinitionName =
 					workflowInstance.getWorkflowDefinitionName();
 				workflowDefinitionVersion = String.valueOf(
