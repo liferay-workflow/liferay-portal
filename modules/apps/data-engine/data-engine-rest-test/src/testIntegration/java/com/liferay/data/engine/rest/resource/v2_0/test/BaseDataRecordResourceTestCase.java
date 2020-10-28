@@ -190,11 +190,15 @@ public abstract class BaseDataRecordResourceTestCase {
 
 		DataRecord dataRecord = randomDataRecord();
 
+		dataRecord.setVersion(regex);
+
 		String json = DataRecordSerDes.toJSON(dataRecord);
 
 		Assert.assertFalse(json.contains(regex));
 
 		dataRecord = DataRecordSerDes.toDTO(json);
+
+		Assert.assertEquals(regex, dataRecord.getVersion());
 	}
 
 	@Test
@@ -996,6 +1000,22 @@ public abstract class BaseDataRecordResourceTestCase {
 				continue;
 			}
 
+			if (Objects.equals("status", additionalAssertFieldName)) {
+				if (dataRecord.getStatus() == null) {
+					valid = false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("version", additionalAssertFieldName)) {
+				if (dataRecord.getVersion() == null) {
+					valid = false;
+				}
+
+				continue;
+			}
+
 			throw new IllegalArgumentException(
 				"Invalid additional assert field name " +
 					additionalAssertFieldName);
@@ -1119,6 +1139,26 @@ public abstract class BaseDataRecordResourceTestCase {
 				continue;
 			}
 
+			if (Objects.equals("status", additionalAssertFieldName)) {
+				if (!Objects.deepEquals(
+						dataRecord1.getStatus(), dataRecord2.getStatus())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("version", additionalAssertFieldName)) {
+				if (!Objects.deepEquals(
+						dataRecord1.getVersion(), dataRecord2.getVersion())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
 			throw new IllegalArgumentException(
 				"Invalid additional assert field name " +
 					additionalAssertFieldName);
@@ -1218,6 +1258,19 @@ public abstract class BaseDataRecordResourceTestCase {
 				"Invalid entity field " + entityFieldName);
 		}
 
+		if (entityFieldName.equals("status")) {
+			throw new IllegalArgumentException(
+				"Invalid entity field " + entityFieldName);
+		}
+
+		if (entityFieldName.equals("version")) {
+			sb.append("'");
+			sb.append(String.valueOf(dataRecord.getVersion()));
+			sb.append("'");
+
+			return sb.toString();
+		}
+
 		throw new IllegalArgumentException(
 			"Invalid entity field " + entityFieldName);
 	}
@@ -1264,6 +1317,8 @@ public abstract class BaseDataRecordResourceTestCase {
 			{
 				dataRecordCollectionId = RandomTestUtil.randomLong();
 				id = RandomTestUtil.randomLong();
+				status = RandomTestUtil.randomInt();
+				version = StringUtil.toLowerCase(RandomTestUtil.randomString());
 			}
 		};
 	}

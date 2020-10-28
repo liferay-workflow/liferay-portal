@@ -83,6 +83,30 @@ public class DataRecordSerDes {
 			sb.append(dataRecord.getId());
 		}
 
+		if (dataRecord.getStatus() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"status\": ");
+
+			sb.append(dataRecord.getStatus());
+		}
+
+		if (dataRecord.getVersion() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"version\": ");
+
+			sb.append("\"");
+
+			sb.append(_escape(dataRecord.getVersion()));
+
+			sb.append("\"");
+		}
+
 		sb.append("}");
 
 		return sb.toString();
@@ -126,6 +150,20 @@ public class DataRecordSerDes {
 			map.put("id", String.valueOf(dataRecord.getId()));
 		}
 
+		if (dataRecord.getStatus() == null) {
+			map.put("status", null);
+		}
+		else {
+			map.put("status", String.valueOf(dataRecord.getStatus()));
+		}
+
+		if (dataRecord.getVersion() == null) {
+			map.put("version", null);
+		}
+		else {
+			map.put("version", String.valueOf(dataRecord.getVersion()));
+		}
+
 		return map;
 	}
 
@@ -164,6 +202,17 @@ public class DataRecordSerDes {
 				if (jsonParserFieldValue != null) {
 					dataRecord.setId(
 						Long.valueOf((String)jsonParserFieldValue));
+				}
+			}
+			else if (Objects.equals(jsonParserFieldName, "status")) {
+				if (jsonParserFieldValue != null) {
+					dataRecord.setStatus(
+						Integer.valueOf((String)jsonParserFieldValue));
+				}
+			}
+			else if (Objects.equals(jsonParserFieldName, "version")) {
+				if (jsonParserFieldValue != null) {
+					dataRecord.setVersion((String)jsonParserFieldValue);
 				}
 			}
 			else if (jsonParserFieldName.equals("status")) {
