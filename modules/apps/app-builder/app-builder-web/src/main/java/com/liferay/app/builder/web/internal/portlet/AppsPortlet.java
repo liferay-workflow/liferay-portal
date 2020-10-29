@@ -15,23 +15,24 @@
 package com.liferay.app.builder.web.internal.portlet;
 
 import com.liferay.app.builder.constants.AppBuilderPortletKeys;
+import com.liferay.app.builder.model.AppBuilderApp;
 import com.liferay.app.builder.portlet.tab.AppBuilderAppsPortletTab;
 import com.liferay.app.builder.web.internal.configuration.AppBuilderConfiguration;
 import com.liferay.app.builder.web.internal.constants.AppBuilderWebKeys;
+import com.liferay.dynamic.data.lists.model.DDLRecord;
 import com.liferay.frontend.js.loader.modules.extender.npm.NPMResolver;
 import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMap;
 import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMapFactory;
 import com.liferay.portal.configuration.metatype.bnd.util.ConfigurableUtil;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCPortlet;
+import com.liferay.portal.kernel.security.permission.ResourceActionsUtil;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.WebKeys;
 
 import java.io.IOException;
-
 import java.util.LinkedHashMap;
 import java.util.Map;
-
 import javax.portlet.Portlet;
 import javax.portlet.PortletException;
 import javax.portlet.RenderRequest;
@@ -101,6 +102,10 @@ public class AppsPortlet extends MVCPortlet {
 		renderRequest.setAttribute(
 			AppBuilderWebKeys.SHOW_TRANSLATION_MANAGER,
 			_appBuilderConfiguration.showTranslationManager());
+		renderRequest.setAttribute(
+			AppBuilderWebKeys.WORKFLOW_CLASS_NAME,
+			ResourceActionsUtil.getCompositeModelName(
+				AppBuilderApp.class.getName(), DDLRecord.class.getName()));
 
 		super.render(renderRequest, renderResponse);
 	}
