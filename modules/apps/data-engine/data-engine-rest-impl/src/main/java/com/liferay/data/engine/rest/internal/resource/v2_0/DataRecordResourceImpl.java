@@ -373,7 +373,11 @@ public class DataRecordResourceImpl
 
 		_ddlRecordLocalService.updateRecord(
 			PrincipalThreadLocal.getUserId(), dataRecordId, ddmStorageId,
-			new ServiceContext());
+			new ServiceContext() {
+				{
+					setAttribute("status", ddlRecordSetVersion.getStatus());
+				}
+			});
 
 		return dataRecord;
 	}
@@ -570,6 +574,8 @@ public class DataRecordResourceImpl
 				dataRecordValues = dataStorage.get(
 					ddmStructure.getStructureId(), ddlRecord.getDDMStorageId());
 				id = ddlRecord.getRecordId();
+				status = ddlRecord.getStatus();
+				version = ddlRecord.getVersion();
 			}
 		};
 	}

@@ -137,6 +137,62 @@ public class DataRecord implements Serializable {
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
 	protected Long id;
 
+	@Schema
+	public Integer getStatus() {
+		return status;
+	}
+
+	public void setStatus(Integer status) {
+		this.status = status;
+	}
+
+	@JsonIgnore
+	public void setStatus(
+		UnsafeSupplier<Integer, Exception> statusUnsafeSupplier) {
+
+		try {
+			status = statusUnsafeSupplier.get();
+		}
+		catch (RuntimeException re) {
+			throw re;
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@GraphQLField
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	protected Integer status;
+
+	@Schema
+	public String getVersion() {
+		return version;
+	}
+
+	public void setVersion(String version) {
+		this.version = version;
+	}
+
+	@JsonIgnore
+	public void setVersion(
+		UnsafeSupplier<String, Exception> versionUnsafeSupplier) {
+
+		try {
+			version = versionUnsafeSupplier.get();
+		}
+		catch (RuntimeException re) {
+			throw re;
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@GraphQLField
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	protected String version;
+
 	@Override
 	public boolean equals(Object object) {
 		if (this == object) {
@@ -192,6 +248,30 @@ public class DataRecord implements Serializable {
 			sb.append("\"id\": ");
 
 			sb.append(id);
+		}
+
+		if (status != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"status\": ");
+
+			sb.append(status);
+		}
+
+		if (version != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"version\": ");
+
+			sb.append("\"");
+
+			sb.append(_escape(version));
+
+			sb.append("\"");
 		}
 
 		sb.append("}");
