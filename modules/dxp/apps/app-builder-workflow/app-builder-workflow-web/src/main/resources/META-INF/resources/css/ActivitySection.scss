@@ -1,0 +1,75 @@
+.activity-section {
+	overflow: hidden;
+	padding-bottom: 1.5rem;
+
+	.activity-collapsable {
+		margin-bottom: 1rem;
+
+		.activity {
+			padding: 14px 0;
+
+			&:not(:first-child) {
+				border-top: solid thin #e7e7ed;
+			}
+
+			&:last-child {
+				padding-bottom: 0;
+			}
+
+			&__content {
+				margin-left: 3rem;
+				margin-right: 2rem;
+			}
+
+			&__header {
+				display: flex;
+				font-size: 16px;
+
+				p {
+					margin-left: 1rem;
+					max-width: 90%;
+				}
+
+				span.person-name {
+					font-weight: 600;
+					margin-right: 0.25rem;
+				}
+			}
+		}
+
+		&__arrow {
+			color: #6b6c7e;
+			transition: transform 0.2s ease-in-out;
+
+			&.collapsed {
+				transform: rotate(-90deg);
+			}
+		}
+
+		&__content {
+			height: auto;
+			max-height: 50vh;
+			transition: max-height 0.3s ease-in-out;
+
+			&.collapsed {
+				max-height: 0;
+				overflow: hidden;
+			}
+		}
+
+		&__header {
+			align-items: center;
+			border-bottom: 1px solid #a7a9bc;
+			cursor: pointer;
+			display: flex;
+			justify-content: space-between;
+			padding-bottom: 4px;
+		}
+
+		&__title {
+			color: #272833;
+			font-weight: 600;
+			text-transform: uppercase;
+		}
+	}
+}
