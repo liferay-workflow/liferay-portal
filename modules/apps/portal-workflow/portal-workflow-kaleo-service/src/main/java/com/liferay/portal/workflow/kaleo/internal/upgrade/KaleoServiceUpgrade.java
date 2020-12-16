@@ -15,6 +15,7 @@
 package com.liferay.portal.workflow.kaleo.internal.upgrade;
 
 import com.liferay.portal.kernel.upgrade.BaseUpgradeSQLServerDatetime;
+import com.liferay.portal.kernel.upgrade.DummyUpgradeProcess;
 import com.liferay.portal.upgrade.registry.UpgradeStepRegistrator;
 import com.liferay.portal.workflow.kaleo.internal.upgrade.v1_0_0.UpgradeKaleoTaskInstanceToken;
 import com.liferay.portal.workflow.kaleo.internal.upgrade.v1_1_0.UpgradeWorkflowContext;
@@ -98,8 +99,10 @@ public class KaleoServiceUpgrade implements UpgradeStepRegistrator {
 		registry.register(
 			"1.4.0", "1.4.1", new UpgradeKaleoDefinitionVersion());
 
+		registry.register("1.4.1", "1.4.2", new DummyUpgradeProcess());
+
 		registry.register(
-			"1.4.1", "2.0.0",
+			"1.4.2", "2.0.0",
 			new BaseUpgradeSQLServerDatetime(
 				new Class<?>[] {
 					KaleoActionTable.class, KaleoConditionTable.class,
@@ -117,6 +120,24 @@ public class KaleoServiceUpgrade implements UpgradeStepRegistrator {
 				}),
 			new com.liferay.portal.workflow.kaleo.internal.upgrade.v2_0_0.
 				UpgradeSchema());
+
+		registry.register(
+			"1.4.2", "2.0.0",
+			new BaseUpgradeSQLServerDatetime(
+				new Class<?>[] {
+					KaleoActionTable.class, KaleoConditionTable.class,
+					KaleoDefinitionTable.class,
+					KaleoDefinitionVersionTable.class, KaleoInstanceTable.class,
+					KaleoInstanceTokenTable.class, KaleoLogTable.class,
+					KaleoNodeTable.class, KaleoNotificationRecipientTable.class,
+					KaleoNotificationTable.class,
+					KaleoTaskAssignmentInstanceTable.class,
+					KaleoTaskAssignmentTable.class,
+					KaleoTaskFormInstanceTable.class, KaleoTaskFormTable.class,
+					KaleoTaskInstanceTokenTable.class, KaleoTaskTable.class,
+					KaleoTimerInstanceTokenTable.class, KaleoTimerTable.class,
+					KaleoTransitionTable.class
+				}));
 
 		registry.register(
 			"2.0.0", "2.0.1", new UpgradeMessageBoardsClassName());
