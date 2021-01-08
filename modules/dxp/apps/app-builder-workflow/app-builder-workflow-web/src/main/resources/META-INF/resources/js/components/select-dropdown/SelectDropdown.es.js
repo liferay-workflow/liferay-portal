@@ -16,6 +16,7 @@ import React from 'react';
 
 export default function SelectDropdown({
 	ariaLabelId,
+	children,
 	emptyResultMessage,
 	items = [],
 	label,
@@ -56,7 +57,9 @@ export default function SelectDropdown({
 					emptyResultMessage={emptyResultMessage}
 					items={items}
 					onSelect={onSelect}
-				/>
+				>
+					{children}
+				</DropDownWithSearch.Items>
 			</DropDownWithSearch>
 		</>
 	);
