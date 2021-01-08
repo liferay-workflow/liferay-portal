@@ -248,6 +248,10 @@ $navbarHeight: 120px;
 	max-width: 200px;
 }
 
+.help-cursor {
+	cursor: help;
+}
+
 .outline-text {
 	background-color: white;
 	font-size: 12px;
@@ -293,10 +297,6 @@ $navbarHeight: 120px;
 	fill: #da1414;
 	margin-left: auto;
 	min-width: 1em;
-}
-
-.tooltip-icon:hover {
-	fill: #6b6c7e;
 }
 
 .version-badge {
