@@ -520,7 +520,9 @@ export default function DataAndViewsTab({
 										),
 								}}
 								selectedValue={formView.name}
-							/>
+							>
+								{SelectFormView.Item}
+							</SelectFormView>
 
 							<h5 className="mt-3 text-secondary text-uppercase">
 								{Liferay.Language.get('display-data')}
