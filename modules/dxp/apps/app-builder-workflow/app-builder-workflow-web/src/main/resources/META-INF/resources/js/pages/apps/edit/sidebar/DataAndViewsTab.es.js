@@ -30,7 +30,6 @@ import {DataDefinitionUtils} from 'data-engine-taglib';
 import {openModal} from 'frontend-js-web';
 import React, {useContext} from 'react';
 
-import SelectDropdown from '../../../../components/select-dropdown/SelectDropdown.es';
 import {getFormViews, getTableViews} from '../actions.es';
 import {
 	ADD_STEP_FORM_VIEW,
@@ -42,6 +41,8 @@ import {
 	UPDATE_STEP_FORM_VIEW_READONLY,
 	UPDATE_TABLE_VIEW,
 } from '../configReducer.es';
+import SelectFormView from './SelectFormView.es';
+import SelectTableView from './SelectTableView.es';
 
 const NoObjectEmptyState = () => (
 	<div className="taglib-empty-result-message">
@@ -59,7 +60,7 @@ const NoObjectEmptyState = () => (
 	</div>
 );
 
-const OpenButton = (props) => (
+export const OpenButton = (props) => (
 	<ClayTooltipProvider>
 		<Button
 			className="ml-2 px-2 tap-ahead-icon-wrapper"
@@ -72,58 +73,6 @@ const OpenButton = (props) => (
 		/>
 	</ClayTooltipProvider>
 );
-
-const SelectFormView = ({openButtonProps, ...props}) => {
-	props = {
-		...props,
-		emptyResultMessage: Liferay.Language.get(
-			'no-form-views-were-found-with-this-name-try-searching-again-with-a-different-name'
-		),
-		label: Liferay.Language.get('select-a-form-view'),
-		stateProps: {
-			emptyProps: {
-				label: Liferay.Language.get('there-are-no-form-views-yet'),
-			},
-			loadingProps: {
-				label: Liferay.Language.get('retrieving-all-form-views'),
-			},
-		},
-	};
-
-	return (
-		<div className="d-flex">
-			<SelectDropdown {...props} />
-
-			<OpenButton {...openButtonProps} />
-		</div>
-	);
-};
-
-const SelectTableView = ({openButtonProps, ...props}) => {
-	props = {
-		...props,
-		emptyResultMessage: Liferay.Language.get(
-			'no-table-views-were-found-with-this-name-try-searching-again-with-a-different-name'
-		),
-		label: Liferay.Language.get('select-a-table-view'),
-		stateProps: {
-			emptyProps: {
-				label: Liferay.Language.get('there-are-no-table-views-yet'),
-			},
-			loadingProps: {
-				label: Liferay.Language.get('retrieving-all-table-views'),
-			},
-		},
-	};
-
-	return (
-		<div className="d-flex">
-			<SelectDropdown {...props} />
-
-			<OpenButton {...openButtonProps} />
-		</div>
-	);
-};
 
 export default function DataAndViewsTab({
 	config: {
