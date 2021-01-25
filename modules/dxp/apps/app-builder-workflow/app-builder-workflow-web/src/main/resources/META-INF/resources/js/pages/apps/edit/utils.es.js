@@ -45,13 +45,22 @@ export function canDeployApp(app, config) {
 export function checkRequiredFields(formViews = [], dataDefinition) {
 	const requiredFields = dataDefinition.dataDefinitionFields
 		.filter(({required}) => required)
-		.map(({name}) => name);
+		.map(({customProperties: {nativeField}, name}) => ({
+			name,
+			nativeField,
+		}));
 
 	return formViews.map((formView) => ({
 		...formView,
-		missingRequiredFields: !requiredFields.every((field) =>
-			formView.fields.includes(field)
-		),
+		missingRequiredFields: {
+			missing: !requiredFields.every(({name: fieldName}) =>
+				formView.fields.includes(fieldName)
+			),
+			nativeField: requiredFields.some(
+				({name, nativeField}) =>
+					!formView.fields.includes(name) && nativeField
+			),
+		},
 	}));
 }
 
