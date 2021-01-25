@@ -25,16 +25,29 @@ import DropDownWithSearch from '../dropdown-with-search/DropDownWithSearch.es';
 import NewCustomObjectModal from './NewCustomObjectModal.es';
 
 export function getDataObjects() {
-	return getItem(
-		'/o/data-engine/v2.0/data-definitions/by-content-type/app-builder',
-		{keywords: '', page: -1, pageSize: -1, sort: ''}
-	).then(({items}) =>
-		items.map((item) => ({
-			...item,
-			name: getLocalizedValue(item.defaultLanguageId, item.name),
-			type: 'custom',
-		}))
-	);
+	return Promise.all([
+		getItem(
+			'/o/data-engine/v2.0/data-definitions/by-content-type/app-builder',
+			{keywords: '', page: -1, pageSize: -1, sort: ''}
+		),
+		getItem(
+			'/o/data-engine/v2.0/data-definitions/by-content-type/native-object',
+			{keywords: '', page: -1, pageSize: -1, sort: ''}
+		),
+	]).then(([{items: customObjectItems}, {items: nativeObjectItems}]) => {
+		return [
+			...customObjectItems.map((item) => ({
+				...item,
+				name: getLocalizedValue(item.defaultLanguageId, item.name),
+				type: 'custom',
+			})),
+			...nativeObjectItems.map((item) => ({
+				...item,
+				name: getLocalizedValue(item.defaultLanguageId, item.name),
+				type: 'native',
+			})),
+		];
+	});
 }
 
 export default function SelectObjects({
