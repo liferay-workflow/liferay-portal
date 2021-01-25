@@ -12,25 +12,27 @@
 import ClayIcon from '@clayui/icon';
 import EditAppContext from 'app-builder-web/js/pages/apps/edit/EditAppContext.es';
 import {sub} from 'app-builder-web/js/utils/lang.es';
+import classNames from 'classnames';
 import React, {useContext, useState} from 'react';
 
 import IconWithPopover from '../../../../components/icon-with-popover/IconWithPopover.es';
 import SelectDropdown from '../../../../components/select-dropdown/SelectDropdown.es';
 import {OpenButton} from './DataAndViewsTab.es';
 
-const Item = ({missingRequiredFields, name}) => {
+const Item = ({
+	missingRequiredFields: {missing: missingField = false, nativeField} = {},
+	name,
+}) => {
 	const {
 		config: {dataObject},
 	} = useContext(EditAppContext);
 	const [showPopover, setShowPopover] = useState(false);
 
 	const triggerProps = {
-		className: 'dropdown-button-asset help-cursor text-info',
-		triggerProps: {
-			onMouseOut: () => setShowPopover(false),
-			onMouseOver: () => setShowPopover(true),
-			symbol: 'info-circle',
-		},
+		className: classNames(!nativeField ? 'text-info' : 'text-danger'),
+		onMouseOut: () => setShowPopover(false),
+		onMouseOver: () => setShowPopover(true),
+		symbol: 'info-circle',
 	};
 
 	return (
@@ -42,11 +44,15 @@ const Item = ({missingRequiredFields, name}) => {
 				{name}
 			</span>
 
-			{missingRequiredFields && (
+			{missingField && (
 				<IconWithPopover
 					header={<PopoverHeader />}
 					show={showPopover}
-					triggerProps={triggerProps}
+					trigger={
+						<div className="dropdown-button-asset help-cursor">
+							<IconWithPopover.TriggerIcon {...triggerProps} />
+						</div>
+					}
 				>
 					{sub(
 						Liferay.Language.get(
