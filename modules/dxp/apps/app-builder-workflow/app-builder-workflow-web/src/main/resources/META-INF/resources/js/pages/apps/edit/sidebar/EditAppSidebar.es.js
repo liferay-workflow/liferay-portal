@@ -43,7 +43,7 @@ export default function EditAppSidebar() {
 	} = editAppContext;
 	const [currentTab, setCurrentTab] = useState();
 	const [showPopover, setShowPopover] = useState(false);
-
+	
 	const {
 		appWorkflowTransitions: [primaryAction, secondaryAction] = [],
 		appWorkflowDataLayoutLinks = [{}],
