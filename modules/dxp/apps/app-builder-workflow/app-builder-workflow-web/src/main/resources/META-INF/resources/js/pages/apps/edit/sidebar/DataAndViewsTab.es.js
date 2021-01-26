@@ -41,6 +41,7 @@ import {
 	UPDATE_STEP_FORM_VIEW_READONLY,
 	UPDATE_TABLE_VIEW,
 } from '../configReducer.es';
+import {checkRequiredFields} from '../utils.es';
 import SelectFormView from './SelectFormView.es';
 import SelectTableView from './SelectTableView.es';
 
@@ -181,7 +182,7 @@ export default function DataAndViewsTab({
 	) => {
 		const event = window.top?.Liferay.once(
 			'newFormViewCreated',
-			({newFormView}) => {
+			({dataDefinition, newFormView}) => {
 				successToast(
 					Liferay.Language.get('the-form-view-was-saved-successfully')
 				);
@@ -191,7 +192,10 @@ export default function DataAndViewsTab({
 						dispatchConfig({
 							listItems: {
 								fetching: false,
-								formViews,
+								formViews: checkRequiredFields(
+									formViews,
+									dataDefinition
+								),
 							},
 							type: UPDATE_LIST_ITEMS,
 						});

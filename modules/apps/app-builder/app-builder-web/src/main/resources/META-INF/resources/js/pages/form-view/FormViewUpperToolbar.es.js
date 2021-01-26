@@ -112,6 +112,7 @@ export default function FormViewUpperToolbar({newCustomObject, popUpWindow}) {
 			const tLiferay = window.top?.Liferay;
 
 			tLiferay.fire('newFormViewCreated', {
+				dataDefinition,
 				newFormView,
 			});
 
