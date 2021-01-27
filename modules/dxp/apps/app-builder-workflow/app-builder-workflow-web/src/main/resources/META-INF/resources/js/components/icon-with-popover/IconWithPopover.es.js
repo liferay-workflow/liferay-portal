@@ -13,7 +13,14 @@ import ClayIcon from '@clayui/icon';
 import ClayPopover from '@clayui/popover';
 import React from 'react';
 
-const IconWithPopover = ({children: content, header, show, trigger}) => {
+const IconWithPopover = ({
+	children: content,
+	header,
+	popoverProps,
+	show,
+	trigger,
+	...restProps
+}) => {
 	return (
 		<ClayPopover
 			alignPosition="left"
@@ -21,21 +28,16 @@ const IconWithPopover = ({children: content, header, show, trigger}) => {
 			header={header}
 			show={show}
 			trigger={trigger}
+			{...popoverProps}
+			{...restProps}
 		>
 			{content}
 		</ClayPopover>
 	);
 };
 
-const TriggerIcon = ({onMouseOut, onMouseOver, symbol, ...restProps}) => {
-	return (
-		<ClayIcon
-			onMouseOut={onMouseOut}
-			onMouseOver={onMouseOver}
-			symbol={symbol}
-			{...restProps}
-		/>
-	);
+const TriggerIcon = ({iconProps, symbol, ...restProps}) => {
+	return <ClayIcon symbol={symbol} {...iconProps} {...restProps} />;
 };
 
 IconWithPopover.TriggerIcon = TriggerIcon;
