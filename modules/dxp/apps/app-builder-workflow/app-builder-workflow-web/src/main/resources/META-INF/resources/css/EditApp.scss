@@ -249,13 +249,39 @@ $navbarHeight: 120px;
 		margin-top: unset;
 		position: absolute;
 		right: 12px;
-		top: 1rem;
 		width: 2rem;
+
+		.icon {
+			border: 5px solid;
+			border-radius: 50%;
+			font-size: 1.75em;
+
+			&.text-danger {
+				border-color: #fde7e8;
+				fill: #da1414;
+			}
+
+			&.text-info {
+				border-color: #eef2fa;
+				fill: #2e5aac;
+			}
+		}
 	}
 }
 
 .dropdown-button-title {
 	max-width: 200px;
+}
+
+.dropdown-popover-form-view {
+	&.popover {
+		max-width: 262px;
+
+		.popover-body {
+			display: flex;
+			flex-wrap: wrap;
+		}
+	}
 }
 
 .help-cursor {
