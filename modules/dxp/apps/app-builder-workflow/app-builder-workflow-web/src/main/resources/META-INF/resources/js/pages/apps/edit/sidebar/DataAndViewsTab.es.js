@@ -28,7 +28,7 @@ import {concatValues} from 'app-builder-web/js/utils/utils.es';
 import classNames from 'classnames';
 import {DataDefinitionUtils} from 'data-engine-taglib';
 import {openModal} from 'frontend-js-web';
-import React, {useContext} from 'react';
+import React, {createContext, useContext} from 'react';
 
 import {getFormViews, getTableViews} from '../actions.es';
 import {
@@ -44,6 +44,8 @@ import {
 import {checkRequiredFields} from '../utils.es';
 import SelectFormView from './SelectFormView.es';
 import SelectTableView from './SelectTableView.es';
+
+export const DataAndViewsTabContext = createContext();
 
 const NoObjectEmptyState = () => (
 	<div className="taglib-empty-result-message">
@@ -340,7 +342,9 @@ export default function DataAndViewsTab({
 	}
 
 	return (
-		<>
+		<DataAndViewsTabContext.Provider
+			value={{openFormViewModal, updateFormView}}
+		>
 			{stepIndex > 0 ? (
 				<>
 					{duplicatedFields.length > 0 && (
@@ -571,6 +575,6 @@ export default function DataAndViewsTab({
 					)}
 				</>
 			)}
-		</>
+		</DataAndViewsTabContext.Provider>
 	);
 }
