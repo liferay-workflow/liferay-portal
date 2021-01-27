@@ -9,17 +9,18 @@
  * distribution rights of the Software.
  */
 
+import ClayButton from '@clayui/button';
 import ClayIcon from '@clayui/icon';
 import EditAppContext from 'app-builder-web/js/pages/apps/edit/EditAppContext.es';
 import {sub} from 'app-builder-web/js/utils/lang.es';
-import classNames from 'classnames';
 import React, {useContext, useState} from 'react';
 
 import IconWithPopover from '../../../../components/icon-with-popover/IconWithPopover.es';
 import SelectDropdown from '../../../../components/select-dropdown/SelectDropdown.es';
-import {OpenButton} from './DataAndViewsTab.es';
+import {DataAndViewsTabContext, OpenButton} from './DataAndViewsTab.es';
 
 const Item = ({
+	id,
 	missingRequiredFields: {missing: missingField = false, nativeField} = {},
 	name,
 }) => {
@@ -28,11 +29,23 @@ const Item = ({
 	} = useContext(EditAppContext);
 	const [showPopover, setShowPopover] = useState(false);
 
-	const triggerProps = {
-		className: classNames(!nativeField ? 'text-info' : 'text-danger'),
-		onMouseOut: () => setShowPopover(false),
-		onMouseOver: () => setShowPopover(true),
-		symbol: 'info-circle',
+	const {custom, native} = {
+		custom: {
+			triggerProps: {
+				className: ' icon text-info',
+				symbol: 'info-circle',
+			},
+		},
+		native: {
+			popoverProps: {
+				onMouseEnter: () => setShowPopover(true),
+				onMouseLeave: () => setShowPopover(false),
+			},
+			triggerProps: {
+				className: 'icon text-danger',
+				symbol: 'exclamation-full',
+			},
+		},
 	};
 
 	return (
@@ -46,30 +59,92 @@ const Item = ({
 
 			{missingField && (
 				<IconWithPopover
-					header={<PopoverHeader />}
+					className="dropdown-popover-form-view"
+					header={<PopoverHeader nativeField={nativeField} />}
+					popoverProps={nativeField && {...native.popoverProps}}
 					show={showPopover}
 					trigger={
 						<div className="dropdown-button-asset help-cursor">
-							<IconWithPopover.TriggerIcon {...triggerProps} />
+							<IconWithPopover.TriggerIcon
+								iconProps={
+									nativeField
+										? native.triggerProps
+										: custom.triggerProps
+								}
+								onMouseEnter={() => setShowPopover(true)}
+								onMouseLeave={() => setShowPopover(false)}
+								onMouseOver={() => setShowPopover(true)}
+							/>
 						</div>
 					}
 				>
-					{sub(
-						Liferay.Language.get(
-							'this-form-view-does-not-contain-all-required-fields-for-the-x-object'
-						),
-						[dataObject.name]
-					)}
+					<PopoverContent
+						dataObject={dataObject}
+						id={id}
+						nativeField={nativeField}
+					/>
 				</IconWithPopover>
 			)}
 		</>
 	);
 };
 
-const PopoverHeader = () => {
+const PopoverContent = ({
+	dataObject: {defaultLanguageId, id, name},
+	id: formViewId,
+	nativeField,
+}) => {
+	const {openFormViewModal, updateFormView} = useContext(
+		DataAndViewsTabContext
+	);
+
+	const {custom, native} = {
+		custom: {
+			content: sub(
+				Liferay.Language.get('this-form-view-must-include-all-fields'),
+				[name]
+			),
+		},
+		native: {
+			content: (
+				<>
+					{sub(
+						Liferay.Language.get(
+							'this-form-view-does-not-contain-all-required-fields-and-cannot-be-used'
+						),
+						[name]
+					)}
+
+					<ClayButton
+						className="mt-3"
+						displayType="secondary"
+						onClick={() =>
+							openFormViewModal(
+								id,
+								defaultLanguageId,
+								updateFormView,
+								formViewId
+							)
+						}
+					>
+						<span className="text-secondary">
+							{Liferay.Language.get('edit-form-view')}
+						</span>
+					</ClayButton>
+				</>
+			),
+		},
+	};
+
+	return nativeField ? native.content : custom.content;
+};
+
+const PopoverHeader = ({nativeField}) => {
 	return (
 		<>
-			<ClayIcon className="mr-1 text-info" symbol="info-circle" />
+			{!nativeField && (
+				<ClayIcon className="mr-1 text-info" symbol="info-circle" />
+			)}
 
 			<span>{Liferay.Language.get('missing-required-fields')}</span>
 		</>
