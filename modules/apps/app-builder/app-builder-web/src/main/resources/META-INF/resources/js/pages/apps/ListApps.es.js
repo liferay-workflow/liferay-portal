@@ -34,13 +34,51 @@ import {
 	STATUSES,
 } from './constants.es';
 
-export const Actions = () => {
+export const Actions = (
+	checkRequiredFields,
+	getDataDefinition,
+	getFormViews,
+	setCurrentApp,
+	setDeployCallback,
+	setMissingFieldsModalVisible
+) => {
 	const {getStandaloneURL} = useContext(AppContext);
 	const {deployApp, undeployApp} = useDeployApp();
 
+	const isFormViewMissingFields = (app) => {
+		return getDataDefinition(app.dataDefinitionId).then(
+			(dataDefinition) => {
+				setCurrentApp(app);
+
+				getFormViews(
+					dataDefinition.id,
+					dataDefinition.defaultLanguageId
+				).then((formViews) => {
+					formViews = checkRequiredFields(formViews, dataDefinition);
+
+					return formViews.find(({id}) => id === app.dataLayoutId)
+						.missingRequiredFields;
+				});
+			}
+		);
+	};
+
 	return [
 		{
-			action: (app) => (app.active ? undeployApp(app) : deployApp(app)),
+			action: (app) => {
+				if (app.active) {
+					return undeployApp(app);
+				}
+
+				if (isFormViewMissingFields(app)) {
+					return new Promise((resolve, reject) => {
+						setDeployCallback({reject, resolve});
+						setMissingFieldsModalVisible(true);
+					});
+				}
+
+				return deployApp(app);
+			},
 			name: ({active}) =>
 				DEPLOYMENT_ACTION[active ? 'undeploy' : 'deploy'],
 			show: ({appDeployments}) => appDeployments.length > 0,
