@@ -115,6 +115,13 @@ export default function DataAndViewsTab({
 		});
 	};
 
+	const mainFormViews = formViews.map((form) => ({
+		...form,
+		disabled:
+			form.missingRequiredFields?.missing &&
+			form.missingRequiredFields?.nativeField,
+	}));
+
 	const removeStepFormView = (index) => {
 		dispatchConfig({
 			index,
@@ -521,9 +528,9 @@ export default function DataAndViewsTab({
 								isLoading={fetching}
 								items={
 									app.active
-										? formViews
+										? mainFormViews
 										: checkRequiredFields(
-												formViews,
+												mainFormViews,
 												config.dataObject
 										  )
 								}
