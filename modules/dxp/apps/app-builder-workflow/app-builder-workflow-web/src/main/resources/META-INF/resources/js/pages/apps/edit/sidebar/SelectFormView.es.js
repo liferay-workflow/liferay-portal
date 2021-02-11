@@ -20,11 +20,7 @@ import IconWithPopover from '../../../../components/icon-with-popover/IconWithPo
 import SelectDropdown from '../../../../components/select-dropdown/SelectDropdown.es';
 import {DataAndViewsTabContext, OpenButton} from './DataAndViewsTab.es';
 
-const Item = ({
-	id,
-	missingRequiredFields: {customField = false, nativeField} = {},
-	name,
-}) => {
+const Item = ({id, name, warningIcon: {customIcon, nativeIcon}}) => {
 	const {openFormViewModal, updateFormView} = useContext(
 		DataAndViewsTabContext
 	);
@@ -64,17 +60,17 @@ const Item = ({
 				{name}
 			</span>
 
-			{(customField || nativeField) && (
+			{(nativeIcon || customIcon) && (
 				<IconWithPopover
 					className="dropdown-popover-form-view"
-					header={<PopoverHeader nativeField={nativeField} />}
+					header={<PopoverHeader nativeField={nativeIcon} />}
 					popoverProps={popoverProps}
 					show={showPopover}
 					trigger={
 						<div className="dropdown-button-asset help-cursor">
 							<IconWithPopover.TriggerIcon
 								iconProps={
-									nativeField
+									nativeIcon
 										? native.triggerProps
 										: custom.triggerProps
 								}
@@ -99,7 +95,7 @@ const Item = ({
 							},
 						}}
 						dataObjectName={dataObject.name}
-						nativeField={nativeField}
+						nativeField={nativeIcon}
 					/>
 				</IconWithPopover>
 			)}
