@@ -22,5 +22,8 @@
 			"dxp/apps/*/*/*",
 			"dxp/apps/osb/*/*/*"
 		]
+	},
+	"dependencies": {
+		"react-flow-renderer": "^9.1.0"
 	}
 }
