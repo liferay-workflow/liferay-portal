@@ -80,7 +80,6 @@ export default function DataAndViewsTab({
 		dataObject,
 		formView,
 		listItems: {fetching, formViews, tableViews},
-		stepIndex,
 		tableView,
 	},
 	dispatch,
@@ -302,7 +301,7 @@ export default function DataAndViewsTab({
 
 	return (
 		<>
-			{stepIndex > 0 ? (
+			{!currentStep?.initial ? (
 				<>
 					{duplicatedFields.length > 0 && (
 						<ClayAlert

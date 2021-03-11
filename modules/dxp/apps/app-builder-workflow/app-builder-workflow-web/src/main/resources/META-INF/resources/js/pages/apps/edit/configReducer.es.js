@@ -21,6 +21,7 @@ export const REMOVE_STEP = 'REMOVE_STEP';
 export const REMOVE_STEP_ACTION = 'REMOVE_STEP_ACTION';
 export const REMOVE_STEP_FORM_VIEW = 'REMOVE_STEP_FORM_VIEW';
 export const UPDATE_CONFIG = 'UPDATE_CONFIG';
+export const UPDATE_CURRENT_STEP = 'UPDATE_CURRENT_STEP';
 export const UPDATE_DATA_OBJECT = 'UPDATE_DATA_OBJECT';
 export const UPDATE_FORM_VIEW = 'UPDATE_FORM_VIEW';
 export const UPDATE_LIST_ITEMS = 'UPDATE_LIST_ITEMS';
@@ -42,10 +43,19 @@ export const getInitialConfig = () => {
 					transitionTo: Liferay.Language.get('final-step'),
 				},
 			],
+			id: 0,
 			initial: true,
 			name: Liferay.Language.get('initial-step'),
+			position: {x: 200, y: 100},
+			type: 'workflowNode',
 		},
-		{initial: false, name: Liferay.Language.get('final-step')},
+		{
+			id: 800,
+			initial: false,
+			name: Liferay.Language.get('final-step'),
+			position: {x: 205, y: 300},
+			type: 'workflowNode',
+		},
 	];
 
 	return {
@@ -74,11 +84,6 @@ export default (state, action) => {
 		case ADD_STEP: {
 			const appWorkflowDataLayoutLinks = [];
 			const stepIndex = action.stepIndex + 1;
-			const workflowSteps = [...state.steps];
-
-			const finalStep = workflowSteps.pop();
-			const nextStep = workflowSteps[stepIndex];
-			const previousStep = workflowSteps[action.stepIndex];
 
 			if (state.formView.id) {
 				appWorkflowDataLayoutLinks.push({
@@ -95,7 +100,7 @@ export default (state, action) => {
 					{
 						name: Liferay.Language.get('submit'),
 						primary: true,
-						transitionTo: nextStep?.name ?? finalStep.name,
+						transitionTo: '',
 					},
 				],
 				errors: {
@@ -104,48 +109,19 @@ export default (state, action) => {
 						errorIndexes: [],
 					},
 				},
+				id: action.id,
 				name: sub(Liferay.Language.get('step-x'), [
 					state.steps.length - 1,
 				]),
+				position: action.stepPosition,
+				type: action.stepType,
 			};
-
-			if (stepIndex > 1) {
-				previousStep.appWorkflowDataLayoutLinks = previousStep.appWorkflowDataLayoutLinks.filter(
-					({dataLayoutId}) => dataLayoutId !== undefined
-				);
-
-				currentStep.appWorkflowDataLayoutLinks = previousStep.appWorkflowDataLayoutLinks.map(
-					(dataLayout) => ({
-						...dataLayout,
-						readOnly: true,
-					})
-				);
-				currentStep.errors.formViews = {
-					...previousStep.errors.formViews,
-				};
-			}
-
-			previousStep.appWorkflowTransitions.forEach((action) => {
-				if (action.primary) {
-					action.transitionTo = currentStep.name;
-				}
-			});
-
-			if (nextStep) {
-				nextStep.appWorkflowTransitions.forEach((action) => {
-					if (!action.primary) {
-						action.transitionTo = currentStep.name;
-					}
-				});
-			}
-
-			workflowSteps.splice(stepIndex, 0, currentStep);
 
 			return {
 				...state,
 				currentStep,
 				stepIndex,
-				steps: [...workflowSteps, finalStep],
+				steps: [...state.steps, currentStep],
 			};
 		}
 		case ADD_STEP_ACTION: {
@@ -242,6 +218,12 @@ export default (state, action) => {
 				draftConfig: JSON.parse(JSON.stringify(action.config)),
 			};
 		}
+		case UPDATE_CURRENT_STEP: {
+			return {
+				...state,
+				currentStep: state.steps.find(({id}) => id == action.id),
+			};
+		}
 		case UPDATE_DATA_OBJECT: {
 			state.steps.forEach((step) => {
 				if (step.appWorkflowDataLayoutLinks) {
@@ -297,28 +279,11 @@ export default (state, action) => {
 			};
 		}
 		case UPDATE_STEP: {
-			const {step: currentStep, stepIndex} = {...action};
-
-			if (stepIndex > 0) {
-				const previousStep = state.steps?.[stepIndex - 1];
-				const nextStep = state.steps?.[stepIndex + 1];
-
-				if (previousStep?.appWorkflowTransitions?.[0]) {
-					previousStep.appWorkflowTransitions[0].transitionTo =
-						currentStep.name;
-				}
-
-				if (nextStep?.appWorkflowTransitions?.[1]) {
-					nextStep.appWorkflowTransitions[1].transitionTo =
-						currentStep.name;
-				}
-			}
-
-			state.steps[stepIndex] = currentStep;
+			const step = (state.steps[action.step.id] = action.step);
 
 			return {
 				...state,
-				currentStep,
+				currentStep: step,
 			};
 		}
 		case UPDATE_STEP_ACTION: {

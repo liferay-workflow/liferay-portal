@@ -15,8 +15,6 @@ $navbarHeight: 120px;
 		.arrow {
 			display: flex;
 			justify-content: center;
-			min-height: 45px;
-			padding-left: 80.25px;
 			position: relative;
 
 			.arrow-plus-button {
@@ -27,9 +25,7 @@ $navbarHeight: 120px;
 				cursor: pointer;
 				font-size: 1rem;
 				height: 2rem;
-				margin-top: 43px;
 				padding: 10px 7px;
-				position: absolute;
 				width: 2rem;
 
 				&:hover {
@@ -77,19 +73,6 @@ $navbarHeight: 120px;
 					}
 				}
 				min-height: 120px;
-			}
-		}
-
-		.step {
-			display: flex;
-			width: 100%;
-
-			&:first-child {
-				margin-top: 3.5rem;
-			}
-
-			&:last-child {
-				margin-bottom: 3.5rem;
 			}
 		}
 
