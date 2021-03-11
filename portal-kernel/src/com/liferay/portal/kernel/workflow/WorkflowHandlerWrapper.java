@@ -95,11 +95,11 @@ public class WorkflowHandlerWrapper<T> implements WorkflowHandler<T> {
 	}
 
 	@Override
-	public String getURLEditWorkflowTask(
+	public String getURLNotificationRedirect(
 			long workflowTaskId, ServiceContext serviceContext)
 		throws PortalException {
 
-		return _workflowHandler.getURLEditWorkflowTask(
+		return _workflowHandler.getURLNotificationRedirect(
 			workflowTaskId, serviceContext);
 	}
 

@@ -150,7 +150,7 @@ public abstract class BaseWorkflowHandler<T> implements WorkflowHandler<T> {
 	}
 
 	@Override
-	public String getURLEditWorkflowTask(
+	public String getURLNotificationRedirect(
 			long workflowTaskId, ServiceContext serviceContext)
 		throws PortalException {
 

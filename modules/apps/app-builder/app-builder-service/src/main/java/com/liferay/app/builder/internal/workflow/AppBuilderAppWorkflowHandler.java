@@ -31,6 +31,7 @@ import com.liferay.portal.kernel.security.permission.ResourceActionsUtil;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.WorkflowDefinitionLinkLocalService;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.workflow.BaseWorkflowHandler;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.kernel.workflow.WorkflowHandler;
@@ -84,7 +85,7 @@ public class AppBuilderAppWorkflowHandler
 	}
 
 	@Override
-	public String getURLEditWorkflowTask(
+	public String getURLNotificationRedirect(
 			long workflowTaskId, ServiceContext serviceContext)
 		throws PortalException {
 
@@ -98,7 +99,8 @@ public class AppBuilderAppWorkflowHandler
 				appBuilderApp.getScope(),
 				AppBuilderAppConstants.SCOPE_STANDARD)) {
 
-			return super.getURLEditWorkflowTask(workflowTaskId, serviceContext);
+			return super.getURLNotificationRedirect(
+				workflowTaskId, serviceContext);
 		}
 
 		try {
@@ -108,12 +110,12 @@ public class AppBuilderAppWorkflowHandler
 				GetterUtil.getLong(serviceContext.getAttribute("plid")),
 				PortletRequest.RENDER_PHASE);
 
-			portletURL.setParameter("mvcPath", "/edit_app_entry.jsp");
-			portletURL.setParameter(
-				"dataRecordId", String.valueOf(ddlRecordId));
+			portletURL.setParameter("mvcPath", "/view_app_entries.jsp");
 			portletURL.setWindowState(WindowState.MAXIMIZED);
 
-			return portletURL.toString();
+			return StringUtil.replaceFirst(
+				portletURL.toString(), '?',
+				"#/view-entry/" + ddlRecordId + "?");
 		}
 		catch (WindowStateException windowStateException) {
 			throw new PortalException(windowStateException);

@@ -270,7 +270,7 @@ public class WorkflowTaskUserNotificationHandlerTest extends PowerMockito {
 						}
 
 						@Override
-						public String getURLEditWorkflowTask(
+						public String getURLNotificationRedirect(
 							long workflowTaskId,
 							ServiceContext serviceContext) {
 

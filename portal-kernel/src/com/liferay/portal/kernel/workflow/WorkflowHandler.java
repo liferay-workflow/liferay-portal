@@ -64,7 +64,7 @@ public interface WorkflowHandler<T> {
 		long classPK, LiferayPortletRequest liferayPortletRequest,
 		LiferayPortletResponse liferayPortletResponse);
 
-	public String getURLEditWorkflowTask(
+	public String getURLNotificationRedirect(
 			long workflowTaskId, ServiceContext serviceContext)
 		throws PortalException;
 

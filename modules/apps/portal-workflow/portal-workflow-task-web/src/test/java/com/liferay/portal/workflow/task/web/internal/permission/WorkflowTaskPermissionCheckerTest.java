@@ -510,7 +510,7 @@ public class WorkflowTaskPermissionCheckerTest extends PowerMockito {
 						}
 
 						@Override
-						public String getURLEditWorkflowTask(
+						public String getURLNotificationRedirect(
 							long workflowTaskId,
 							ServiceContext serviceContext) {
 
