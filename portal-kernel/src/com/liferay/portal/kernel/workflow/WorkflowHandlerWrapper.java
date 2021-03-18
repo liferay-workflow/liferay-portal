@@ -94,6 +94,11 @@ public class WorkflowHandlerWrapper<T> implements WorkflowHandler<T> {
 			classPK, liferayPortletRequest, liferayPortletResponse);
 	}
 
+	/**
+	 * @deprecated As of Cavanaugh (7.4.x), replaced by {@link
+	 *             #getURLNotificationLink(long, ServiceContext)}}
+	 */
+	@Deprecated
 	@Override
 	public String getURLEditWorkflowTask(
 			long workflowTaskId, ServiceContext serviceContext)
