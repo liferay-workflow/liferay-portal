@@ -49,7 +49,15 @@ const customObjectItems = {
 		{
 			availableLanguageIds: ['en_US', 'pt_BR'],
 			contentType: 'app-builder',
-			dataDefinitionFields: [{name: 'Text1', required: false}],
+			dataDefinitionFields: [
+				{
+					customProperties: {
+						nativeField: false,
+					},
+					name: 'Text1',
+					required: true,
+				},
+			],
 			dataDefinitionKey: '37496',
 			dateCreated: '2020-06-05T13:43:16Z',
 			dateModified: '2020-06-05T13:44:08Z',
@@ -384,11 +392,21 @@ describe('EditApp', () => {
 				'Form 01'
 			);
 
+			expect(
+				result.baseElement.querySelectorAll('.tooltip-popover-icon')
+					.length
+			).toBe(1);
+
 			await fireEvent.click(result.getByText('Form 02'));
 
 			expect(result.getByLabelText('form-view')).toHaveTextContent(
 				'Form 02'
 			);
+
+			expect(
+				result.baseElement.querySelectorAll('.tooltip-popover-icon')
+					.length
+			).toBe(2);
 
 			await fireEvent.click(result.getByText('Table 01'));
 
@@ -670,6 +688,24 @@ describe('EditApp', () => {
 			expect(result.getByLabelText('table-view')).toHaveTextContent(
 				'Table 01'
 			);
+
+			expect(
+				result.baseElement.querySelectorAll('.tooltip-popover-icon')
+					.length
+			).toBe(1);
+
+			await fireEvent.click(result.getAllByText('Form 02')[1]);
+
+			expect(result.getByLabelText('form-view')).toHaveTextContent(
+				'Form 02'
+			);
+
+			expect(
+				result.baseElement.querySelectorAll('.tooltip-popover-icon')
+					.length
+			).toBe(3);
+
+			await fireEvent.click(result.getAllByText('Form 01')[1]);
 
 			await fireEvent.click(steps[1]);
 
