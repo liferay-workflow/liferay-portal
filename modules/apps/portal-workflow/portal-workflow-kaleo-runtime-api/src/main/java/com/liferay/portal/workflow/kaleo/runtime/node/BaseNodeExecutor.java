@@ -58,15 +58,6 @@ public abstract class BaseNodeExecutor implements NodeExecutor {
 			KaleoNode.class.getName(), currentKaleoNode.getKaleoNodeId(),
 			ExecutionType.ON_ENTRY, executionContext);
 
-		List<KaleoTimer> kaleoTimers = kaleoTimerLocalService.getKaleoTimers(
-			KaleoNode.class.getName(), currentKaleoNode.getKaleoNodeId());
-
-		kaleoTimerInstanceTokenLocalService.addKaleoTimerInstanceTokens(
-			executionContext.getKaleoInstanceToken(),
-			executionContext.getKaleoTaskInstanceToken(), kaleoTimers,
-			executionContext.getWorkflowContext(),
-			executionContext.getServiceContext());
-
 		return performExecute;
 	}
 
@@ -83,6 +74,13 @@ public abstract class BaseNodeExecutor implements NodeExecutor {
 		doExecute(currentKaleoNode, executionContext, remainingPathElements);
 	}
 
+	/**
+	 * @deprecated As of Cavanaugh (7.4.x), with no direct replacement
+	 * @param currentKaleoNode
+	 * @param executionContext
+	 * @throws PortalException
+	 */
+	@Deprecated
 	@Override
 	public void executeTimer(
 			KaleoNode currentKaleoNode, ExecutionContext executionContext)
@@ -140,6 +138,14 @@ public abstract class BaseNodeExecutor implements NodeExecutor {
 			List<PathElement> remainingPathElements)
 		throws PortalException;
 
+	/**
+	 * @deprecated As of Cavanaugh (7.4.x), with no direct replacement
+	 * @param currentKaleoNode
+	 * @param kaleoTimer
+	 * @param executionContext
+	 * @throws PortalException
+	 */
+	@Deprecated
 	protected abstract void doExecuteTimer(
 			KaleoNode currentKaleoNode, KaleoTimer kaleoTimer,
 			ExecutionContext executionContext)
