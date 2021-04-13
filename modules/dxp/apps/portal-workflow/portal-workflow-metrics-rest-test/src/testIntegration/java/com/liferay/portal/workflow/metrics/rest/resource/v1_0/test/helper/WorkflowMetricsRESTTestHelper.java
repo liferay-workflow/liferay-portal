@@ -350,12 +350,14 @@ public class WorkflowMetricsRESTTestHelper {
 			Instance instance = addInstance(companyId, false, process.getId());
 
 			if (onTimeInstanceCount > 0) {
-				addSLAInstanceResult(companyId, instance, true);
+				addSLAInstanceResult(
+					companyId, instance, true, RandomTestUtil.randomLong());
 
 				onTimeInstanceCount--;
 			}
 			else if (overdueInstanceCount > 0) {
-				addSLAInstanceResult(companyId, instance, false);
+				addSLAInstanceResult(
+					companyId, instance, false, RandomTestUtil.randomLong());
 
 				overdueInstanceCount--;
 			}
@@ -392,10 +394,9 @@ public class WorkflowMetricsRESTTestHelper {
 	}
 
 	public void addSLAInstanceResult(
-			long companyId, Instance instance, boolean onTime)
+			long companyId, Instance instance, boolean onTime,
+			long slaDefinitionId)
 		throws Exception {
-
-		long slaDefinitionId = RandomTestUtil.randomLong();
 
 		_invokeAddDocument(
 			_getIndexer(_CLASS_NAME_SLA_INSTANCE_RESULT_INDEXER),

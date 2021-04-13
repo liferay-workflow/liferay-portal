@@ -29,6 +29,7 @@ import com.liferay.portal.workflow.metrics.rest.client.dto.v1_0.Assignee;
 import com.liferay.portal.workflow.metrics.rest.client.dto.v1_0.Creator;
 import com.liferay.portal.workflow.metrics.rest.client.dto.v1_0.Instance;
 import com.liferay.portal.workflow.metrics.rest.client.dto.v1_0.Process;
+import com.liferay.portal.workflow.metrics.rest.client.dto.v1_0.SLAResult;
 import com.liferay.portal.workflow.metrics.rest.client.pagination.Page;
 import com.liferay.portal.workflow.metrics.rest.client.pagination.Pagination;
 import com.liferay.portal.workflow.metrics.rest.resource.v1_0.test.helper.WorkflowMetricsRESTTestHelper;
@@ -38,8 +39,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -81,6 +84,7 @@ public class InstanceResourceTest extends BaseInstanceResourceTestCase {
 	public void testGetProcessInstancesPage() throws Exception {
 		super.testGetProcessInstancesPage();
 
+		_testGetProcessInstancesPage_setSLAResults();
 		_testGetProcessInstancesPage(
 			new Long[] {_user.getUserId()}, null, null,
 			(instance1, instance2, page) -> assertEquals(
@@ -183,6 +187,14 @@ public class InstanceResourceTest extends BaseInstanceResourceTestCase {
 				testGroup.getCompanyId(), instance);
 		}
 
+		if (instance.getSlaResults() != null) {
+			for (SLAResult slaResult : instance.getSlaResults()) {
+				_workflowMetricsRESTTestHelper.addSLAInstanceResult(
+					testGroup.getCompanyId(), instance, false,
+					slaResult.getId());
+			}
+		}
+
 		_instances.add(instance);
 
 		return instance;
@@ -215,6 +227,28 @@ public class InstanceResourceTest extends BaseInstanceResourceTestCase {
 		return instance;
 	}
 
+	private void _assertEqualsIgnoringOrder(
+		List<Instance> instances1, List<Instance> instances2) {
+
+		Assert.assertEquals(
+			instances2.toString(), instances1.size(), instances2.size());
+
+		for (Instance instance1 : instances1) {
+			boolean contains = false;
+
+			for (Instance instance2 : instances2) {
+				if (_equals(instance1, instance2)) {
+					contains = true;
+
+					break;
+				}
+			}
+
+			Assert.assertTrue(
+				instances2 + " does not contain " + instance1, contains);
+		}
+	}
+
 	private void _deleteInstances() throws Exception {
 		for (Instance instance : _instances) {
 			_workflowMetricsRESTTestHelper.deleteInstance(
@@ -222,6 +256,52 @@ public class InstanceResourceTest extends BaseInstanceResourceTestCase {
 		}
 
 		_instances.clear();
+	}
+
+	private boolean _equals(Instance instance1, Instance instance2) {
+		if (instance1 == instance2) {
+			return true;
+		}
+
+		if (!Objects.deepEquals(
+				instance1.getAssetTitle(), instance2.getAssetTitle())) {
+
+			return false;
+		}
+
+		if (!Objects.deepEquals(
+				instance1.getAssetType(), instance2.getAssetType())) {
+
+			return false;
+		}
+
+		if (!Objects.deepEquals(
+				instance1.getClassPK(), instance2.getClassPK())) {
+
+			return false;
+		}
+
+		if (!Objects.deepEquals(
+				instance1.getProcessId(), instance2.getProcessId())) {
+
+			return false;
+		}
+
+		return Objects.deepEquals(
+			instance1.getSlaResults(), instance2.getSlaResults());
+	}
+
+	private SLAResult _randomSLAResult(long slaDefinitionId) {
+		return new SLAResult() {
+			{
+				dateOverdue = null;
+				id = slaDefinitionId;
+				name = null;
+				onTime = false;
+				remainingTime = 0L;
+				status = Status.RUNNING;
+			}
+		};
 	}
 
 	private void _testGetProcessInstancesPage(
@@ -258,6 +338,32 @@ public class InstanceResourceTest extends BaseInstanceResourceTestCase {
 			null, null, Pagination.of(1, 2));
 
 		unsafeTriConsumer.accept(instance1, instance2, page);
+	}
+
+	private void _testGetProcessInstancesPage_setSLAResults() throws Exception {
+		_deleteInstances();
+
+		Instance instance1 = randomInstance();
+
+		instance1.setSlaResults(
+			new SLAResult[] {_randomSLAResult(RandomTestUtil.randomLong())});
+
+		testGetProcessInstancesPage_addInstance(_process.getId(), instance1);
+
+		Instance instance2 = randomInstance();
+
+		instance2.setSlaResults(
+			new SLAResult[] {_randomSLAResult(RandomTestUtil.randomLong())});
+
+		testGetProcessInstancesPage_addInstance(_process.getId(), instance2);
+
+		Page<Instance> page = instanceResource.getProcessInstancesPage(
+			_process.getId(), null, null, false, null, null, null, null,
+			Pagination.of(1, 2));
+
+		_assertEqualsIgnoringOrder(
+			Arrays.asList(instance1, instance2),
+			(List<Instance>)page.getItems());
 	}
 
 	private Long _classPK;
