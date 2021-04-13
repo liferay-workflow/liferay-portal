@@ -9,9 +9,9 @@
  * distribution rights of the Software.
  */
 
+import ClayForm, {ClayInput} from '@clayui/form';
 import ClayIcon from '@clayui/icon';
 import React, {useEffect, useRef} from 'react';
-import MaskedInput from 'react-text-mask';
 
 import {
 	addClickOutsideListener,
@@ -92,43 +92,45 @@ const CustomTimeRangeForm = ({
 					])}
 				</span>
 
-				<div className="form-group-autofit">
-					<FormGroupItem error={errors['dateStart']}>
-						<label htmlFor="dateStart">
-							{Liferay.Language.get('from')}
-						</label>
+				<ClayForm.Group className="form-group-autofit">
+					<ClayInput.Group>
+						<ClayInput.GroupItem>
+							<FormGroupItem error={errors['dateStart']}>
+								<label htmlFor="dateStart">
+									{Liferay.Language.get('from')}
+								</label>
 
-						<MaskedInput
-							className="form-control"
-							defaultValue={dateStart}
-							mask={dateMask}
-							name="dateStart"
-							onBlur={onBlur}
-							onChange={onChange(setDateStart)}
-							placeholder={dateFormat}
-						/>
-					</FormGroupItem>
-
-					<FormGroupItem error={errors['dateEnd']}>
-						<label htmlFor="dateEnd">
-							{Liferay.Language.get('to')}
-						</label>
-
-						<MaskedInput
-							className="form-control"
-							defaultValue={dateEnd}
-							mask={dateMask}
-							name="dateEnd"
-							onBlur={onBlur}
-							onChange={onChange(setDateEnd)}
-							placeholder={dateFormat}
-						/>
-					</FormGroupItem>
-				</div>
+								<ClayInput
+									className="form-control"
+									defaultValue={dateStart}
+									mask={dateMask}
+									name="dateStart"
+									onBlur={onBlur}
+									onChange={onChange(setDateStart)}
+									placeholder={dateFormat}
+								/>
+							</FormGroupItem>
+						</ClayInput.GroupItem>
+						<ClayInput.GroupItem>
+							<FormGroupItem error={errors['dateEnd']}>
+								<label htmlFor="dateEnd">
+									{Liferay.Language.get('to')}
+								</label>
+								<ClayInput
+									className="form-control"
+									defaultValue={dateEnd}
+									mask={dateMask}
+									name="dateEnd"
+									onBlur={onBlur}
+									onChange={onChange(setDateEnd)}
+									placeholder={dateFormat}
+								/>
+							</FormGroupItem>
+						</ClayInput.GroupItem>
+					</ClayInput.Group>
+				</ClayForm.Group>
 			</form>
-
 			<div className="dropdown-divider" />
-
 			<div className="custom-range-footer">
 				<button className="btn btn-secondary" onMouseDown={onCancel}>
 					{Liferay.Language.get('cancel')}
