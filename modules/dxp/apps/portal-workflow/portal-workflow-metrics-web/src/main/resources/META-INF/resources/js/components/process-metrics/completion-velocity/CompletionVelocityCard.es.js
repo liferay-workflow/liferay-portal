@@ -10,9 +10,10 @@
  */
 
 import ClayLayout from '@clayui/layout';
+import ClayPanel from '@clayui/panel';
 import React, {useMemo} from 'react';
 
-import Panel from '../../../shared/components/panel/Panel.es';
+import PanelHeaderWithOptions from '../../../shared/components/panel-header-with-options/PanelHeaderWithOptions.es';
 import PromisesResolver from '../../../shared/components/promises-resolver/PromisesResolver.es';
 import {useFetch} from '../../../shared/hooks/useFetch.es';
 import {useFilter} from '../../../shared/hooks/useFilter.es';
@@ -72,7 +73,7 @@ const CompletionVelocityCard = ({routeParams}) => {
 
 	return (
 		<PromisesResolver promises={promises}>
-			<Panel>
+			<ClayPanel className="mt-4">
 				<CompletionVelocityCard.Header
 					disableFilters={filtersError}
 					prefixKey={prefixKey}
@@ -84,18 +85,18 @@ const CompletionVelocityCard = ({routeParams}) => {
 					timeRange={timeRange}
 					velocityUnit={velocityUnit}
 				/>
-			</Panel>
+			</ClayPanel>
 		</PromisesResolver>
 	);
 };
 
 const Header = ({disableFilters, prefixKey, timeRange}) => {
 	return (
-		<Panel.HeaderWithOptions
+		<PanelHeaderWithOptions
+			className="dashboard-panel-header pb-0"
 			description={Liferay.Language.get(
 				'completion-velocity-description'
 			)}
-			elementClasses="dashboard-panel-header pb-0"
 			title={Liferay.Language.get('completion-velocity')}
 		>
 			<ClayLayout.ContentCol className="m-0 management-bar management-bar-light navbar">
@@ -114,7 +115,7 @@ const Header = ({disableFilters, prefixKey, timeRange}) => {
 					/>
 				</ul>
 			</ClayLayout.ContentCol>
-		</Panel.HeaderWithOptions>
+		</PanelHeaderWithOptions>
 	);
 };
 
