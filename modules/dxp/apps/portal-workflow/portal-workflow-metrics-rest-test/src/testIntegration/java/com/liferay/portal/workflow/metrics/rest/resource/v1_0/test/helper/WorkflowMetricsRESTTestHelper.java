@@ -350,12 +350,16 @@ public class WorkflowMetricsRESTTestHelper {
 			Instance instance = addInstance(companyId, false, process.getId());
 
 			if (onTimeInstanceCount > 0) {
-				addSLAInstanceResult(companyId, instance, true);
+				addSLAInstanceResult(
+					companyId, instance, true, RandomTestUtil.randomLong(),
+					RandomTestUtil.randomLong());
 
 				onTimeInstanceCount--;
 			}
 			else if (overdueInstanceCount > 0) {
-				addSLAInstanceResult(companyId, instance, false);
+				addSLAInstanceResult(
+					companyId, instance, false, RandomTestUtil.randomLong(),
+					RandomTestUtil.randomLong());
 
 				overdueInstanceCount--;
 			}
@@ -392,17 +396,16 @@ public class WorkflowMetricsRESTTestHelper {
 	}
 
 	public void addSLAInstanceResult(
-			long companyId, Instance instance, boolean onTime)
+			long companyId, Instance instance, boolean onTime,
+			long remainingTime, long slaDefinitionId)
 		throws Exception {
-
-		long slaDefinitionId = RandomTestUtil.randomLong();
 
 		_invokeAddDocument(
 			_getIndexer(_CLASS_NAME_SLA_INSTANCE_RESULT_INDEXER),
 			_creatWorkflowMetricsSLAInstanceResultDocument(
 				companyId, Objects.nonNull(instance.getDateCompletion()),
 				instance.getId(), onTime, instance.getProcessId(),
-				slaDefinitionId));
+				remainingTime, slaDefinitionId));
 
 		_assertCount(
 			_slaInstanceResultWorkflowMetricsIndexNameBuilder.getIndexName(
@@ -784,7 +787,8 @@ public class WorkflowMetricsRESTTestHelper {
 
 	private Document _creatWorkflowMetricsSLAInstanceResultDocument(
 		long companyId, boolean instanceCompleted, long instanceId,
-		boolean onTime, long processId, long slaDefinitionId) {
+		boolean onTime, long processId, long remainingTime,
+		long slaDefinitionId) {
 
 		DocumentBuilder documentBuilder = _documentBuilderFactory.builder();
 
@@ -802,6 +806,8 @@ public class WorkflowMetricsRESTTestHelper {
 			"onTime", onTime
 		).setValue(
 			"processId", processId
+		).setValue(
+			"remainingTime", remainingTime
 		).setValue(
 			"slaDefinitionId", slaDefinitionId
 		).setValue(

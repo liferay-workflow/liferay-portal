@@ -29,17 +29,23 @@ import com.liferay.portal.workflow.metrics.rest.client.dto.v1_0.Assignee;
 import com.liferay.portal.workflow.metrics.rest.client.dto.v1_0.Creator;
 import com.liferay.portal.workflow.metrics.rest.client.dto.v1_0.Instance;
 import com.liferay.portal.workflow.metrics.rest.client.dto.v1_0.Process;
+import com.liferay.portal.workflow.metrics.rest.client.dto.v1_0.SLAResult;
 import com.liferay.portal.workflow.metrics.rest.client.pagination.Page;
 import com.liferay.portal.workflow.metrics.rest.client.pagination.Pagination;
 import com.liferay.portal.workflow.metrics.rest.resource.v1_0.test.helper.WorkflowMetricsRESTTestHelper;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Stream;
 
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -113,7 +119,9 @@ public class InstanceResourceTest extends BaseInstanceResourceTestCase {
 
 	@Override
 	protected String[] getAdditionalAssertFieldNames() {
-		return new String[] {"assetTitle", "assetType", "classPK", "processId"};
+		return new String[] {
+			"assetTitle", "assetType", "classPK", "processId", "slaResults"
+		};
 	}
 
 	@Override
@@ -145,6 +153,30 @@ public class InstanceResourceTest extends BaseInstanceResourceTestCase {
 		instance.setDateCompletion((Date)null);
 		instance.setProcessId(_process.getId());
 		instance.setProcessVersion(_process.getVersion());
+
+		instance.setSlaResults(
+			new SLAResult[] {
+				new SLAResult() {
+					{
+						dateOverdue = null;
+						id = RandomTestUtil.randomLong();
+						name = null;
+						onTime = false;
+						remainingTime = -1L;
+						status = Status.RUNNING;
+					}
+				},
+				new SLAResult() {
+					{
+						dateOverdue = null;
+						id = RandomTestUtil.randomLong();
+						name = null;
+						onTime = true;
+						remainingTime = 1L;
+						status = Status.RUNNING;
+					}
+				}
+			});
 
 		return instance;
 	}
@@ -181,6 +213,12 @@ public class InstanceResourceTest extends BaseInstanceResourceTestCase {
 		if (instance.getCompleted()) {
 			_workflowMetricsRESTTestHelper.completeInstance(
 				testGroup.getCompanyId(), instance);
+		}
+
+		for (SLAResult slaResult : instance.getSlaResults()) {
+			_workflowMetricsRESTTestHelper.addSLAInstanceResult(
+				testGroup.getCompanyId(), instance, slaResult.getOnTime(),
+				slaResult.getRemainingTime(), slaResult.getId());
 		}
 
 		_instances.add(instance);
@@ -222,6 +260,13 @@ public class InstanceResourceTest extends BaseInstanceResourceTestCase {
 		}
 
 		_instances.clear();
+	}
+
+	protected Instance testPostProcessInstance_addInstance(Instance instance)
+		throws Exception {
+
+		return testGetProcessInstancesPage_addInstance(
+			_process.getId(), instance);
 	}
 
 	private void _testGetProcessInstancesPage(
