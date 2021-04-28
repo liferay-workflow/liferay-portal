@@ -22,11 +22,16 @@ import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.search.document.Document;
 import com.liferay.portal.search.test.util.SearchTestRule;
 import com.liferay.portal.test.rule.Inject;
+import com.liferay.portal.workflow.metrics.rest.client.dto.v1_0.Instance;
 import com.liferay.portal.workflow.metrics.rest.client.dto.v1_0.Process;
 import com.liferay.portal.workflow.metrics.rest.resource.v1_0.test.helper.WorkflowMetricsRESTTestHelper;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+
+import org.apache.commons.lang.time.DateUtils;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -72,6 +77,29 @@ public class ProcessResourceTest extends BaseProcessResourceTestCase {
 	@Test
 	public void testGetProcess() throws Exception {
 		super.testGetProcess();
+	}
+
+	@Override
+	@Test
+	public void testGetProcessLastSLACheckDate() throws Exception {
+		Process process = testGetProcess_addProcess();
+
+		Instance instance = _workflowMetricsRESTTestHelper.addInstance(
+			testGroup.getCompanyId(), process.getId());
+
+		Date lastSLACheckDate = DateUtils.truncate(
+			RandomTestUtil.nextDate(), Calendar.SECOND);
+
+		_workflowMetricsRESTTestHelper.addSLAInstanceResult(
+			testGroup.getCompanyId(), lastSLACheckDate, instance, false);
+
+		_workflowMetricsRESTTestHelper.addSLAInstanceResult(
+			testGroup.getCompanyId(), DateUtils.addDays(lastSLACheckDate, -2),
+			instance, true);
+
+		Assert.assertEquals(
+			lastSLACheckDate,
+			processResource.getProcessLastSLACheckDate(process.getId()));
 	}
 
 	@Override

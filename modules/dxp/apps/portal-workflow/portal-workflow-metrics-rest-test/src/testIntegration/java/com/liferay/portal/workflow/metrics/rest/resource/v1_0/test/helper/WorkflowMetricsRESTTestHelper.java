@@ -351,12 +351,12 @@ public class WorkflowMetricsRESTTestHelper {
 			Instance instance = addInstance(companyId, false, process.getId());
 
 			if (onTimeInstanceCount > 0) {
-				addSLAInstanceResult(companyId, instance, true);
+				addSLAInstanceResult(companyId, null, instance, true);
 
 				onTimeInstanceCount--;
 			}
 			else if (overdueInstanceCount > 0) {
-				addSLAInstanceResult(companyId, instance, false);
+				addSLAInstanceResult(companyId, null, instance, false);
 
 				overdueInstanceCount--;
 			}
@@ -393,7 +393,8 @@ public class WorkflowMetricsRESTTestHelper {
 	}
 
 	public void addSLAInstanceResult(
-			long companyId, Instance instance, boolean onTime)
+			long companyId, Date lastSLACheckDate, Instance instance,
+			boolean onTime)
 		throws Exception {
 
 		long slaDefinitionId = RandomTestUtil.randomLong();
@@ -402,8 +403,8 @@ public class WorkflowMetricsRESTTestHelper {
 			_getIndexer(_CLASS_NAME_SLA_INSTANCE_RESULT_INDEXER),
 			_creatWorkflowMetricsSLAInstanceResultDocument(
 				companyId, Objects.nonNull(instance.getDateCompletion()),
-				instance.getId(), onTime, instance.getProcessId(),
-				slaDefinitionId));
+				lastSLACheckDate, instance.getId(), onTime,
+				instance.getProcessId(), slaDefinitionId));
 
 		_assertCount(
 			_slaInstanceResultWorkflowMetricsIndexNameBuilder.getIndexName(
@@ -784,8 +785,8 @@ public class WorkflowMetricsRESTTestHelper {
 	}
 
 	private Document _creatWorkflowMetricsSLAInstanceResultDocument(
-		long companyId, boolean instanceCompleted, long instanceId,
-		boolean onTime, long processId, long slaDefinitionId) {
+		long companyId, boolean instanceCompleted, Date lastSLACheckDate,
+		long instanceId, boolean onTime, long processId, long slaDefinitionId) {
 
 		DocumentBuilder documentBuilder = _documentBuilderFactory.builder();
 
@@ -799,7 +800,17 @@ public class WorkflowMetricsRESTTestHelper {
 			"instanceCompleted", instanceCompleted
 		).setValue(
 			"instanceId", instanceId
-		).setValue(
+		);
+
+		if (lastSLACheckDate != null) {
+			documentBuilder.setValue(
+				"lastCheckDate",
+				DateUtil.getDate(
+					lastSLACheckDate, "yyyyMMddHHmmss",
+					LocaleUtil.getDefault()));
+		}
+
+		documentBuilder.setValue(
 			"onTime", onTime
 		).setValue(
 			"processId", processId
