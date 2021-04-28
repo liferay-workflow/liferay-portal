@@ -15,8 +15,12 @@
 package com.liferay.portal.workflow.metrics.rest.internal.resource.v1_0;
 
 import com.liferay.petra.string.StringPool;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.search.Field;
+import com.liferay.portal.kernel.util.DateUtil;
 import com.liferay.portal.kernel.util.LocaleThreadLocal;
+import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.search.engine.adapter.search.SearchRequestExecutor;
 import com.liferay.portal.search.engine.adapter.search.SearchSearchRequest;
@@ -25,6 +29,8 @@ import com.liferay.portal.search.hits.SearchHit;
 import com.liferay.portal.search.hits.SearchHits;
 import com.liferay.portal.search.query.BooleanQuery;
 import com.liferay.portal.search.query.Queries;
+import com.liferay.portal.search.sort.SortOrder;
+import com.liferay.portal.search.sort.Sorts;
 import com.liferay.portal.vulcan.util.LocalizedMapUtil;
 import com.liferay.portal.workflow.metrics.rest.dto.v1_0.Process;
 import com.liferay.portal.workflow.metrics.rest.internal.dto.v1_0.util.ProcessUtil;
@@ -33,6 +39,7 @@ import com.liferay.portal.workflow.metrics.rest.resource.v1_0.ProcessResource;
 import com.liferay.portal.workflow.metrics.search.index.ProcessWorkflowMetricsIndexer;
 import com.liferay.portal.workflow.metrics.search.index.name.WorkflowMetricsIndexNameBuilder;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -85,6 +92,50 @@ public class ProcessResourceImpl extends BaseProcessResourceImpl {
 		).orElseThrow(
 			() -> new NoSuchProcessException(
 				"No process exists with the process ID " + processId)
+		);
+	}
+
+	@Override
+	public Date getProcessLastSLACheckDate(Long processId) throws Exception {
+		SearchSearchRequest searchSearchRequest = new SearchSearchRequest();
+
+		searchSearchRequest.addSorts(
+			_sorts.field("lastCheckDate", SortOrder.DESC));
+
+		searchSearchRequest.setIndexNames(
+			_slaInstanceResultWorkflowMetricsIndexNameBuilder.getIndexName(
+				contextCompany.getCompanyId()));
+
+		BooleanQuery booleanQuery = _queries.booleanQuery();
+
+		BooleanQuery filterBooleanQuery = _queries.booleanQuery();
+
+		searchSearchRequest.setQuery(
+			booleanQuery.addFilterQueryClauses(
+				filterBooleanQuery.addMustQueryClauses(
+					_queries.term("deleted", false),
+					_queries.term("processId", processId))));
+
+		searchSearchRequest.setSelectedFieldNames("lastCheckDate");
+		searchSearchRequest.setSize(1);
+
+		return Stream.of(
+			_searchRequestExecutor.executeSearchRequest(searchSearchRequest)
+		).map(
+			SearchSearchResponse::getSearchHits
+		).map(
+			SearchHits::getSearchHits
+		).flatMap(
+			List::stream
+		).map(
+			SearchHit::getDocument
+		).findFirst(
+		).map(
+			document -> document.getString("lastCheckDate")
+		).map(
+			this::_parseDate
+		).orElse(
+			null
 		);
 	}
 
@@ -173,6 +224,23 @@ public class ProcessResourceImpl extends BaseProcessResourceImpl {
 		return Field.getLocalizedName(locale, "title");
 	}
 
+	private Date _parseDate(String dateString) {
+		try {
+			return DateUtil.parseDate(
+				"yyyyMMddHHmmss", dateString, LocaleUtil.getDefault());
+		}
+		catch (Exception exception) {
+			if (_log.isWarnEnabled()) {
+				_log.warn(exception, exception);
+			}
+
+			return null;
+		}
+	}
+
+	private static final Log _log = LogFactoryUtil.getLog(
+		ProcessResourceImpl.class);
+
 	@Reference
 	private ProcessWorkflowMetricsIndexer _processWorkflowMetricsIndexer;
 
@@ -185,5 +253,14 @@ public class ProcessResourceImpl extends BaseProcessResourceImpl {
 
 	@Reference
 	private SearchRequestExecutor _searchRequestExecutor;
+
+	@Reference(
+		target = "(workflow.metrics.index.entity.name=sla-instance-result)"
+	)
+	private WorkflowMetricsIndexNameBuilder
+		_slaInstanceResultWorkflowMetricsIndexNameBuilder;
+
+	@Reference
+	private Sorts _sorts;
 
 }
