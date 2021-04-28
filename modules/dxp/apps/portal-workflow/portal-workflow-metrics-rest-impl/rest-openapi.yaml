@@ -1120,6 +1120,30 @@ paths:
                     description:
                         ""
             tags: ["Instance"]
+    "/processes/{processId}/last-sla-check-date":
+        get:
+            operationId: getProcessLastSLACheckDate
+            parameters:
+                - in: path
+                  name: processId
+                  required: true
+                  schema:
+                      format: int64
+                      type: integer
+            responses:
+                200:
+                    content:
+                        application/json:
+                            schema:
+                                format: date-time
+                                type: string
+                        application/xml:
+                            schema:
+                                format: date-time
+                                type: string
+                    description:
+                        ""
+            tags: ["Process"]
     "/processes/{processId}/metrics":
         get:
             operationId: getProcessMetric
