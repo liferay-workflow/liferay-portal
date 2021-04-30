@@ -341,6 +341,11 @@ public abstract class BaseProcessResourceTestCase {
 	}
 
 	@Test
+	public void testGetProcessLastSLACheckDate() throws Exception {
+		Assert.assertTrue(false);
+	}
+
+	@Test
 	public void testGetProcessTitle() throws Exception {
 		Assert.assertTrue(false);
 	}

@@ -19,6 +19,7 @@ import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.vulcan.accept.language.AcceptLanguage;
 import com.liferay.portal.workflow.metrics.rest.dto.v1_0.Process;
 
+import java.util.Date;
 import java.util.Locale;
 
 import javax.annotation.Generated;
@@ -63,6 +64,8 @@ public interface ProcessResource {
 
 	public Response putProcessBatch(String callbackURL, Object object)
 		throws Exception;
+
+	public Date getProcessLastSLACheckDate(Long processId) throws Exception;
 
 	public String getProcessTitle(Long processId) throws Exception;
 

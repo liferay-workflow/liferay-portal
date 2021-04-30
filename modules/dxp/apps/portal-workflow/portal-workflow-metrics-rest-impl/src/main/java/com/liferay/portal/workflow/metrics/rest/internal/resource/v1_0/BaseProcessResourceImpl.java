@@ -261,6 +261,25 @@ public abstract class BaseProcessResourceImpl
 	/**
 	 * Invoke this method with the command line:
 	 *
+	 * curl -X 'GET' 'http://localhost:8080/o/portal-workflow-metrics/v1.0/processes/{processId}/last-sla-check-date'  -u 'test@liferay.com:test'
+	 */
+	@GET
+	@Override
+	@Parameters(value = {@Parameter(in = ParameterIn.PATH, name = "processId")})
+	@Path("/processes/{processId}/last-sla-check-date")
+	@Produces({"application/json", "application/xml"})
+	@Tags(value = {@Tag(name = "Process")})
+	public java.util.Date getProcessLastSLACheckDate(
+			@NotNull @Parameter(hidden = true) @PathParam("processId") Long
+				processId)
+		throws Exception {
+
+		return new java.util.Date();
+	}
+
+	/**
+	 * Invoke this method with the command line:
+	 *
 	 * curl -X 'GET' 'http://localhost:8080/o/portal-workflow-metrics/v1.0/processes/{processId}/title'  -u 'test@liferay.com:test'
 	 */
 	@GET

@@ -334,6 +334,23 @@ public class Query {
 	/**
 	 * Invoke this method with the command line:
 	 *
+	 * curl -H 'Content-Type: text/plain; charset=utf-8' -X 'POST' 'http://localhost:8080/o/graphql' -d $'{"query": "query {processLastSLACheckDate(processId: ___){}}"}' -u 'test@liferay.com:test'
+	 */
+	@GraphQLField
+	public Date processLastSLACheckDate(
+			@GraphQLName("processId") Long processId)
+		throws Exception {
+
+		return _applyComponentServiceObjects(
+			_processResourceComponentServiceObjects,
+			this::_populateResourceContext,
+			processResource -> processResource.getProcessLastSLACheckDate(
+				processId));
+	}
+
+	/**
+	 * Invoke this method with the command line:
+	 *
 	 * curl -H 'Content-Type: text/plain; charset=utf-8' -X 'POST' 'http://localhost:8080/o/graphql' -d $'{"query": "query {processTitle(processId: ___){}}"}' -u 'test@liferay.com:test'
 	 */
 	@GraphQLField
@@ -624,6 +641,26 @@ public class Query {
 				Query.this::_populateResourceContext,
 				taskResource -> taskResource.getProcessTask(
 					_process.getId(), taskId));
+		}
+
+		private Process _process;
+
+	}
+
+	@GraphQLTypeExtension(Process.class)
+	public class GetProcessLastSLACheckDateTypeExtension {
+
+		public GetProcessLastSLACheckDateTypeExtension(Process process) {
+			_process = process;
+		}
+
+		@GraphQLField
+		public Date lastSLACheckDate() throws Exception {
+			return _applyComponentServiceObjects(
+				_processResourceComponentServiceObjects,
+				Query.this::_populateResourceContext,
+				processResource -> processResource.getProcessLastSLACheckDate(
+					_process.getId()));
 		}
 
 		private Process _process;
