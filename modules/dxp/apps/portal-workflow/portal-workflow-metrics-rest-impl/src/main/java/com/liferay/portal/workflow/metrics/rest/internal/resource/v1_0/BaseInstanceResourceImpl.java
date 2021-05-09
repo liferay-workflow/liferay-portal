@@ -95,6 +95,7 @@ public abstract class BaseInstanceResourceImpl
 			@Parameter(in = ParameterIn.QUERY, name = "classPKs"),
 			@Parameter(in = ParameterIn.QUERY, name = "dateEnd"),
 			@Parameter(in = ParameterIn.QUERY, name = "dateStart"),
+			@Parameter(in = ParameterIn.QUERY, name = "processStatuses"),
 			@Parameter(in = ParameterIn.QUERY, name = "slaStatuses"),
 			@Parameter(in = ParameterIn.QUERY, name = "taskNames"),
 			@Parameter(in = ParameterIn.QUERY, name = "page"),
@@ -114,6 +115,8 @@ public abstract class BaseInstanceResourceImpl
 				dateEnd,
 			@Parameter(hidden = true) @QueryParam("dateStart") java.util.Date
 				dateStart,
+			@Parameter(hidden = true) @QueryParam("processStatuses") String[]
+				processStatuses,
 			@Parameter(hidden = true) @QueryParam("slaStatuses") String[]
 				slaStatuses,
 			@Parameter(hidden = true) @QueryParam("taskNames") String[]
@@ -334,6 +337,7 @@ public abstract class BaseInstanceResourceImpl
 			(Long[])parameters.get("classPKs"),
 			(java.util.Date)parameters.get("dateEnd"),
 			(java.util.Date)parameters.get("dateStart"),
+			(String[])parameters.get("processStatuses"),
 			(String[])parameters.get("slaStatuses"),
 			(String[])parameters.get("taskNames"), pagination);
 	}

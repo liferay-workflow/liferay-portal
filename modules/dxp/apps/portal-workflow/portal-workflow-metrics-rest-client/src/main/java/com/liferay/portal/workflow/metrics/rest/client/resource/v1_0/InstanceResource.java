@@ -46,13 +46,15 @@ public interface InstanceResource {
 	public Page<Instance> getProcessInstancesPage(
 			Long processId, Long[] assigneeIds, Long[] classPKs,
 			java.util.Date dateEnd, java.util.Date dateStart,
-			String[] slaStatuses, String[] taskNames, Pagination pagination)
+			String[] processStatuses, String[] slaStatuses, String[] taskNames,
+			Pagination pagination)
 		throws Exception;
 
 	public HttpInvoker.HttpResponse getProcessInstancesPageHttpResponse(
 			Long processId, Long[] assigneeIds, Long[] classPKs,
 			java.util.Date dateEnd, java.util.Date dateStart,
-			String[] slaStatuses, String[] taskNames, Pagination pagination)
+			String[] processStatuses, String[] slaStatuses, String[] taskNames,
+			Pagination pagination)
 		throws Exception;
 
 	public Instance postProcessInstance(Long processId, Instance instance)
@@ -174,13 +176,14 @@ public interface InstanceResource {
 		public Page<Instance> getProcessInstancesPage(
 				Long processId, Long[] assigneeIds, Long[] classPKs,
 				java.util.Date dateEnd, java.util.Date dateStart,
-				String[] slaStatuses, String[] taskNames, Pagination pagination)
+				String[] processStatuses, String[] slaStatuses,
+				String[] taskNames, Pagination pagination)
 			throws Exception {
 
 			HttpInvoker.HttpResponse httpResponse =
 				getProcessInstancesPageHttpResponse(
 					processId, assigneeIds, classPKs, dateEnd, dateStart,
-					slaStatuses, taskNames, pagination);
+					processStatuses, slaStatuses, taskNames, pagination);
 
 			String content = httpResponse.getContent();
 
@@ -222,7 +225,8 @@ public interface InstanceResource {
 		public HttpInvoker.HttpResponse getProcessInstancesPageHttpResponse(
 				Long processId, Long[] assigneeIds, Long[] classPKs,
 				java.util.Date dateEnd, java.util.Date dateStart,
-				String[] slaStatuses, String[] taskNames, Pagination pagination)
+				String[] processStatuses, String[] slaStatuses,
+				String[] taskNames, Pagination pagination)
 			throws Exception {
 
 			HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();
@@ -271,6 +275,13 @@ public interface InstanceResource {
 			if (dateStart != null) {
 				httpInvoker.parameter(
 					"dateStart", liferayToJSONDateFormat.format(dateStart));
+			}
+
+			if (processStatuses != null) {
+				for (int i = 0; i < processStatuses.length; i++) {
+					httpInvoker.parameter(
+						"processStatuses", String.valueOf(processStatuses[i]));
+				}
 			}
 
 			if (slaStatuses != null) {
