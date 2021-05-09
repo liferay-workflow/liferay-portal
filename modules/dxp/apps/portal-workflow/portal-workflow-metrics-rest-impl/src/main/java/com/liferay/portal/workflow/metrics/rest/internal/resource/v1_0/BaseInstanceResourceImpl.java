@@ -93,7 +93,6 @@ public abstract class BaseInstanceResourceImpl
 			@Parameter(in = ParameterIn.PATH, name = "processId"),
 			@Parameter(in = ParameterIn.QUERY, name = "assigneeIds"),
 			@Parameter(in = ParameterIn.QUERY, name = "classPKs"),
-			@Parameter(in = ParameterIn.QUERY, name = "completed"),
 			@Parameter(in = ParameterIn.QUERY, name = "dateEnd"),
 			@Parameter(in = ParameterIn.QUERY, name = "dateStart"),
 			@Parameter(in = ParameterIn.QUERY, name = "slaStatuses"),
@@ -111,8 +110,6 @@ public abstract class BaseInstanceResourceImpl
 			@Parameter(hidden = true) @QueryParam("assigneeIds") Long[]
 				assigneeIds,
 			@Parameter(hidden = true) @QueryParam("classPKs") Long[] classPKs,
-			@Parameter(hidden = true) @QueryParam("completed") Boolean
-				completed,
 			@Parameter(hidden = true) @QueryParam("dateEnd") java.util.Date
 				dateEnd,
 			@Parameter(hidden = true) @QueryParam("dateStart") java.util.Date
@@ -335,7 +332,6 @@ public abstract class BaseInstanceResourceImpl
 			(Long)parameters.get("processId"),
 			(Long[])parameters.get("assigneeIds"),
 			(Long[])parameters.get("classPKs"),
-			(Boolean)parameters.get("completed"),
 			(java.util.Date)parameters.get("dateEnd"),
 			(java.util.Date)parameters.get("dateStart"),
 			(String[])parameters.get("slaStatuses"),

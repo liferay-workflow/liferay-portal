@@ -45,13 +45,13 @@ public interface InstanceResource {
 
 	public Page<Instance> getProcessInstancesPage(
 			Long processId, Long[] assigneeIds, Long[] classPKs,
-			Boolean completed, java.util.Date dateEnd, java.util.Date dateStart,
+			java.util.Date dateEnd, java.util.Date dateStart,
 			String[] slaStatuses, String[] taskNames, Pagination pagination)
 		throws Exception;
 
 	public HttpInvoker.HttpResponse getProcessInstancesPageHttpResponse(
 			Long processId, Long[] assigneeIds, Long[] classPKs,
-			Boolean completed, java.util.Date dateEnd, java.util.Date dateStart,
+			java.util.Date dateEnd, java.util.Date dateStart,
 			String[] slaStatuses, String[] taskNames, Pagination pagination)
 		throws Exception;
 
@@ -173,15 +173,14 @@ public interface InstanceResource {
 
 		public Page<Instance> getProcessInstancesPage(
 				Long processId, Long[] assigneeIds, Long[] classPKs,
-				Boolean completed, java.util.Date dateEnd,
-				java.util.Date dateStart, String[] slaStatuses,
-				String[] taskNames, Pagination pagination)
+				java.util.Date dateEnd, java.util.Date dateStart,
+				String[] slaStatuses, String[] taskNames, Pagination pagination)
 			throws Exception {
 
 			HttpInvoker.HttpResponse httpResponse =
 				getProcessInstancesPageHttpResponse(
-					processId, assigneeIds, classPKs, completed, dateEnd,
-					dateStart, slaStatuses, taskNames, pagination);
+					processId, assigneeIds, classPKs, dateEnd, dateStart,
+					slaStatuses, taskNames, pagination);
 
 			String content = httpResponse.getContent();
 
@@ -222,9 +221,8 @@ public interface InstanceResource {
 
 		public HttpInvoker.HttpResponse getProcessInstancesPageHttpResponse(
 				Long processId, Long[] assigneeIds, Long[] classPKs,
-				Boolean completed, java.util.Date dateEnd,
-				java.util.Date dateStart, String[] slaStatuses,
-				String[] taskNames, Pagination pagination)
+				java.util.Date dateEnd, java.util.Date dateStart,
+				String[] slaStatuses, String[] taskNames, Pagination pagination)
 			throws Exception {
 
 			HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();
@@ -263,10 +261,6 @@ public interface InstanceResource {
 					httpInvoker.parameter(
 						"classPKs", String.valueOf(classPKs[i]));
 				}
-			}
-
-			if (completed != null) {
-				httpInvoker.parameter("completed", String.valueOf(completed));
 			}
 
 			if (dateEnd != null) {
