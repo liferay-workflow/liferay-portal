@@ -15,6 +15,7 @@
 package com.liferay.portal.workflow.metrics.rest.resource.v1_0.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
+import com.liferay.petra.function.UnsafeBiConsumer;
 import com.liferay.petra.function.UnsafeTriConsumer;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.test.rule.DataGuard;
@@ -36,9 +37,13 @@ import com.liferay.portal.workflow.metrics.rest.resource.v1_0.test.helper.Workfl
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang.time.DateUtils;
 
 import org.junit.After;
 import org.junit.Before;
@@ -83,29 +88,56 @@ public class InstanceResourceTest extends BaseInstanceResourceTestCase {
 		super.testGetProcessInstancesPage();
 
 		_testGetProcessInstancesPage(
-			new Long[] {_user.getUserId()}, null,
+			DateUtils.truncate(new Date(), Calendar.SECOND),
+			DateUtils.addDays(
+				DateUtils.truncate(new Date(), Calendar.SECOND), -1),
+			new String[] {"Completed", "Pending"},
+			(instancesMap, instances) -> assertEqualsIgnoringOrder(
+				Arrays.asList(
+					instancesMap.get("instanceCompleted1"),
+					instancesMap.get("instancePending1")),
+				instances));
+
+		_testGetProcessInstancesPage(
+			DateUtils.truncate(new Date(), Calendar.SECOND),
+			DateUtils.addDays(
+				DateUtils.truncate(new Date(), Calendar.SECOND), -2),
+			new String[] {"Completed"},
+			(instancesMap, instances) -> assertEqualsIgnoringOrder(
+				Arrays.asList(
+					instancesMap.get("instanceCompleted1"),
+					instancesMap.get("instanceCompleted2")),
+				instances));
+
+		_testGetProcessInstancesPage(
+			new Long[] {_user.getUserId()}, null, null,
 			(instance1, instance2, page) -> assertEquals(
 				Collections.singletonList(instance2),
 				(List<Instance>)page.getItems()));
 		_testGetProcessInstancesPage(
-			null, new Long[] {_classPK},
+			null, new Long[] {_classPK}, null,
 			(instance1, instance2, page) -> assertEquals(
 				Collections.singletonList(instance1),
 				(List<Instance>)page.getItems()));
 		_testGetProcessInstancesPage(
-			null, null,
+			null, null, new String[] {"Completed"},
 			(instance1, instance2, page) -> assertEquals(
 				Collections.singletonList(instance1),
 				(List<Instance>)page.getItems()));
 		_testGetProcessInstancesPage(
-			null, null,
+			null, null, null,
 			(instance1, instance2, page) -> assertEqualsIgnoringOrder(
 				Arrays.asList(instance1, instance2),
 				(List<Instance>)page.getItems()));
 		_testGetProcessInstancesPage(
-			null, null,
+			null, null, new String[] {"Pending"},
 			(instance1, instance2, page) -> assertEquals(
 				Collections.singletonList(instance2),
+				(List<Instance>)page.getItems()));
+		_testGetProcessInstancesPage(
+			null, null, new String[] {"Completed", "Pending"},
+			(instance1, instance2, page) -> assertEqualsIgnoringOrder(
+				Arrays.asList(instance1, instance2),
 				(List<Instance>)page.getItems()));
 	}
 
@@ -243,7 +275,51 @@ public class InstanceResourceTest extends BaseInstanceResourceTestCase {
 	}
 
 	private void _testGetProcessInstancesPage(
-			Long[] assigneeIds, Long[] classPKs,
+			Date dateEnd, Date dateStart, String[] processStatuses,
+			UnsafeBiConsumer<Map<String, Instance>, List<Instance>, Exception>
+				unsafeBiConsumer)
+		throws Exception {
+
+		_deleteInstances();
+
+		Instance instance1 = randomInstance();
+
+		instance1.setCompleted(true);
+		instance1.setDateCompletion(
+			DateUtils.truncate(new Date(), Calendar.SECOND));
+
+		testGetProcessInstancesPage_addInstance(_process.getId(), instance1);
+
+		Instance instance2 = randomInstance();
+
+		testGetProcessInstancesPage_addInstance(_process.getId(), instance2);
+
+		Instance instance3 = randomInstance();
+
+		instance3.setCompleted(true);
+		instance3.setDateCompletion(
+			DateUtils.addDays(
+				DateUtils.truncate(new Date(), Calendar.SECOND), -2));
+
+		testGetProcessInstancesPage_addInstance(_process.getId(), instance3);
+
+		Page<Instance> page = instanceResource.getProcessInstancesPage(
+			_process.getId(), null, null, dateEnd, dateStart, processStatuses,
+			null, null, Pagination.of(1, 3));
+
+		unsafeBiConsumer.accept(
+			HashMapBuilder.put(
+				"instanceCompleted1", instance1
+			).put(
+				"instanceCompleted2", instance3
+			).put(
+				"instancePending1", instance2
+			).build(),
+			(List<Instance>)page.getItems());
+	}
+
+	private void _testGetProcessInstancesPage(
+			Long[] assigneeIds, Long[] classPKs, String[] processStatuses,
 			UnsafeTriConsumer<Instance, Instance, Page<Instance>, Exception>
 				unsafeTriConsumer)
 		throws Exception {
@@ -278,7 +354,7 @@ public class InstanceResourceTest extends BaseInstanceResourceTestCase {
 
 		Page<Instance> page = instanceResource.getProcessInstancesPage(
 			_process.getId(), assigneeIds, classPKs, null, null,
-			null, null, Pagination.of(1, 2));
+			processStatuses, null, null, Pagination.of(1, 2));
 
 		unsafeTriConsumer.accept(instance1, instance2, page);
 	}
