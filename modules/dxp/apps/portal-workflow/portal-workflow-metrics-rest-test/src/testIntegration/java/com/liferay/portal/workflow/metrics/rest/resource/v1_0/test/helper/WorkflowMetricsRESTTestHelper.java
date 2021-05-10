@@ -27,6 +27,7 @@ import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.DateUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.search.document.Document;
 import com.liferay.portal.search.document.DocumentBuilder;
@@ -62,6 +63,7 @@ import java.io.Serializable;
 
 import java.lang.reflect.Method;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -441,6 +443,8 @@ public class WorkflowMetricsRESTTestHelper {
 				slaResult.getRemainingTime(), "slaDefinitionId",
 				slaResult.getId());
 		}
+
+		_updateInstance(companyId, instance, slaResults);
 	}
 
 	public void addSLATaskResult(
@@ -828,12 +832,11 @@ public class WorkflowMetricsRESTTestHelper {
 		).setValue(
 			"instanceId", instance.getId()
 		).setValue(
-			"modifiedDate",
-			DateUtil.getDate(
-				slaResult.getDateModified(), "yyyyMMddHHmmss",
-				LocaleUtil.getDefault())
+			"modifiedDate", getDate(slaResult.getDateModified())
 		).setValue(
 			"onTime", slaResult.getOnTime()
+		).setValue(
+			"overdueDate", getDate(slaResult.getDateOverdue())
 		).setValue(
 			"processId", instance.getProcessId()
 		).setValue(
@@ -1075,6 +1078,36 @@ public class WorkflowMetricsRESTTestHelper {
 
 			return new Date();
 		}
+	}
+
+	private void _updateInstance(
+		long companyId, Instance instance, SLAResult... slaResults) {
+
+		List<HashMap<String, String>> slaResultsMap = new ArrayList<>();
+
+		for (SLAResult slaResult : slaResults) {
+			slaResultsMap.add(
+				HashMapBuilder.put(
+					"overdueDate", getDate(slaResult.getDateOverdue())
+				).put(
+					"status", slaResult.getStatusAsString()
+				).build());
+		}
+
+		DocumentBuilder documentBuilder = _documentBuilderFactory.builder();
+
+		Document document = documentBuilder.setValue(
+			"slaResults", slaResultsMap.toArray()
+		).setString(
+			"uid",
+			_digest("WorkflowMetricsInstance", companyId, instance.getId())
+		).build();
+
+		_searchEngineAdapter.execute(
+			new UpdateDocumentRequest(
+				_instanceWorkflowMetricsIndexNameBuilder.getIndexName(
+					companyId),
+				document.getString("uid"), document));
 	}
 
 	private static final String _CLASS_NAME_SLA_INSTANCE_RESULT_INDEXER =

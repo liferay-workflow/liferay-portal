@@ -24,6 +24,8 @@ import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.test.util.UserTestUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.LocaleUtil;
+import com.liferay.portal.odata.entity.EntityField;
+import com.liferay.portal.search.test.util.IdempotentRetryAssert;
 import com.liferay.portal.search.test.util.SearchTestRule;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.workflow.metrics.rest.client.dto.v1_0.Assignee;
@@ -41,6 +43,8 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 
 import org.apache.commons.lang.time.DateUtils;
 
@@ -111,6 +115,28 @@ public class InstanceResourceTest extends BaseInstanceResourceTestCase {
 			(instance1, instance2, page) -> assertEquals(
 				Collections.singletonList(instance2),
 				(List<Instance>)page.getItems()));
+	}
+
+	@Override
+	@Test
+	public void testGetProcessInstancesPageWithSortDateTime() throws Exception {
+		testGetProcessInstancesPageWithSort(
+			EntityField.Type.DATE_TIME,
+			(entityField, instance1, instance2) -> {
+				Stream.of(
+					instance1.getSlaResults()
+				).forEach(
+					slaResult -> slaResult.setDateOverdue(
+						DateUtils.addDays(slaResult.getDateOverdue(), -2))
+				);
+
+				Stream.of(
+					instance2.getSlaResults()
+				).forEach(
+					slaResult -> slaResult.setDateOverdue(
+						DateUtils.addDays(slaResult.getDateOverdue(), -1))
+				);
+			});
 	}
 
 	@Rule
@@ -209,6 +235,60 @@ public class InstanceResourceTest extends BaseInstanceResourceTestCase {
 	}
 
 	@Override
+	protected void testGetProcessInstancesPageWithSort(
+			EntityField.Type type,
+			UnsafeTriConsumer<EntityField, Instance, Instance, Exception>
+				unsafeTriConsumer)
+		throws Exception {
+
+		List<EntityField> entityFields = getEntityFields(type);
+
+		if (entityFields.isEmpty()) {
+			return;
+		}
+
+		Long processId = testGetProcessInstancesPage_getProcessId();
+
+		Instance instance1 = randomInstance();
+		Instance instance2 = randomInstance();
+
+		for (EntityField entityField : entityFields) {
+			unsafeTriConsumer.accept(entityField, instance1, instance2);
+		}
+
+		final Instance finalInstance1 = testGetProcessInstancesPage_addInstance(
+			processId, instance1);
+		final Instance finalInstance2 = testGetProcessInstancesPage_addInstance(
+			processId, instance2);
+
+		for (EntityField entityField : entityFields) {
+			Page<Instance> ascPage = instanceResource.getProcessInstancesPage(
+				processId, null, null, null, null, null, null, null,
+				Pagination.of(1, 2), entityField.getName() + ":asc");
+
+			assertEquals(
+				Arrays.asList(finalInstance1, finalInstance2),
+				(List<Instance>)ascPage.getItems());
+
+			IdempotentRetryAssert.retryAssert(
+				3, TimeUnit.SECONDS,
+				() -> {
+					Page<Instance> descPage =
+						instanceResource.getProcessInstancesPage(
+							processId, null, null, null, null, null, null, null,
+							Pagination.of(1, 2),
+							entityField.getName() + ":desc");
+
+					assertEquals(
+						Arrays.asList(finalInstance2, finalInstance1),
+						(List<Instance>)descPage.getItems());
+
+					return null;
+				});
+		}
+	}
+
+	@Override
 	protected Instance testGraphQLInstance_addInstance() throws Exception {
 		return testGetProcessInstance_addInstance();
 	}
@@ -256,16 +336,16 @@ public class InstanceResourceTest extends BaseInstanceResourceTestCase {
 
 		Instance instance1 = randomInstance();
 
-		_workflowMetricsRESTTestHelper.addSLAInstanceResults(
-			testGroup.getCompanyId(), instance1,
-			_toSLAResult(true, SLAResult.Status.STOPPED),
-			_toSLAResult(true, SLAResult.Status.PAUSED));
-
 		instance1.setClassPK(_classPK);
 		instance1.setCompleted(true);
 		instance1.setDateCompletion(RandomTestUtil.nextDate());
 
 		testGetProcessInstancesPage_addInstance(_process.getId(), instance1);
+
+		_workflowMetricsRESTTestHelper.addSLAInstanceResults(
+			testGroup.getCompanyId(), instance1,
+			_toSLAResult(true, SLAResult.Status.STOPPED),
+			_toSLAResult(true, SLAResult.Status.PAUSED));
 
 		Instance instance2 = randomInstance();
 
@@ -282,7 +362,7 @@ public class InstanceResourceTest extends BaseInstanceResourceTestCase {
 
 		Page<Instance> page = instanceResource.getProcessInstancesPage(
 			_process.getId(), assigneeIds, classPKs, completed, null, null,
-			null, null, Pagination.of(1, 2));
+			null, null, Pagination.of(1, 2), null);
 
 		unsafeTriConsumer.accept(instance1, instance2, page);
 	}
@@ -294,7 +374,7 @@ public class InstanceResourceTest extends BaseInstanceResourceTestCase {
 			{
 				dateModified = DateUtils.truncate(
 					RandomTestUtil.nextDate(), Calendar.SECOND);
-				dateOverdue = null;
+				dateOverdue = DateUtils.truncate(new Date(), Calendar.SECOND);
 				id = RandomTestUtil.randomLong();
 				name = StringPool.BLANK;
 				onTime = !overdue;
