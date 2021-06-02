@@ -126,8 +126,6 @@ public interface DDMDisplay {
 
 	public boolean isShowConfirmSelectTemplate();
 
-	public boolean isShowStructureSelector();
-
 	public boolean isVersioningEnabled();
 
 }

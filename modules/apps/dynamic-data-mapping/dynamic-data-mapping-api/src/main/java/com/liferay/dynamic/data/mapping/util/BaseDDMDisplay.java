@@ -415,11 +415,6 @@ public abstract class BaseDDMDisplay implements DDMDisplay {
 	}
 
 	@Override
-	public boolean isShowStructureSelector() {
-		return false;
-	}
-
-	@Override
 	public boolean isVersioningEnabled() {
 		return false;
 	}
