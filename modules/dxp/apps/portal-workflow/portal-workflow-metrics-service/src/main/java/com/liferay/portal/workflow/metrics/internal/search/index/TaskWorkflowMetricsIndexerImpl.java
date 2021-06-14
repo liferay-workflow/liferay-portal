@@ -152,6 +152,22 @@ public class TaskWorkflowMetricsIndexerImpl
 							HashMapBuilder.<String, Object>put(
 								"assigneeIds", assigneeIds
 							).put(
+								"assigneeName",
+								() -> {
+									if (Objects.equals(
+											assigneeType,
+											User.class.getName()) &&
+										(assigneeIds != null)) {
+
+										User user = _userLocalService.fetchUser(
+											assigneeIds[0]);
+
+										return user.getFullName();
+									}
+
+									return null;
+								}
+							).put(
 								"assigneeType", assigneeType
 							).put(
 								"taskId", taskId
