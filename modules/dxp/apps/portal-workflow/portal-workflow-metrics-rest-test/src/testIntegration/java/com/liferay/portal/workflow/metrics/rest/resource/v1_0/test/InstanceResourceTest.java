@@ -235,7 +235,60 @@ public class InstanceResourceTest extends BaseInstanceResourceTestCase {
 			(entityField, instance1, instance2) -> {
 				String entityFieldName = entityField.getName();
 
-				if (StringUtil.equals("userName", entityFieldName)) {
+				if (StringUtil.equals("assigneeName", entityFieldName)) {
+					instance1.setAssignees(
+						() -> {
+							User user = UserTestUtil.addUser(
+								RandomTestUtil.randomString(
+									NumericStringRandomizerBumper.INSTANCE,
+									UniqueStringRandomizerBumper.INSTANCE),
+								LocaleUtil.getDefault(),
+								"aaa".concat(
+									StringUtil.toLowerCase(
+										RandomTestUtil.randomString())),
+								RandomTestUtil.randomString(),
+								new long[] {TestPropsValues.getGroupId()});
+
+							List<Assignee> assignees = Arrays.asList(
+								new Assignee() {
+									{
+										id = user.getUserId();
+										name = user.getFullName();
+									}
+								}
+							);
+
+
+							return (Assignee[]) assignees.toArray();
+						});
+
+					instance2.setAssignees(
+						() -> {
+							User user = UserTestUtil.addUser(
+								RandomTestUtil.randomString(
+									NumericStringRandomizerBumper.INSTANCE,
+									UniqueStringRandomizerBumper.INSTANCE),
+								LocaleUtil.getDefault(),
+								"bbb".concat(
+									StringUtil.toLowerCase(
+										RandomTestUtil.randomString())),
+								RandomTestUtil.randomString(),
+								new long[] {TestPropsValues.getGroupId()});
+
+							List<Assignee> assignees = Arrays.asList(
+								new Assignee() {
+									{
+										id = user.getUserId();
+										name = user.getFullName();
+									}
+								}
+							);
+
+
+							return (Assignee[]) assignees.toArray();
+						});
+				}
+				else if (StringUtil.equals("userName", entityFieldName)) {
 					instance1.setCreator(
 						() -> {
 							User user = UserTestUtil.addUser(
