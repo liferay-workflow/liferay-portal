@@ -278,7 +278,7 @@ public class WorkflowMetricsRESTTestHelper {
 
 			addTask(
 				assignee, companyId, nodeMetric.getDurationAvg(), instance,
-				node.getName(), node.getId(), processId, taskId, user);
+				node.getName(), node.getId(), processId, taskId, user, "1.0");
 
 			if (instance.getCompleted()) {
 				completeInstance(companyId, instance);
@@ -479,16 +479,24 @@ public class WorkflowMetricsRESTTestHelper {
 			Assignee assignee, long companyId, Instance instance, User user)
 		throws Exception {
 
+		return addTask(assignee, companyId, instance, user, 0L);
+	}
+
+	public Task addTask(
+			Assignee assignee, long companyId, Instance instance, User user,
+			long durationAvg)
+		throws Exception {
+
 		return addTask(
-			assignee, companyId, 0L, instance, RandomTestUtil.randomString(),
-			RandomTestUtil.randomLong(), instance.getProcessId(),
-			RandomTestUtil.randomLong(), user);
+			assignee, companyId, durationAvg, instance,
+			RandomTestUtil.randomString(), RandomTestUtil.randomLong(),
+			instance.getProcessId(), RandomTestUtil.randomLong(), user, "1.0");
 	}
 
 	public Task addTask(
 			Assignee assignee, long companyId, long durationAvg,
 			Instance instance, String name, long nodeId, long processId,
-			long taskId, User user)
+			long taskId, User user, String processVersion)
 		throws Exception {
 
 		Task task = new Task();
@@ -507,7 +515,7 @@ public class WorkflowMetricsRESTTestHelper {
 		task.setName(name);
 		task.setNodeId(nodeId);
 		task.setProcessId(processId);
-		task.setProcessVersion("1.0");
+		task.setProcessVersion(processVersion);
 
 		return addTask(companyId, instance, task, user);
 	}
@@ -735,6 +743,21 @@ public class WorkflowMetricsRESTTestHelper {
 			_processWorkflowMetricsIndexNameBuilder.getIndexName(companyId),
 			"companyId", companyId, "deleted", false, "processId", processId,
 			"version", version);
+	}
+
+	public Process updateProcess(long companyId, Process process)
+		throws Exception {
+
+		_processWorkflowMetricsIndexer.updateProcess(
+			null, companyId, null, new Date(), process.getId(), null, null,
+			process.getVersion());
+
+		_assertCount(
+			_processWorkflowMetricsIndexNameBuilder.getIndexName(companyId),
+			"companyId", companyId, "deleted", false, "processId",
+			process.getId(), "version", process.getVersion());
+
+		return process;
 	}
 
 	private void _assertCount(
