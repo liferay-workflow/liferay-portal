@@ -123,6 +123,8 @@ public class ProcessWorkflowMetricsIndexerImpl
 			"uid", digest(companyId, processId)
 		).setString(
 			"version", version
+		).setStrings(
+			"versions", version
 		);
 
 		setLocalizedField(documentBuilder, "title", titleMap);
