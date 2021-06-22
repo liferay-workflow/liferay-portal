@@ -20,14 +20,20 @@ import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.Property;
 import com.liferay.portal.kernel.dao.orm.PropertyFactoryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.LocalizationUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.workflow.kaleo.model.KaleoDefinition;
+import com.liferay.portal.workflow.kaleo.model.KaleoDefinitionVersion;
 import com.liferay.portal.workflow.kaleo.service.KaleoDefinitionLocalService;
+import com.liferay.portal.workflow.kaleo.service.KaleoDefinitionVersionLocalService;
 import com.liferay.portal.workflow.metrics.search.background.task.WorkflowMetricsReindexStatusMessageSender;
 import com.liferay.portal.workflow.metrics.search.index.ProcessWorkflowMetricsIndexer;
 import com.liferay.portal.workflow.metrics.search.index.reindexer.WorkflowMetricsReindexer;
 
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Stream;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -71,6 +77,22 @@ public class ProcessWorkflowMetricsReindexer
 					kaleoDefinition.getDescription(),
 					kaleoDefinition.getModifiedDate(),
 					kaleoDefinition.getName(),
+					ArrayUtil.toStringArray(
+						Stream.of(
+							_kaleoDefinitionVersionLocalService.
+								getKaleoDefinitionVersions(
+									companyId, kaleoDefinition.getName())
+						).flatMap(
+							List::parallelStream
+						).map(
+							KaleoDefinitionVersion::getVersion
+						).filter(
+							version -> !StringUtil.equals(
+								StringBundler.concat(
+									kaleoDefinition.getVersion(),
+									CharPool.PERIOD, 0),
+								version)
+						).toArray()),
 					kaleoDefinition.getKaleoDefinitionId(),
 					kaleoDefinition.getTitle(defaultLanguageId),
 					kaleoDefinition.getTitleMap(),
@@ -86,6 +108,10 @@ public class ProcessWorkflowMetricsReindexer
 
 	@Reference
 	private KaleoDefinitionLocalService _kaleoDefinitionLocalService;
+
+	@Reference
+	private KaleoDefinitionVersionLocalService
+		_kaleoDefinitionVersionLocalService;
 
 	@Reference
 	private ProcessWorkflowMetricsIndexer _processWorkflowMetricsIndexer;
