@@ -42,6 +42,7 @@ import com.liferay.portal.search.hits.SearchHit;
 import com.liferay.portal.search.hits.SearchHits;
 import com.liferay.portal.search.query.BooleanQuery;
 import com.liferay.portal.search.query.Queries;
+import com.liferay.portal.search.query.TermsQuery;
 import com.liferay.portal.search.test.util.IdempotentRetryAssert;
 import com.liferay.portal.vulcan.util.LocalizedMapUtil;
 import com.liferay.portal.workflow.metrics.rest.client.dto.v1_0.Assignee;
@@ -735,6 +736,35 @@ public class WorkflowMetricsRESTTestHelper {
 			_processWorkflowMetricsIndexNameBuilder.getIndexName(companyId),
 			"companyId", companyId, "deleted", false, "processId", processId,
 			"version", version);
+	}
+
+	public void updateProcess(
+			long companyId, Process process, String[] versions)
+		throws Exception {
+
+		_processWorkflowMetricsIndexer.updateProcess(
+			null, companyId, null, new Date(), process.getId(), null, null,
+			process.getVersion());
+
+		IdempotentRetryAssert.retryAssert(
+			3, TimeUnit.SECONDS,
+			() -> {
+				_assertCount(
+					booleanQuery -> {
+						TermsQuery termsQuery = _queries.terms("versions");
+
+						termsQuery.addValues(versions);
+
+						booleanQuery.addMustQueryClauses(termsQuery);
+					},
+					1,
+					_processWorkflowMetricsIndexNameBuilder.getIndexName(
+						companyId),
+					"companyId", companyId, "deleted", false, "processId",
+					process.getId(), "version", process.getVersion());
+
+				return null;
+			});
 	}
 
 	private void _assertCount(

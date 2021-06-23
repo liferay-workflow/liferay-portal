@@ -14,12 +14,17 @@
 
 package com.liferay.portal.workflow.metrics.internal.search.index;
 
+import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.PortalRunMode;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.search.document.Document;
 import com.liferay.portal.search.document.DocumentBuilder;
 import com.liferay.portal.search.engine.adapter.document.BulkDocumentRequest;
 import com.liferay.portal.search.engine.adapter.document.IndexDocumentRequest;
+import com.liferay.portal.search.engine.adapter.document.UpdateDocumentRequest;
+import com.liferay.portal.search.script.ScriptBuilder;
+import com.liferay.portal.search.script.ScriptType;
 import com.liferay.portal.workflow.metrics.internal.search.index.util.WorkflowMetricsIndexerUtil;
 import com.liferay.portal.workflow.metrics.search.index.ProcessWorkflowMetricsIndexer;
 
@@ -122,6 +127,51 @@ public class ProcessWorkflowMetricsIndexerImpl
 			"uid", digest(companyId, processId)
 		).setString(
 			"version", version
+		).setStrings(
+			"versions", version
+		);
+
+		setLocalizedField(documentBuilder, "title", titleMap);
+
+		Document document = documentBuilder.build();
+
+		workflowMetricsPortalExecutor.execute(() -> addDocument(document));
+
+		return document;
+	}
+
+	@Override
+	public Document addProcess(
+		boolean active, long companyId, Date createDate, String description,
+		Date modifiedDate, String name, String[] otherVersions, long processId,
+		String title, Map<Locale, String> titleMap, String version) {
+
+		DocumentBuilder documentBuilder = documentBuilderFactory.builder();
+
+		documentBuilder.setValue(
+			"active", active
+		).setLong(
+			"companyId", companyId
+		).setDate(
+			"createDate", getDate(createDate)
+		).setValue(
+			"deleted", false
+		).setString(
+			"description", description
+		).setDate(
+			"modifiedDate", getDate(modifiedDate)
+		).setString(
+			"name", name
+		).setLong(
+			"processId", processId
+		).setString(
+			"title", title
+		).setString(
+			"uid", digest(companyId, processId)
+		).setString(
+			"version", version
+		).setStrings(
+			"versions", ArrayUtil.append(otherVersions, version)
 		);
 
 		setLocalizedField(documentBuilder, "title", titleMap);
@@ -199,7 +249,31 @@ public class ProcessWorkflowMetricsIndexerImpl
 
 		Document document = documentBuilder.build();
 
-		workflowMetricsPortalExecutor.execute(() -> updateDocument(document));
+		workflowMetricsPortalExecutor.execute(
+			() -> {
+				updateDocument(document);
+
+				ScriptBuilder scriptBuilder = scripts.builder();
+
+				searchEngineAdapter.execute(
+					new UpdateDocumentRequest(
+						getIndexName(companyId),
+						WorkflowMetricsIndexerUtil.digest(
+							_processWorkflowMetricsIndex.getIndexType(),
+							companyId, processId),
+						scriptBuilder.idOrCode(
+							StringUtil.read(
+								getClass(),
+								"dependencies/workflow-metrics-update-" +
+									"process-versions-script.painless")
+						).language(
+							"painless"
+						).putParameter(
+							"version", version
+						).scriptType(
+							ScriptType.INLINE
+						).build()));
+			});
 
 		return document;
 	}

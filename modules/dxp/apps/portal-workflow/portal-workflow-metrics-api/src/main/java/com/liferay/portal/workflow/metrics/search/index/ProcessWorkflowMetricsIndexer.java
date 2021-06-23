@@ -30,6 +30,11 @@ public interface ProcessWorkflowMetricsIndexer {
 		Date modifiedDate, String name, long processId, String title,
 		Map<Locale, String> titleMap, String version);
 
+	public Document addProcess(
+		boolean active, long companyId, Date createDate, String description,
+		Date modifiedDate, String name, String[] otherVersions, long processId,
+		String title, Map<Locale, String> titleMap, String version);
+
 	public void deleteProcess(long companyId, long processId);
 
 	public Document updateProcess(
