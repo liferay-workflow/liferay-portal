@@ -51,9 +51,10 @@ function Item({totalCount, ...instance}) {
 
 	const assignedToUser = !!assignees.find(({id}) => id === Number(userId));
 	const assigneeNames = assignees.map((user) => user.name).join(', ');
-	const {reviewer} = assignees.find(({id}) => id === -1) || {};
-
-	const disableCheckbox = (!assignedToUser && !reviewer) || completed;
+	const reviewer = !!assignees.find(({id}) => id === -1);
+	
+	const disableCheckbox =
+		(!assignedToUser && !reviewer) || completed;
 
 	const formattedAssignees = !completed
 		? assigneeNames
