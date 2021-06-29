@@ -468,6 +468,33 @@ describe('The InstanceListPageItem instance checkbox component should', () => {
 		taskNames: ['Review'],
 	};
 
+	test('Disable the checkbox when the id is different of the userId', () => {
+		const {container} = render(
+			<Table.Item {...instance} id={12345} />,
+			{
+				wrapper: ContainerMock,
+			}
+		);
+
+		const instanceCheckbox = container.querySelector(
+			'input.custom-control-input'
+		);
+
+		expect(instanceCheckbox.disabled).toBeTruthy();
+	});
+
+	test('Disable the checkbox when the id is -1', () => {
+		const {container} = render(<Table.Item {...instance} id={-1} />, {
+			wrapper: ContainerMock,
+		});
+
+		const instanceCheckbox = container.querySelector(
+			'input.custom-control-input'
+		);
+
+		expect(instanceCheckbox.disabled).toBeTruthy();
+	});
+
 	test('Set checkbox value by clicking it', () => {
 		const {container} = render(<Table.Item {...instance} />, {
 			wrapper: ContainerMock,
