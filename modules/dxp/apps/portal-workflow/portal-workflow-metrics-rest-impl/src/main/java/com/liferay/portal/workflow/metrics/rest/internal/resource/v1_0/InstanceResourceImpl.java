@@ -82,6 +82,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -842,6 +843,22 @@ public class InstanceResourceImpl
 		);
 	}
 
+	private List<Long> _getRoleIdsByGroupId(long groupId) {
+		return Stream.of(
+			ListUtil.concat(
+				roleLocalService.getUserGroupRoles(
+					contextUser.getUserId(), groupId),
+				roleLocalService.getUserGroupGroupRoles(
+					contextUser.getUserId(), groupId))
+		).flatMap(
+			List::stream
+		).map(
+			Role::getRoleId
+		).collect(
+			Collectors.toList()
+		);
+	}
+
 	private List<String> _getTaskNames(Bucket bucket) {
 		TermsAggregationResult termsAggregationResult =
 			(TermsAggregationResult)bucket.getChildAggregationResult("name");
@@ -892,29 +909,57 @@ public class InstanceResourceImpl
 					task.get("assigneeType"), User.class.getName())) {
 
 				for (Object assigneeId : (List<?>)task.get("assigneeIds")) {
-					Assignee assignee = AssigneeUtil.toAssignee(
-						_language, _portal,
-						ResourceBundleUtil.getModuleAndPortalResourceBundle(
-							contextAcceptLanguage.getPreferredLocale(),
-							InstanceResourceImpl.class),
-						GetterUtil.getLong(assigneeId),
-						_userLocalService::fetchUser);
-
-					if (assignee != null) {
-						assignees.add(assignee);
-					}
+					assignees.add(
+						AssigneeUtil.toAssignee(
+							_language, _portal,
+							ResourceBundleUtil.getModuleAndPortalResourceBundle(
+								contextAcceptLanguage.getPreferredLocale(),
+								InstanceResourceImpl.class),
+							GetterUtil.getLong(assigneeId),
+							_userLocalService::fetchUser));
 				}
 			}
 			else if (Objects.equals(
 						task.get("assigneeType"), Role.class.getName())) {
 
+				List<Long> assigneeGroupIds = null;
+
+				List<Long> assigneeIds = null;
+
+				Map<Long, List<Long>> mapGroupRoleIds = new HashMap<>();
+
 				boolean reviewer = false;
 
-				for (Object assigneeId : (List<?>)task.get("assigneeIds")) {
-					if (ArrayUtil.contains(
-							contextUser.getRoleIds(),
-							GetterUtil.getLong(assigneeId))) {
+				List<Long> roleIds;
 
+				if(task.get("assigneeGroupIds") != null) {
+					assigneeGroupIds = ListUtil.toList(
+						(List<?>)task.get("assigneeGroupIds"), GetterUtil::getLong);
+				}
+
+				if(task.get("assigneeIds") != null) {
+					assigneeIds = ListUtil.toList(
+						(List<?>)task.get("assigneeIds"), GetterUtil::getLong);
+				}
+
+				for (long groupId : assigneeGroupIds) {
+					mapGroupRoleIds.put(groupId, _getRoleIdsByGroupId(groupId));
+				}
+
+				for (long assigneeId : assigneeIds) {
+					if(ArrayUtil.contains(
+						contextUser.getGroupIds(),
+						GetterUtil.getLong(assigneeId))) {
+						reviewer = true;
+
+						break;
+					}
+				}
+
+				for (int i = 0; i < assigneeGroupIds.size(); i++) {
+					roleIds = mapGroupRoleIds.get(assigneeGroupIds.get(i));
+
+					if (roleIds.contains(assigneeIds.get(i))) {
 						reviewer = true;
 
 						break;
