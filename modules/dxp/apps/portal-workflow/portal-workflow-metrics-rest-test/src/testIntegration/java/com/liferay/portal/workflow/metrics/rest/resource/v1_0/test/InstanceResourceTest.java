@@ -156,20 +156,7 @@ public class InstanceResourceTest extends BaseInstanceResourceTestCase {
 					{
 						id = _user.getUserId();
 					}
-				}
-			});
-
-		testGetProcessInstancesPage_addInstance(_process.getId(), instance2);
-
-		Role siteAdministrationRole = _roleLocalService.getRole(
-			TestPropsValues.getCompanyId(), RoleConstants.SITE_ADMINISTRATOR);
-
-		User user1 = _addUser("meuUser");
-
-		Instance instance3 = randomInstance();
-
-		instance3.setAssignees(
-			new Assignee[] {
+				},
 				new Assignee() {
 					{
 						id = -1L;
@@ -177,9 +164,20 @@ public class InstanceResourceTest extends BaseInstanceResourceTestCase {
 				}
 			});
 
+		Role siteAdministrationRole = _roleLocalService.getRole(
+			TestPropsValues.getCompanyId(), RoleConstants.SITE_ADMINISTRATOR);
+
+		_userGroupRoleLocalService.addUserGroupRoles(
+			new long[] {TestPropsValues.getUserId()},
+			TestPropsValues.getGroupId(), siteAdministrationRole.getRoleId());
+
 		testGetProcessInstancesPage_addInstance(
-			_process.getId(), instance3, user1,
-			new long[] {siteAdministrationRole.getRoleId()});
+			_process.getId(), instance2,
+			new long[] {siteAdministrationRole.getRoleId()}, _user);
+
+		Page<Instance> page = instanceResource.getProcessInstancesPage(
+			_process.getId(), null, null, null, null, null, null, null,
+			Pagination.of(1, 2), null);
 
 		_testGetProcessInstancesPage(
 			null, null, null, null, new String[] {"Completed"},
@@ -447,7 +445,7 @@ public class InstanceResourceTest extends BaseInstanceResourceTestCase {
 	}
 
 	protected Instance testGetProcessInstancesPage_addInstance(
-			Long processId, Instance instance, User user, long[] roleIds)
+			Long processId, Instance instance, long[] roleIds, User user)
 		throws Exception {
 
 		instance.setProcessId(processId);

@@ -14,6 +14,7 @@
 
 package com.liferay.portal.workflow.metrics.rest.internal.resource.v1_0;
 
+import com.liferay.petra.lang.HashUtil;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -27,8 +28,10 @@ import com.liferay.portal.kernel.util.DateUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
+import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.ResourceBundleUtil;
+import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.odata.entity.EntityModel;
 import com.liferay.portal.search.aggregation.Aggregations;
@@ -82,6 +85,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -905,33 +909,81 @@ public class InstanceResourceImpl
 			else if (Objects.equals(
 						task.get("assigneeType"), Role.class.getName())) {
 
-				List<Long> userRoleIds = ListUtil.concat(
-					Stream.of(
-						ListUtil.fromArray(contextUser.getGroupIds())
-					).flatMap(
-						List::stream
-					).map(
-						groupId -> ListUtil.concat(
-							roleLocalService.getUserGroupRoles(
-								contextUser.getUserId(), groupId),
-							roleLocalService.getUserGroupGroupRoles(
-								contextUser.getUserId(), groupId))
-					).flatMap(
-						List::stream
-					).map(
-						Role::getRoleId
-					).collect(
-						Collectors.toList()
-					),
-					ListUtil.fromArray(contextUser.getRoleIds()));
+				List<Long> assigneeGroupIds = ListUtil.toList(
+					(List<?>)task.get("assigneeGroupIds"),
+					GetterUtil::getLong);
+
+				List<Long> assigneeIds = ListUtil.toList(
+					(List<?>)task.get("assigneeIds"),
+					GetterUtil::getLong);
+
+				Map<Long, List<Long>> mapGroupRoleIds = new HashMap<>();
+
+				boolean reviewer = false;
+
+//				List<Long> userRoleIds = ListUtil.concat(
+//					Stream.of(
+//						ListUtil.fromArray(contextUser.getGroupIds())
+//					).flatMap(
+//						List::stream
+//					).map(
+//						groupId -> ListUtil.concat(
+//							roleLocalService.getUserGroupRoles(
+//								contextUser.getUserId(), groupId),
+//							roleLocalService.getUserGroupGroupRoles(
+//								contextUser.getUserId(), groupId))
+//					).flatMap(
+//						List::stream
+//					).map(
+//						Role::getRoleId
+//					).collect(
+//						Collectors.toList()
+//					),
+//					ListUtil.fromArray(contextUser.getRoleIds()));
+
+				Stream.of(
+					ListUtil.fromArray(contextUser.getGroupIds()),
+					ListUtil.fromArray(contextUser.getGroupIds())
+				).flatMap(
+					List::stream
+				).map(
+					groupId -> mapGroupRoleIds.put(
+								groupId,
+								Stream.of(
+									ListUtil.concat(
+										roleLocalService.getUserGroupRoles(
+											contextUser.getUserId(), groupId),
+										roleLocalService.getUserGroupGroupRoles(
+											contextUser.getUserId(), groupId)
+									)
+								).flatMap(
+									List::stream
+								).map(
+									Role::getRoleId
+								).collect(
+									Collectors.toList()
+								)
+							)
+				);
+
+				for (int i = 0; i < assigneeGroupIds.size(); i++) {
+					if (mapGroupRoleIds.get(assigneeGroupIds.get(i)).contains(assigneeIds.get(i))) {
+						reviewer = true;
+						break;
+					}
+				}
 
 				assignees.add(
 					_createAssignee(
-						!Collections.disjoint(
-							userRoleIds,
-							ListUtil.toList(
-								(List<?>)task.get("assigneeIds"),
-								GetterUtil::getLong))));
+						reviewer));
+
+//				assignees.add(
+//					_createAssignee(
+//						!Collections.disjoint(
+//							SetUtil.fromList(userRoleIds),
+//							ListUtil.toList(
+//								(List<?>)task.get("assigneeIds"),
+//								GetterUtil::getLong))));
 			}
 
 			taskNames.add(

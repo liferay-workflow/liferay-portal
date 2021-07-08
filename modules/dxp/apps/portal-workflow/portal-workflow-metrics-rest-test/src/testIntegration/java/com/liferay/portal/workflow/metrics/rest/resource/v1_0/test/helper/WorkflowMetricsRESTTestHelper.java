@@ -278,8 +278,8 @@ public class WorkflowMetricsRESTTestHelper {
 
 			addTask(
 				assignee, companyId, nodeMetric.getDurationAvg(), instance,
-				node.getName(), node.getId(), processId, taskId,
-				user.getRoleIds(), version);
+				node.getName(), node.getId(), processId, version,
+				user.getRoleIds(), taskId);
 
 			if (instance.getCompleted()) {
 				completeInstance(companyId, instance);
@@ -483,8 +483,8 @@ public class WorkflowMetricsRESTTestHelper {
 
 		return addTask(
 			assignee, companyId, 0L, instance, RandomTestUtil.randomString(),
-			RandomTestUtil.randomLong(), instance.getProcessId(),
-			RandomTestUtil.randomLong(), roleIds, "1.0");
+			RandomTestUtil.randomLong(), instance.getProcessId(), "1.0",
+			roleIds, RandomTestUtil.randomLong());
 	}
 
 	public Task addTask(
@@ -493,14 +493,14 @@ public class WorkflowMetricsRESTTestHelper {
 
 		return addTask(
 			assignee, companyId, 0L, instance, RandomTestUtil.randomString(),
-			RandomTestUtil.randomLong(), instance.getProcessId(),
-			RandomTestUtil.randomLong(), user.getRoleIds(), "1.0");
+			RandomTestUtil.randomLong(), instance.getProcessId(), "1.0",
+			user.getRoleIds(), RandomTestUtil.randomLong());
 	}
 
 	public Task addTask(
 			Assignee assignee, long companyId, long durationAvg,
 			Instance instance, String name, long nodeId, long processId,
-			long taskId, long[] roleIds, String processVersion)
+			String processVersion, long[] roleIds, long taskId)
 		throws Exception {
 
 		Task task = new Task();
@@ -521,11 +521,11 @@ public class WorkflowMetricsRESTTestHelper {
 		task.setProcessId(processId);
 		task.setProcessVersion(processVersion);
 
-		return addTask(companyId, instance, task, roleIds);
+		return addTask(companyId, instance, roleIds, task);
 	}
 
 	public Task addTask(
-			long companyId, Instance instance, Task task, long[] roleIds)
+			long companyId, Instance instance, long[] roleIds, Task task)
 		throws Exception {
 
 		Long[] assigneeIds = ArrayUtil.toArray(roleIds);
