@@ -73,7 +73,6 @@ public class KaleoTaskInstanceTokenModelListener
 					kaleoTaskAssignmentInstances,
 					KaleoTaskAssignmentInstance::getGroupId);
 
-
 				String assigneeType = Stream.of(
 					kaleoTaskAssignmentInstances
 				).flatMap(
@@ -124,15 +123,13 @@ public class KaleoTaskInstanceTokenModelListener
 								getKaleoTaskInstanceTokenId());
 
 				if (!kaleoTaskAssignmentInstances.isEmpty()) {
-					Long[] assigneeIds = Stream.of(
-						kaleoTaskAssignmentInstances
-					).flatMap(
-						List::stream
-					).map(
-						KaleoTaskAssignmentInstance::getAssigneeClassPK
-					).toArray(
-						Long[]::new
-					);
+					Long[] assigneeGroupIds = _getAssigneeInfo(
+						kaleoTaskAssignmentInstances,
+						KaleoTaskAssignmentInstance::getGroupId);
+
+					Long[] assigneeIds = _getAssigneeInfo(
+						kaleoTaskAssignmentInstances,
+						KaleoTaskAssignmentInstance::getAssigneeClassPK);
 
 					String assigneeType = Stream.of(
 						kaleoTaskAssignmentInstances
@@ -153,7 +150,7 @@ public class KaleoTaskInstanceTokenModelListener
 						_indexerHelper.createAssetTypeLocalizationMap(
 							kaleoTaskInstanceToken.getClassName(),
 							kaleoTaskInstanceToken.getGroupId()),
-						null, assigneeIds, assigneeType,
+						assigneeGroupIds, assigneeIds, assigneeType,
 						kaleoTaskInstanceToken.getCompanyId(),
 						kaleoTaskInstanceToken.getModifiedDate(),
 						kaleoTaskInstanceToken.getKaleoTaskInstanceTokenId(),
@@ -201,8 +198,10 @@ public class KaleoTaskInstanceTokenModelListener
 			kaleoTaskInstanceToken.getUserId());
 	}
 
-	private Long[] _getAssigneeInfo(List<KaleoTaskAssignmentInstance> kaleoTaskAssignmentInstances,
-									Function<KaleoTaskAssignmentInstance, Long> function) {
+	private Long[] _getAssigneeInfo(
+		List<KaleoTaskAssignmentInstance> kaleoTaskAssignmentInstances,
+		Function<KaleoTaskAssignmentInstance, Long> function) {
+
 		return Optional.ofNullable(
 			kaleoTaskAssignmentInstances
 		).filter(
