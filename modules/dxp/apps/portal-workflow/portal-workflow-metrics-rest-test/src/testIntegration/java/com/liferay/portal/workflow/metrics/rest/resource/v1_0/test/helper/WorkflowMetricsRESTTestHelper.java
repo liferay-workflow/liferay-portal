@@ -278,7 +278,8 @@ public class WorkflowMetricsRESTTestHelper {
 
 			addTask(
 				assignee, companyId, nodeMetric.getDurationAvg(), instance,
-				node.getName(), node.getId(), processId, taskId, user, version);
+				node.getName(), node.getId(), processId, version,
+				user.getRoleIds(), taskId);
 
 			if (instance.getCompleted()) {
 				completeInstance(companyId, instance);
@@ -476,19 +477,30 @@ public class WorkflowMetricsRESTTestHelper {
 	}
 
 	public Task addTask(
+			Assignee assignee, long companyId, Instance instance,
+			long[] roleIds)
+		throws Exception {
+
+		return addTask(
+			assignee, companyId, 0L, instance, RandomTestUtil.randomString(),
+			RandomTestUtil.randomLong(), instance.getProcessId(), "1.0",
+			roleIds, RandomTestUtil.randomLong());
+	}
+
+	public Task addTask(
 			Assignee assignee, long companyId, Instance instance, User user)
 		throws Exception {
 
 		return addTask(
 			assignee, companyId, 0L, instance, RandomTestUtil.randomString(),
-			RandomTestUtil.randomLong(), instance.getProcessId(),
-			RandomTestUtil.randomLong(), user, "1.0");
+			RandomTestUtil.randomLong(), instance.getProcessId(), "1.0",
+			user.getRoleIds(), RandomTestUtil.randomLong());
 	}
 
 	public Task addTask(
 			Assignee assignee, long companyId, long durationAvg,
 			Instance instance, String name, long nodeId, long processId,
-			long taskId, User user, String processVersion)
+			String processVersion, long[] roleIds, long taskId)
 		throws Exception {
 
 		Task task = new Task();
@@ -509,7 +521,87 @@ public class WorkflowMetricsRESTTestHelper {
 		task.setProcessId(processId);
 		task.setProcessVersion(processVersion);
 
-		return addTask(companyId, instance, task, user);
+		return addTask(companyId, instance, roleIds, task);
+	}
+
+	public Task addTask(
+			long companyId, Instance instance, long[] roleIds, Task task)
+		throws Exception {
+
+		Long[] assigneeIds = ArrayUtil.toArray(roleIds);
+		String assigneeType = Role.class.getName();
+
+		Assignee assignee = task.getAssignee();
+
+		if ((assignee != null) && (assignee.getId() != null) &&
+			(assignee.getId() != -1L)) {
+
+			assigneeIds = new Long[] {assignee.getId()};
+			assigneeType = User.class.getName();
+		}
+
+		_taskWorkflowMetricsIndexer.addTask(
+			_createLocalizationMap(task.getAssetTitle()),
+			_createLocalizationMap(task.getAssetType()), assigneeIds,
+			assigneeType, task.getClassName(), task.getClassPK(), companyId,
+			false, null, null, task.getDateCreated(), false, null,
+			instance.getId(), task.getDateModified(), task.getName(),
+			task.getNodeId(), task.getProcessId(), task.getProcessVersion(),
+			task.getId(), 0);
+
+		_assertCount(
+			_taskWorkflowMetricsIndexNameBuilder.getIndexName(companyId),
+			"companyId", companyId, "deleted", false, "instanceId",
+			instance.getId(), "processId", task.getProcessId(), "nodeId",
+			task.getNodeId(), "name", task.getName(), "taskId", task.getId());
+
+		IdempotentRetryAssert.retryAssert(
+			3, TimeUnit.SECONDS,
+			() -> {
+				_assertCount(
+					booleanQuery -> booleanQuery.addMustQueryClauses(
+						_queries.nested(
+							"tasks",
+							_queries.term("tasks.taskId", task.getId()))),
+					1,
+					_instanceWorkflowMetricsIndexNameBuilder.getIndexName(
+						companyId),
+					"companyId", companyId, "deleted", false, "instanceId",
+					instance.getId(), "processId", task.getProcessId());
+
+				return null;
+			});
+
+		if (assigneeIds != null) {
+			_taskWorkflowMetricsIndexer.updateTask(
+				_createLocalizationMap(task.getAssetTitle()),
+				_createLocalizationMap(task.getAssetType()), assigneeIds,
+				assigneeType, companyId, new Date(), task.getId(), 0);
+
+			_assertCount(
+				_taskWorkflowMetricsIndexNameBuilder.getIndexName(companyId),
+				"assigneeIds", assigneeIds[0], "assigneeType", assigneeType,
+				"companyId", companyId, "deleted", false, "instanceId",
+				instance.getId(), "processId", task.getProcessId(), "nodeId",
+				task.getNodeId(), "name", task.getName(), "taskId",
+				task.getId());
+		}
+
+		if (task.getCompleted()) {
+			_taskWorkflowMetricsIndexer.completeTask(
+				companyId, task.getDateCompletion(), task.getCompletionUserId(),
+				task.getDuration(), task.getDateModified(), task.getId(), 0);
+
+			_assertCount(
+				_taskWorkflowMetricsIndexNameBuilder.getIndexName(companyId),
+				"companyId", companyId, "completed", true, "completionUserId",
+				task.getCompletionUserId(), "deleted", false, "duration",
+				task.getDuration(), "instanceId", instance.getId(), "processId",
+				task.getProcessId(), "nodeId", task.getNodeId(), "name",
+				task.getName(), "taskId", task.getId());
+		}
+
+		return task;
 	}
 
 	public Task addTask(long companyId, Instance instance, Task task, User user)

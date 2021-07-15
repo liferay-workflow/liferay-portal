@@ -18,7 +18,12 @@ import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.petra.function.UnsafeConsumer;
 import com.liferay.petra.reflect.ReflectionUtil;
 import com.liferay.petra.string.StringPool;
+import com.liferay.portal.kernel.model.Role;
 import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.model.role.RoleConstants;
+import com.liferay.portal.kernel.service.RoleLocalService;
+import com.liferay.portal.kernel.service.UserGroupRoleLocalService;
+import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.test.randomizerbumpers.NumericStringRandomizerBumper;
 import com.liferay.portal.kernel.test.randomizerbumpers.UniqueStringRandomizerBumper;
 import com.liferay.portal.kernel.test.rule.DataGuard;
@@ -54,6 +59,7 @@ import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang.time.DateUtils;
 
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -151,10 +157,25 @@ public class InstanceResourceTest extends BaseInstanceResourceTestCase {
 					{
 						id = _user.getUserId();
 					}
+				},
+				new Assignee() {
+					{
+						id = -1L;
+					}
 				}
 			});
 
-		testGetProcessInstancesPage_addInstance(_process.getId(), instance2);
+		Role siteAdministrationRole = _roleLocalService.getRole(
+			TestPropsValues.getCompanyId(), RoleConstants.SITE_ADMINISTRATOR);
+
+		_userGroupRoleLocalService.addUserGroupRoles(
+			new long[] {TestPropsValues.getUserId()},
+			TestPropsValues.getGroupId(), siteAdministrationRole.getRoleId());
+
+		testGetProcessInstancesPage_addInstance(
+			new long[] {TestPropsValues.getGroupId()},
+			_process.getId(), instance2,
+			new long[] {siteAdministrationRole.getRoleId()}, _user);
 
 		_testGetProcessInstancesPage(
 			null, null, null, null, new String[] {"Completed"},
@@ -169,10 +190,6 @@ public class InstanceResourceTest extends BaseInstanceResourceTestCase {
 			instances -> assertEqualsIgnoringOrder(
 				Collections.singletonList(instance2), instances));
 		_testGetProcessInstancesPage(
-			new Long[] {_user.getUserId()}, null, null, null, null,
-			instances -> assertEqualsIgnoringOrder(
-				Collections.singletonList(instance2), instances));
-		_testGetProcessInstancesPage(
 			null, null, null, null, new String[] {"Completed", "Pending"},
 			instances -> assertEqualsIgnoringOrder(
 				Arrays.asList(instance1, instance2), instances));
@@ -180,6 +197,11 @@ public class InstanceResourceTest extends BaseInstanceResourceTestCase {
 			null, null, null, null, null,
 			instances -> assertEqualsIgnoringOrder(
 				Arrays.asList(instance1, instance2), instances));
+
+		_testGetProcessInstancesPage(
+			null, null, null, null, new String[] {"Pending"},
+			instances -> Assert.assertTrue(
+				instances.get(0).getAssignees()[1].getReviewer()));
 
 		Date dateEnd = DateUtils.addSeconds(instance1.getDateCompletion(), 1);
 		Date dateStart = DateUtils.addSeconds(
@@ -421,6 +443,39 @@ public class InstanceResourceTest extends BaseInstanceResourceTestCase {
 		return instance;
 	}
 
+	protected Instance testGetProcessInstancesPage_addInstance(
+		long[] groupIds, Long processId, Instance instance, long[] roleIds, User user)
+		throws Exception {
+
+		instance.setProcessId(processId);
+
+		instance = _workflowMetricsRESTTestHelper.addInstance(
+			testGroup.getCompanyId(), instance);
+
+		for (Assignee assignee : instance.getAssignees()) {
+			if (assignee.getId() == -1L) {
+				_workflowMetricsRESTTestHelper.addTask(
+					assignee, testGroup.getCompanyId(), groupIds, instance, roleIds);
+			}
+			else {
+				_workflowMetricsRESTTestHelper.addTask(
+					assignee, testGroup.getCompanyId(), instance, user);
+			}
+		}
+
+		if (instance.getCompleted()) {
+			_workflowMetricsRESTTestHelper.completeInstance(
+				testGroup.getCompanyId(), instance);
+		}
+
+		_workflowMetricsRESTTestHelper.addSLAInstanceResults(
+			testGroup.getCompanyId(), instance, instance.getSlaResults());
+
+		_instances.add(instance);
+
+		return instance;
+	}
+
 	@Override
 	protected Long testGetProcessInstancesPage_getProcessId() throws Exception {
 		return _process.getId();
@@ -510,7 +565,17 @@ public class InstanceResourceTest extends BaseInstanceResourceTestCase {
 	private Long _classPK;
 	private final List<Instance> _instances = new ArrayList<>();
 	private Process _process;
+
+	@Inject
+	private RoleLocalService _roleLocalService;
+
 	private User _user;
+
+	@Inject
+	private UserGroupRoleLocalService _userGroupRoleLocalService;
+
+	@Inject
+	private UserLocalService _userLocalService;
 
 	@Inject
 	private WorkflowMetricsRESTTestHelper _workflowMetricsRESTTestHelper;
