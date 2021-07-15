@@ -49,7 +49,7 @@ public class TaskWorkflowMetricsIndexerImpl
 	@Override
 	public Document addTask(
 		Map<Locale, String> assetTitleMap, Map<Locale, String> assetTypeMap,
-		Long[] assigneeIds, String assigneeType, String className, long classPK,
+		Long[] assigneeGroupIds, Long[] assigneeIds, String assigneeType, String className, long classPK,
 		long companyId, boolean completed, Date completionDate,
 		Long completionUserId, Date createDate, boolean instanceCompleted,
 		Date instanceCompletionDate, long instanceId, Date modifiedDate,

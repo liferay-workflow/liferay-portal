@@ -542,7 +542,7 @@ public class WorkflowMetricsRESTTestHelper {
 
 		_taskWorkflowMetricsIndexer.addTask(
 			_createLocalizationMap(task.getAssetTitle()),
-			_createLocalizationMap(task.getAssetType()), assigneeIds,
+			_createLocalizationMap(task.getAssetType()), null, assigneeIds,
 			assigneeType, task.getClassName(), task.getClassPK(), companyId,
 			false, null, null, task.getDateCreated(), false, null,
 			instance.getId(), task.getDateModified(), task.getName(),
@@ -619,7 +619,7 @@ public class WorkflowMetricsRESTTestHelper {
 
 		_taskWorkflowMetricsIndexer.addTask(
 			_createLocalizationMap(task.getAssetTitle()),
-			_createLocalizationMap(task.getAssetType()), assigneeIds,
+			_createLocalizationMap(task.getAssetType()), null, assigneeIds,
 			assigneeType, task.getClassName(), task.getClassPK(), companyId,
 			false, null, null, task.getDateCreated(), false, null,
 			instance.getId(), task.getDateModified(), task.getName(),

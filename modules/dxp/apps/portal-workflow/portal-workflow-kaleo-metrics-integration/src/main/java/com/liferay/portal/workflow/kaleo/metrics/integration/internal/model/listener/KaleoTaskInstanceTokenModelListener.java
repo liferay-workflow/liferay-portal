@@ -32,6 +32,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 import org.osgi.service.component.annotations.Component;
@@ -64,21 +65,14 @@ public class KaleoTaskInstanceTokenModelListener
 							kaleoTaskInstanceToken.
 								getKaleoTaskInstanceTokenId());
 
-				Long[] assigneeIds = Optional.ofNullable(
-					kaleoTaskAssignmentInstances
-				).filter(
-					ListUtil::isNotEmpty
-				).map(
-					List::stream
-				).map(
-					stream -> stream.map(
-						KaleoTaskAssignmentInstance::getAssigneeClassPK
-					).toArray(
-						Long[]::new
-					)
-				).orElseGet(
-					() -> null
-				);
+				Long[] assigneeIds = _getAssigneeInfo(
+					kaleoTaskAssignmentInstances,
+					KaleoTaskAssignmentInstance::getAssigneeClassPK);
+
+				Long[] assigneeGroupIds = _getAssigneeInfo(
+					kaleoTaskAssignmentInstances,
+					KaleoTaskAssignmentInstance::getGroupId);
+
 
 				String assigneeType = Stream.of(
 					kaleoTaskAssignmentInstances
@@ -99,7 +93,7 @@ public class KaleoTaskInstanceTokenModelListener
 					_indexerHelper.createAssetTypeLocalizationMap(
 						kaleoTaskInstanceToken.getClassName(),
 						kaleoTaskInstanceToken.getGroupId()),
-					assigneeIds, assigneeType,
+					null, assigneeIds, assigneeType,
 					kaleoTaskInstanceToken.getClassName(),
 					kaleoTaskInstanceToken.getClassPK(),
 					kaleoTaskInstanceToken.getCompanyId(), false, null, null,
@@ -205,6 +199,25 @@ public class KaleoTaskInstanceTokenModelListener
 			kaleoTaskInstanceToken.getModifiedDate(),
 			kaleoTaskInstanceToken.getKaleoTaskInstanceTokenId(),
 			kaleoTaskInstanceToken.getUserId());
+	}
+
+	private Long[] _getAssigneeInfo(List<KaleoTaskAssignmentInstance> kaleoTaskAssignmentInstances,
+									Function<KaleoTaskAssignmentInstance, Long> function) {
+		return Optional.ofNullable(
+			kaleoTaskAssignmentInstances
+		).filter(
+			ListUtil::isNotEmpty
+		).map(
+			List::stream
+		).map(
+			stream -> stream.map(
+				function
+			).toArray(
+				Long[]::new
+			)
+		).orElseGet(
+			() -> null
+		);
 	}
 
 	@Reference

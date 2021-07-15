@@ -128,7 +128,7 @@ public class TaskWorkflowMetricsReindexer implements WorkflowMetricsReindexer {
 					_indexerHelper.createAssetTypeLocalizationMap(
 						kaleoTaskInstanceToken.getClassName(),
 						kaleoTaskInstanceToken.getGroupId()),
-					assigneeIds, assigneeType,
+					null, assigneeIds, assigneeType,
 					kaleoTaskInstanceToken.getClassName(),
 					kaleoTaskInstanceToken.getClassPK(),
 					kaleoTaskInstanceToken.getCompanyId(),
