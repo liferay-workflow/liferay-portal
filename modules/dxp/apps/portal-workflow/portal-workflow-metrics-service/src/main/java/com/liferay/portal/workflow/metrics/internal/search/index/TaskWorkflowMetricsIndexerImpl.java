@@ -150,6 +150,8 @@ public class TaskWorkflowMetricsIndexerImpl
 						).putParameter(
 							"task",
 							HashMapBuilder.<String, Object>put(
+								"assigneeGroupIds", assigneeGroupIds
+							).put(
 								"assigneeIds", assigneeIds
 							).put(
 								"assigneeName",

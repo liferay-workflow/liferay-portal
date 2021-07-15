@@ -93,7 +93,7 @@ public class KaleoTaskInstanceTokenModelListener
 					_indexerHelper.createAssetTypeLocalizationMap(
 						kaleoTaskInstanceToken.getClassName(),
 						kaleoTaskInstanceToken.getGroupId()),
-					null, assigneeIds, assigneeType,
+					assigneeGroupIds, assigneeIds, assigneeType,
 					kaleoTaskInstanceToken.getClassName(),
 					kaleoTaskInstanceToken.getClassPK(),
 					kaleoTaskInstanceToken.getCompanyId(), false, null, null,
