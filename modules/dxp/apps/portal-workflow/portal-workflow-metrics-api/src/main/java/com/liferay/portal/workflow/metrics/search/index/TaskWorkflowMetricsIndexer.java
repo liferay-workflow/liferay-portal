@@ -36,8 +36,8 @@ public interface TaskWorkflowMetricsIndexer {
 
 	public Document addTask(
 		Map<Locale, String> assetTitleMap, Map<Locale, String> assetTypeMap,
-		Map<Long, Long> assigneeGroupIds, String assigneeType, String className, long classPK,
-		long companyId, boolean completed, Date completionDate,
+		Map<Long, Long> assigneeGroupIds, String assigneeType, String className,
+		long classPK, long companyId, boolean completed, Date completionDate,
 		Long completionUserId, Date createDate, boolean instanceCompleted,
 		Date instanceCompletionDate, long instanceId, Date modifiedDate,
 		String name, long nodeId, long processId, String processVersion,
@@ -52,6 +52,11 @@ public interface TaskWorkflowMetricsIndexer {
 	public Document updateTask(
 		Map<Locale, String> assetTitleMap, Map<Locale, String> assetTypeMap,
 		Long[] assigneeIds, String assigneeType, long companyId,
+		Date modifiedDate, long taskId, long userId);
+
+	public Document updateTask(
+		Map<Locale, String> assetTitleMap, Map<Locale, String> assetTypeMap,
+		Map<Long, Long> assigneeGroupIds, String assigneeType, long companyId,
 		Date modifiedDate, long taskId, long userId);
 
 }
