@@ -187,6 +187,156 @@ public class TaskWorkflowMetricsIndexerImpl
 	}
 
 	@Override
+	public Document addTask(
+		Map<Locale, String> assetTitleMap, Map<Locale, String> assetTypeMap,
+		Map<Long, Long> assigneeGroupIds, String assigneeType, String className,
+		long classPK, long companyId, boolean completed, Date completionDate,
+		Long completionUserId, Date createDate, boolean instanceCompleted,
+		Date instanceCompletionDate, long instanceId, Date modifiedDate,
+		String name, long nodeId, long processId, String processVersion,
+		long taskId, long userId) {
+
+		DocumentBuilder documentBuilder = documentBuilderFactory.builder();
+
+		List<Long> assigneeGroupValues = ListUtil.fromCollection(
+			assigneeGroupIds.values());
+
+		Long[] groupIds = assigneeGroupValues.toArray(new Long[0]);
+
+		List<Long> assigneeGroupKeys = ListUtil.fromCollection(
+			assigneeGroupIds.keySet());
+
+		Long[] assigneeIds = assigneeGroupKeys.toArray(new Long[0]);
+
+		documentBuilder.setLongs("assigneeIds", assigneeIds);
+
+		documentBuilder.setString("assigneeType", assigneeType);
+
+		documentBuilder.setString(
+			"className", className
+		).setLong(
+			"classPK", classPK
+		).setLong(
+			"companyId", companyId
+		).setValue(
+			"completed", completed
+		);
+
+		if (completed) {
+			documentBuilder.setDate(
+				"completionDate", getDate(completionDate)
+			).setLong(
+				"completionUserId", completionUserId
+			);
+		}
+
+		documentBuilder.setDate(
+			"createDate", getDate(createDate)
+		).setValue(
+			Field.getSortableFieldName("createDate_Number"),
+			createDate.getTime()
+		).setValue(
+			"deleted", false
+		);
+
+		if (completed) {
+			documentBuilder.setLong(
+				"duration", _getDuration(completionDate, createDate));
+		}
+
+		documentBuilder.setValue(
+			"instanceCompleted", instanceCompleted
+		).setDate(
+			"instanceCompletionDate", getDate(instanceCompletionDate)
+		).setLong(
+			"instanceId", instanceId
+		).setDate(
+			"modifiedDate", getDate(modifiedDate)
+		).setString(
+			"name", name
+		).setLong(
+			"nodeId", nodeId
+		).setLong(
+			"processId", processId
+		).setLong(
+			"taskId", taskId
+		).setString(
+			"uid", digest(companyId, taskId)
+		).setLong(
+			"userId", userId
+		).setString(
+			"version", processVersion
+		);
+
+		setLocalizedField(documentBuilder, "assetTitle", assetTitleMap);
+		setLocalizedField(documentBuilder, "assetType", assetTypeMap);
+
+		Document document = documentBuilder.build();
+
+		workflowMetricsPortalExecutor.execute(
+			() -> {
+				addDocument(document);
+
+				if (completed) {
+					return;
+				}
+
+				ScriptBuilder scriptBuilder = scripts.builder();
+
+				UpdateDocumentRequest updateDocumentRequest =
+					new UpdateDocumentRequest(
+						_instanceWorkflowMetricsIndex.getIndexName(companyId),
+						WorkflowMetricsIndexerUtil.digest(
+							_instanceWorkflowMetricsIndex.getIndexType(),
+							companyId, instanceId),
+						scriptBuilder.idOrCode(
+							StringUtil.read(
+								getClass(),
+								"dependencies/workflow-metrics-add-task-" +
+									"script.painless")
+						).language(
+							"painless"
+						).putParameter(
+							"task",
+							HashMapBuilder.<String, Object>put(
+								"assigneeGroupIds", groupIds
+							).put(
+								"assigneeIds", assigneeIds
+							).put(
+								"assigneeName",
+								() -> {
+									if (!Objects.equals(
+											assigneeType,
+											User.class.getName())) {
+
+										return null;
+									}
+
+									User user = _userLocalService.fetchUser(
+										assigneeIds[0]);
+
+									return user.getFullName();
+								}
+							).put(
+								"assigneeType", assigneeType
+							).put(
+								"taskId", taskId
+							).put(
+								"taskName", name
+							).build()
+						).scriptType(
+							ScriptType.INLINE
+						).build());
+
+				updateDocumentRequest.setScriptedUpsert(true);
+
+				searchEngineAdapter.execute(updateDocumentRequest);
+			});
+
+		return document;
+	}
+
+	@Override
 	public Document completeTask(
 		long companyId, Date completionDate, long completionUserId,
 		long duration, Date modifiedDate, long taskId, long userId) {
@@ -367,7 +517,7 @@ public class TaskWorkflowMetricsIndexerImpl
 
 		return document;
 	}
-
+	
 	private void _deleteTask(long companyId, long taskId) {
 		ScriptBuilder scriptBuilder = scripts.builder();
 
