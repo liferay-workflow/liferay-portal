@@ -18,6 +18,7 @@ import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.search.Field;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.util.HashMapBuilder;
+import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.search.document.Document;
 import com.liferay.portal.search.document.DocumentBuilder;
@@ -215,9 +216,10 @@ public class TaskWorkflowMetricsIndexerImpl
 
 		Long[] assigneeIds = assigneeGroupKeys.toArray(new Long[0]);
 
-		documentBuilder.setLongs("assigneeIds", assigneeIds);
-
-		documentBuilder.setString("assigneeType", assigneeType);
+		if (assigneeIds.length > 0) {
+			documentBuilder.setLongs("assigneeIds", assigneeIds);
+			documentBuilder.setString("assigneeType", assigneeType);
+		}
 
 		documentBuilder.setString(
 			"className", className
@@ -314,7 +316,8 @@ public class TaskWorkflowMetricsIndexerImpl
 								() -> {
 									if (!Objects.equals(
 											assigneeType,
-											User.class.getName())) {
+											User.class.getName()) ||
+										(assigneeIds.length == 0)) {
 
 										return null;
 									}

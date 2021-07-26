@@ -62,6 +62,7 @@ import com.liferay.portal.workflow.metrics.sla.processor.WorkflowMetricsSLAStatu
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -140,20 +141,20 @@ public class TaskResourceImpl extends BaseTaskResourceImpl {
 
 		getProcessTask(processId, taskId);
 
-		Long[] assigneeIds = null;
+		Map<Long, Long> assigneeGroupIds = new HashMap<>();
 		String assigneeType = null;
 
 		Assignee assignee = task.getAssignee();
 
 		if ((assignee != null) && (assignee.getId() != null)) {
-			assigneeIds = new Long[] {assignee.getId()};
+			assigneeGroupIds.put(assignee.getId(), null);
 			assigneeType = User.class.getName();
 		}
 
 		_taskWorkflowMetricsIndexer.updateTask(
 			LocalizedMapUtil.getLocalizedMap(task.getAssetTitle_i18n()),
 			LocalizedMapUtil.getLocalizedMap(task.getAssetType_i18n()),
-			assigneeIds, assigneeType, contextCompany.getCompanyId(),
+			assigneeGroupIds, assigneeType, contextCompany.getCompanyId(),
 			task.getDateModified(), task.getId(), contextUser.getUserId());
 	}
 
@@ -173,11 +174,11 @@ public class TaskResourceImpl extends BaseTaskResourceImpl {
 	public Task postProcessTask(Long processId, Task task) throws Exception {
 		Assignee assignee = task.getAssignee();
 
-		Long[] assigneeIds = null;
+		Map<Long, Long> assigneeGroupIds = new HashMap<>();
 		String assigneeType = null;
 
 		if ((assignee != null) && (assignee.getId() != null)) {
-			assigneeIds = new Long[] {assignee.getId()};
+			assigneeGroupIds.put(assignee.getId(), null);
 			assigneeType = User.class.getName();
 		}
 
@@ -185,7 +186,7 @@ public class TaskResourceImpl extends BaseTaskResourceImpl {
 			_taskWorkflowMetricsIndexer.addTask(
 				LocalizedMapUtil.getLocalizedMap(task.getAssetTitle_i18n()),
 				LocalizedMapUtil.getLocalizedMap(task.getAssetType_i18n()),
-				assigneeIds, assigneeType, task.getClassName(),
+				assigneeGroupIds, assigneeType, task.getClassName(),
 				task.getClassPK(), contextCompany.getCompanyId(), false, null,
 				null, task.getDateCreated(), false, null, task.getInstanceId(),
 				task.getDateModified(), task.getName(), task.getNodeId(),

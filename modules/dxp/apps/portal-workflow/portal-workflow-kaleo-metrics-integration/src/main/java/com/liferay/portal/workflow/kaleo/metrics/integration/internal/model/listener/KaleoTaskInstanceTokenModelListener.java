@@ -29,9 +29,10 @@ import com.liferay.portal.workflow.metrics.search.index.TaskWorkflowMetricsIndex
 import java.time.Duration;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.osgi.service.component.annotations.Component;
@@ -64,21 +65,25 @@ public class KaleoTaskInstanceTokenModelListener
 							kaleoTaskInstanceToken.
 								getKaleoTaskInstanceTokenId());
 
-				Long[] assigneeIds = Optional.ofNullable(
-					kaleoTaskAssignmentInstances
-				).filter(
-					ListUtil::isNotEmpty
-				).map(
-					List::stream
-				).map(
-					stream -> stream.map(
-						KaleoTaskAssignmentInstance::getAssigneeClassPK
-					).toArray(
-						Long[]::new
-					)
-				).orElseGet(
-					() -> null
-				);
+				long[] assigneeIds = ListUtil.toLongArray(
+					kaleoTaskAssignmentInstances,
+					KaleoTaskAssignmentInstance::getAssigneeClassPK);
+
+				long[] groupIds = ListUtil.toLongArray(
+					kaleoTaskAssignmentInstances,
+					KaleoTaskAssignmentInstance::getGroupId);
+
+				Map<Long, Long> assigneeGroupIds = new HashMap<>();
+
+				for (int count = 0; count < assigneeIds.length; count++) {
+					if (count < groupIds.length) {
+						assigneeGroupIds.put(
+							assigneeIds[count], groupIds[count]);
+					}
+					else {
+						assigneeGroupIds.put(assigneeIds[count], null);
+					}
+				}
 
 				String assigneeType = Stream.of(
 					kaleoTaskAssignmentInstances
@@ -99,7 +104,7 @@ public class KaleoTaskInstanceTokenModelListener
 					_indexerHelper.createAssetTypeLocalizationMap(
 						kaleoTaskInstanceToken.getClassName(),
 						kaleoTaskInstanceToken.getGroupId()),
-					assigneeIds, assigneeType,
+					assigneeGroupIds, assigneeType,
 					kaleoTaskInstanceToken.getClassName(),
 					kaleoTaskInstanceToken.getClassPK(),
 					kaleoTaskInstanceToken.getCompanyId(), false, null, null,

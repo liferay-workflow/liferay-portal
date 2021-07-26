@@ -32,9 +32,10 @@ import com.liferay.portal.workflow.metrics.search.background.task.WorkflowMetric
 import com.liferay.portal.workflow.metrics.search.index.TaskWorkflowMetricsIndexer;
 import com.liferay.portal.workflow.metrics.search.index.reindexer.WorkflowMetricsReindexer;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
@@ -93,21 +94,25 @@ public class TaskWorkflowMetricsReindexer implements WorkflowMetricsReindexer {
 							kaleoTaskInstanceToken.
 								getKaleoTaskInstanceTokenId());
 
-				Long[] assigneeIds = Optional.ofNullable(
-					kaleoTaskAssignmentInstances
-				).filter(
-					ListUtil::isNotEmpty
-				).map(
-					List::stream
-				).map(
-					stream -> stream.map(
-						KaleoTaskAssignmentInstance::getAssigneeClassPK
-					).toArray(
-						Long[]::new
-					)
-				).orElseGet(
-					() -> null
-				);
+				long[] assigneeIds = ListUtil.toLongArray(
+					kaleoTaskAssignmentInstances,
+					KaleoTaskAssignmentInstance::getAssigneeClassPK);
+
+				long[] groupIds = ListUtil.toLongArray(
+					kaleoTaskAssignmentInstances,
+					KaleoTaskAssignmentInstance::getGroupId);
+
+				Map<Long, Long> assigneeGroupIds = new HashMap<>();
+
+				for (int count = 0; count < assigneeIds.length; count++) {
+					if (count < groupIds.length) {
+						assigneeGroupIds.put(
+							assigneeIds[count], groupIds[count]);
+					}
+					else {
+						assigneeGroupIds.put(assigneeIds[count], null);
+					}
+				}
 
 				String assigneeType = Stream.of(
 					kaleoTaskAssignmentInstances
@@ -128,7 +133,7 @@ public class TaskWorkflowMetricsReindexer implements WorkflowMetricsReindexer {
 					_indexerHelper.createAssetTypeLocalizationMap(
 						kaleoTaskInstanceToken.getClassName(),
 						kaleoTaskInstanceToken.getGroupId()),
-					assigneeIds, assigneeType,
+					assigneeGroupIds, assigneeType,
 					kaleoTaskInstanceToken.getClassName(),
 					kaleoTaskInstanceToken.getClassPK(),
 					kaleoTaskInstanceToken.getCompanyId(),
