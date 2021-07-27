@@ -37,7 +37,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -551,9 +550,10 @@ public class TaskWorkflowMetricsIndexerImpl
 
 		Long[] assigneeIds = assigneeGroupKeys.toArray(new Long[0]);
 
-		documentBuilder.setLongs("assigneeIds", assigneeIds);
-
-		documentBuilder.setString("assigneeType", assigneeType);
+		if (assigneeIds.length > 0) {
+			documentBuilder.setLongs("assigneeIds", assigneeIds);
+			documentBuilder.setString("assigneeType", assigneeType);
+		}
 
 		documentBuilder.setLong(
 			"companyId", companyId
@@ -610,7 +610,9 @@ public class TaskWorkflowMetricsIndexerImpl
 					"assigneeIds", assigneeIds
 				);
 
-				if (Objects.equals(assigneeType, User.class.getName())) {
+				if (Objects.equals(assigneeType, User.class.getName()) &&
+					(assigneeIds.length > 0)) {
+
 					User user = _userLocalService.fetchUser(assigneeIds[0]);
 
 					scriptBuilder.putParameter(
