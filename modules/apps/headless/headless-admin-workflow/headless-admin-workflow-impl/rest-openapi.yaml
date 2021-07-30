@@ -205,6 +205,10 @@ components:
                         type: string
                     readOnly: true
                     type: object
+                transitions:
+                    items:
+                        $ref: "#/components/schemas/Transition"
+                    type: array
                 version:
                     type: string
             type: object

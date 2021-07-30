@@ -110,6 +110,11 @@ public class DefaultWorkflowDefinition
 	}
 
 	@Override
+	public List<WorkflowTransition> getWorkflowTransitions() {
+		return _workflowTransitions;
+	}
+
+	@Override
 	public boolean isActive() {
 		return _active;
 	}
@@ -170,6 +175,12 @@ public class DefaultWorkflowDefinition
 		_workflowDefinitionId = workflowDefinitionId;
 	}
 
+	public void setWorkflowTransitions(
+		List<WorkflowTransition> workflowTransitions) {
+
+		_workflowTransitions = workflowTransitions;
+	}
+
 	private boolean _active;
 	private long _companyId;
 	private String _content;
@@ -184,5 +195,6 @@ public class DefaultWorkflowDefinition
 	private long _userId;
 	private int _version;
 	private long _workflowDefinitionId;
+	private List<WorkflowTransition> _workflowTransitions;
 
 }
