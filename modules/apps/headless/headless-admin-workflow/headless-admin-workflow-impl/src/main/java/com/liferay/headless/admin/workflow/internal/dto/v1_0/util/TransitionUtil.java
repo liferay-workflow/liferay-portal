@@ -16,8 +16,11 @@ package com.liferay.headless.admin.workflow.internal.dto.v1_0.util;
 
 import com.liferay.headless.admin.workflow.dto.v1_0.Transition;
 import com.liferay.portal.kernel.language.Language;
+import com.liferay.portal.kernel.workflow.WorkflowTransition;
 
+import java.util.List;
 import java.util.ResourceBundle;
+import java.util.stream.Stream;
 
 /**
  * @author Inácio Nery
@@ -27,12 +30,43 @@ public class TransitionUtil {
 	public static Transition toTransition(
 		Language language, String name, ResourceBundle resourceBundle) {
 
+		return toTransition(language, name, resourceBundle, null, null);
+	}
+
+	public static Transition toTransition(
+		Language language, String name, ResourceBundle resourceBundle,
+		String sourceNodeName, String targetNodeName) {
+
 		Transition transition = new Transition();
 
 		transition.setLabel(language.get(resourceBundle, name));
 		transition.setName(name);
+		transition.setSourceNodeName(sourceNodeName);
+		transition.setTargetNodeName(targetNodeName);
 
 		return transition;
+	}
+
+	public static Transition[] toTransitions(
+		Language language, ResourceBundle resourceBundle,
+		List<WorkflowTransition> workflowTransitions) {
+
+		if (workflowTransitions == null) {
+			return null;
+		}
+
+		return Stream.of(
+			workflowTransitions
+		).flatMap(
+			List::stream
+		).map(
+			workflowTransition -> toTransition(
+				language, workflowTransition.getName(), resourceBundle,
+				workflowTransition.getSourceNodeName(),
+				workflowTransition.getTargetNodeName())
+		).toArray(
+			Transition[]::new
+		);
 	}
 
 }
