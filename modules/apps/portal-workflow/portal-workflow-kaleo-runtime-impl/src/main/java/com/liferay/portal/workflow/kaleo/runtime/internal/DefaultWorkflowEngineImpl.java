@@ -531,6 +531,18 @@ public class DefaultWorkflowEngineImpl
 			ServiceContext serviceContext)
 		throws WorkflowException {
 
+		return signalWorkflowInstance(
+			workflowInstanceId, transitionName, workflowContext, serviceContext,
+			false);
+	}
+
+	@Override
+	public WorkflowInstance signalWorkflowInstance(
+			long workflowInstanceId, final String transitionName,
+			Map<String, Serializable> workflowContext,
+			ServiceContext serviceContext, boolean waitForCompletion)
+		throws WorkflowException {
+
 		try {
 			KaleoInstance kaleoInstance = doUpdateContext(
 				workflowInstanceId, workflowContext, serviceContext);
@@ -561,7 +573,8 @@ public class DefaultWorkflowEngineImpl
 					public Void call() throws Exception {
 						try {
 							_kaleoSignaler.signalExit(
-								transitionName, executionContext);
+								transitionName, executionContext,
+								waitForCompletion);
 						}
 						catch (Exception exception) {
 							throw new WorkflowException(
@@ -584,12 +597,24 @@ public class DefaultWorkflowEngineImpl
 		}
 	}
 
-	@Override
 	public WorkflowInstance startWorkflowInstance(
 			String workflowDefinitionName, Integer workflowDefinitionVersion,
 			final String transitionName,
 			Map<String, Serializable> workflowContext,
 			ServiceContext serviceContext)
+		throws WorkflowException {
+
+		return startWorkflowInstance(
+			workflowDefinitionName, workflowDefinitionVersion, transitionName,
+			workflowContext, serviceContext, false);
+	}
+
+	@Override
+	public WorkflowInstance startWorkflowInstance(
+			String workflowDefinitionName, Integer workflowDefinitionVersion,
+			final String transitionName,
+			Map<String, Serializable> workflowContext,
+			ServiceContext serviceContext, boolean waitForCompletion)
 		throws WorkflowException {
 
 		try {
@@ -661,7 +686,8 @@ public class DefaultWorkflowEngineImpl
 					public Void call() throws Exception {
 						try {
 							_kaleoSignaler.signalEntry(
-								transitionName, executionContext);
+								transitionName, executionContext,
+								waitForCompletion);
 						}
 						catch (Exception exception) {
 							throw new WorkflowException(
