@@ -18,12 +18,14 @@ import com.liferay.portal.kernel.workflow.WorkflowException;
 import com.liferay.portal.workflow.kaleo.definition.Definition;
 import com.liferay.portal.workflow.kaleo.definition.Node;
 import com.liferay.portal.workflow.kaleo.definition.State;
+import com.liferay.portal.workflow.kaleo.definition.Transition;
 import com.liferay.portal.workflow.kaleo.definition.exception.KaleoDefinitionValidationException;
 import com.liferay.portal.workflow.kaleo.definition.parser.NodeValidator;
 import com.liferay.portal.workflow.kaleo.definition.parser.WorkflowValidator;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -59,6 +61,28 @@ public class DefaultWorkflowValidator implements WorkflowValidator {
 		Collection<Node> nodes = definition.getNodes();
 
 		for (Node node : nodes) {
+			Map<String, Transition> outgoingTransitions =
+				node.getOutgoingTransitions();
+
+			if (outgoingTransitions.size() > 1) {
+				long transitionsCount = 0;
+
+				for (Map.Entry<String, Transition> entryTransition :
+						outgoingTransitions.entrySet()) {
+
+					Transition transition = entryTransition.getValue();
+
+					if (transition.isDefault()) {
+						transitionsCount++;
+					}
+				}
+
+				if (transitionsCount > 1) {
+					throw new KaleoDefinitionValidationException.
+						MustNotSetMoreThanOneDefaultTransition(node.getName());
+				}
+			}
+
 			NodeValidator<Node> nodeValidator =
 				_nodeValidatorRegistry.getNodeValidator(node.getNodeType());
 
