@@ -26,6 +26,9 @@ import com.liferay.portal.workflow.kaleo.definition.parser.WorkflowValidator;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -65,19 +68,20 @@ public class DefaultWorkflowValidator implements WorkflowValidator {
 				node.getOutgoingTransitions();
 
 			if (outgoingTransitions.size() > 1) {
-				long transitionsCount = 0;
+				Set<Map.Entry<String, Transition>> entryTransition =
+					outgoingTransitions.entrySet();
 
-				for (Map.Entry<String, Transition> entryTransition :
-						outgoingTransitions.entrySet()) {
+				Stream<Map.Entry<String, Transition>> entryTransitionStream =
+					entryTransition.stream();
 
-					Transition transition = entryTransition.getValue();
+				List<Object> defaultTransitions = entryTransitionStream.filter(
+					transition -> transition.getValue(
+					).isDefault()
+				).collect(
+					Collectors.toList()
+				);
 
-					if (transition.isDefault()) {
-						transitionsCount++;
-					}
-				}
-
-				if (transitionsCount > 1) {
+				if (defaultTransitions.size() > 1) {
 					throw new KaleoDefinitionValidationException.
 						MustNotSetMoreThanOneDefaultTransition(node.getName());
 				}
