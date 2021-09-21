@@ -92,7 +92,7 @@ public abstract class BaseWorkflowMetricsIndexer {
 	public void deleteDocument(DocumentBuilder documentBuilder) {
 		documentBuilder.setValue("deleted", true);
 
-		_updateDocument(documentBuilder.build());
+		_updateDocument(documentBuilder.build(), false);
 	}
 
 	public abstract String getIndexName(long companyId);
@@ -100,7 +100,11 @@ public abstract class BaseWorkflowMetricsIndexer {
 	public abstract String getIndexType();
 
 	public void updateDocument(Document document) {
-		_updateDocument(document);
+		_updateDocument(document, false);
+	}
+
+	public void updateDocument(Document document, boolean refresh) {
+		_updateDocument(document, refresh);
 	}
 
 	protected void addDocument(Document document) {
@@ -264,7 +268,7 @@ public abstract class BaseWorkflowMetricsIndexer {
 		return clazz.isArray();
 	}
 
-	private void _updateDocument(Document document) {
+	private void _updateDocument(Document document, boolean refresh) {
 		if (searchEngineAdapter == null) {
 			return;
 		}
@@ -273,7 +277,7 @@ public abstract class BaseWorkflowMetricsIndexer {
 			getIndexName(document.getLong("companyId")),
 			document.getString("uid"), document);
 
-		if (PortalRunMode.isTestMode()) {
+		if (PortalRunMode.isTestMode() || refresh) {
 			updateDocumentRequest.setRefresh(true);
 		}
 

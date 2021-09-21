@@ -226,7 +226,7 @@ public class TaskWorkflowMetricsIndexerImpl
 
 		workflowMetricsPortalExecutor.execute(
 			() -> {
-				updateDocument(document);
+				updateDocument(document, true);
 
 				_deleteTask(companyId, taskId);
 
