@@ -11,6 +11,21 @@
 
 <tbody>
 	<tr>
+		<td>ARROW_DOWN_ICON</td>
+		<td>//button[contains(@class,'dropdown-toggle btn btn-monospaced btn-outline-borderless btn-outline-secondary')]</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>CHECK_UNCHECK_DROPDOWN_ITEM</td>
+		<td>//button[contains(@class,'dropdown-item')][contains(text(),'${key_dropdowntItem}')]</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>ENTRY_COLUMN</td>
+		<td>//div[contains(@class,'dnd-th')]//div[contains(text(),'${key_column}')]</td>
+		<td></td>
+	</tr>
+	<tr>
 		<td>ENTRY_VALUE</td>
 		<td>//div[contains(@class,'dnd-tbody')]//div[contains(text(),'${key_entry}')]</td>
 		<td></td>

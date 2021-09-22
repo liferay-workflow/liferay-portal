@@ -86,11 +86,37 @@ definition {
 	}
 
 	@description = "LPS-135393 - Verify that is possible to change what columns to be displayed on the auto-generated table on the Custom Object Portlet"
-	@ignore = "Test Stub"
 	@priority = "3"
 	test CanChangeColumnsToBeDisplayed {
 
-		// TODO LPS-138963 CanChangeColumnsToBeDisplayed pending implementation
+		ObjectAdmin.addObjectViaAPI(
+			labelName = "Custom Object",
+			objectName = "CustomObject",
+			pluralLabelName = "Custom Objects");
+
+		ObjectAdmin.addObjectFieldViaAPI(
+			fieldLabelName = "Text",
+			fieldName = "customObjectField",
+			fieldType = "String",
+			isRequired = "false",
+			objectName = "CustomObject");
+
+		ObjectAdmin.publishObjectViaAPI(objectName = "CustomObject");
+
+	
+		ObjectAdmin.addObjectSingleFieldEntryViaAPI(
+			fieldName = "text",
+			objectName = "CustomObject",
+			value = "Test text");
+		
+		ObjectAdmin.goToCustomObject(objectName = "CustomObject");
+
+		ObjectPortlet.checkUncheckColumnsDisplayed(dropdowntItem = "ID");
+
+
+		ObjectPortlet.assertEntryColumnNotPresent(column = "ID");
+
+		
 
 	}
 

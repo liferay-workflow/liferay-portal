@@ -6,10 +6,30 @@ definition {
 			locator1 = "ObjectPortlet#ENTRY_VALUE");
 	}
 
+	macro assertEntryColumnNotPresent {
+		AssertElementNotPresent(
+			locator1 = "ObjectPortlet#ENTRY_COLUMN",
+			key_column = "${column}"
+		);
+
+
+	}
+
 	macro changePagination {
 		Click(locator1 = "ObjectPortlet#PAGINATION_ITEMS_PER_PAGE_SELECT");
 
 		MenuItem.click(menuItem = "${itemsPerPage}");
+	}
+
+	macro checkUncheckColumnsDisplayed {
+		Click(locator1 = "ObjectPortlet#ARROW_DOWN_ICON");
+
+		Click(locator1 = "ObjectPortlet#CHECK_UNCHECK_DROPDOWN_ITEM",
+			key_dropdowntItem = "${dropdowntItem}"
+		);
+
+
+
 	}
 
 	macro deleteEntry {
