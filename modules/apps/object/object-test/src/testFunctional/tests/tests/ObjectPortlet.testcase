@@ -190,13 +190,6 @@ definition {
 		ObjectPortlet.viewEntry(entry = "Entry 2");
 
 		ObjectPortlet.assertEntryNotPresent(entry = "Test 1");
-
-
-
-
-
-
-
 	}
 
 	@description = "LPS-135393 - Verify that is possible to search for a field on the dropdown to select the columns to be displayed on the auto-generated table on the Custom Object Portlet"
