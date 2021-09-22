@@ -46,6 +46,11 @@
 		<td></td>
 	</tr>
 	<tr>
+		<td>SEARCH_FIELD</td>
+		<td>//input[contains(@aria-label,'Search')]</td>
+		<td></td>
+	</tr>
+	<tr>
 		<td>SELECT_CUSTOM_OBJECT</td>
 		<td>//div[(@class='table-list-title') and contains (.,'${key_label}')]</td>
 		<td></td>

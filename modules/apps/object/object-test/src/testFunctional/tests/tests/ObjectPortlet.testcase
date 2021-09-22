@@ -155,12 +155,47 @@ definition {
 	}
 
 	@description = "LPS-135393 - Verify that is possible to search for an entry on the auto-generated table on the Custom Object Portlet"
-	@ignore = "Test Stub"
 	@priority = "5"
 	test CanSeachEntry {
 		property portal.acceptance = "true";
 
-		// TODO LPS-138957 CanSeachEntry pending implementation
+		ObjectAdmin.addObjectViaAPI(
+			labelName = "Custom Object",
+			objectName = "CustomObject",
+			pluralLabelName = "Custom Objects");
+
+		ObjectAdmin.addObjectFieldViaAPI(
+			fieldLabelName = "Text",
+			fieldName = "text",
+			fieldType = "String",
+			isRequired = "false",
+			objectName = "CustomObject");
+
+		ObjectAdmin.publishObjectViaAPI(objectName = "CustomObject");
+
+		ObjectAdmin.addObjectSingleFieldEntryViaAPI(
+			fieldName = "text",
+			objectName = "CustomObject",
+			value = "Test 1");
+
+		ObjectAdmin.addObjectSingleFieldEntryViaAPI(
+			fieldName = "text",
+			objectName = "CustomObject",
+			value = "Entry 2");
+
+		ObjectAdmin.goToCustomObject(objectName = "CustomObject");
+
+		ObjectPortlet.searchEntry(entryName = "Entry 2");
+
+		ObjectPortlet.viewEntry(entry = "Entry 2");
+
+		ObjectPortlet.assertEntryNotPresent(entry = "Test 1");
+
+
+
+
+
+
 
 	}
 

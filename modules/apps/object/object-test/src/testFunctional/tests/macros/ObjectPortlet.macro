@@ -34,6 +34,21 @@ definition {
 		Click(locator1 = "ObjectPortlet#DELETE_ENTRY_BUTTON");
 	}
 
+	macro searchEntry {
+		AssertElementPresent(locator1 = "ObjectPortlet#SEARCH_FIELD");
+
+		Type(
+			locator1 = "ObjectPortlet#SEARCH_FIELD",
+			value1 = "${entryName}");
+
+		KeyPress(
+			locator1 = "ObjectPortlet#SEARCH_FIELD",
+			value1 = "\RETURN");
+
+
+
+	}
+
 	macro selectCustomObject {
 		Click(
 			key_label = "${label}",
