@@ -1,18 +1,15 @@
 definition {
 
+	macro assertEntryColumnNotPresent {
+		AssertElementNotPresent(
+			key_column = "${column}",
+			locator1 = "ObjectPortlet#ENTRY_COLUMN");
+	}
+
 	macro assertEntryNotPresent {
 		AssertElementNotPresent(
 			key_entry = "${entry}",
 			locator1 = "ObjectPortlet#ENTRY_VALUE");
-	}
-
-	macro assertEntryColumnNotPresent {
-		AssertElementNotPresent(
-			locator1 = "ObjectPortlet#ENTRY_COLUMN",
-			key_column = "${column}"
-		);
-
-
 	}
 
 	macro changePagination {
@@ -24,12 +21,9 @@ definition {
 	macro checkUncheckColumnsDisplayed {
 		Click(locator1 = "ObjectPortlet#ARROW_DOWN_ICON");
 
-		Click(locator1 = "ObjectPortlet#CHECK_UNCHECK_DROPDOWN_ITEM",
-			key_dropdowntItem = "${dropdowntItem}"
-		);
-
-
-
+		Click(
+			key_dropdowntItem = "${dropdowntItem}",
+			locator1 = "ObjectPortlet#CHECK_UNCHECK_DROPDOWN_ITEM");
 	}
 
 	macro deleteEntry {
