@@ -165,6 +165,26 @@ public class AddressLocalServiceTest {
 	}
 
 	@Test
+	public void testSearchAddressesWithKeywords() throws Exception {
+		Address address = _addAddress("1234567890");
+
+		String description = RandomTestUtil.randomString();
+
+		address.setDescription(description);
+
+		String street1 = RandomTestUtil.randomString();
+
+		address.setStreet1(street1);
+
+		_addressLocalService.updateAddress(address);
+
+		List<Address> expectedAddresses = Arrays.asList(address);
+
+		_assertSearchAddress(expectedAddresses, description, null);
+		_assertSearchAddress(expectedAddresses, street1, null);
+	}
+
+	@Test
 	public void testSearchAddressesWithParam() throws Exception {
 		ListType businessType = _listTypeLocalService.getListType(
 			"business", ListTypeConstants.CONTACT_ADDRESS);
