@@ -49,7 +49,7 @@ ObjectField objectField = (ObjectField)request.getAttribute(ObjectWebKeys.OBJECT
 					</aui:select>
 
 					<aui:field-wrapper cssClass="form-group lfr-input-text-container">
-						<aui:input inlineLabel="right" label='<%= LanguageUtil.get(request, "mandatory") %>' labelCssClass="simple-toggle-switch" name="required" type="toggle-switch" value="<%= objectField.getRequired() %>" />
+						<aui:input disabled="<%= objectDefinition.isApproved() %>" inlineLabel="right" label='<%= LanguageUtil.get(request, "mandatory") %>' labelCssClass="simple-toggle-switch" name="required" type="toggle-switch" value="<%= objectField.getRequired() %>" />
 					</aui:field-wrapper>
 				</div>
 
