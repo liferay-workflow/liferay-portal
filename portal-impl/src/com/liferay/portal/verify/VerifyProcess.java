@@ -105,7 +105,7 @@ public abstract class VerifyProcess extends BaseDBProcess {
 
 	/**
 	 * @deprecated As of Cavanaugh (7.4.x), replaced by {@link
-	 #processConcurrently(Object[], UnsafeConsumer, String)}
+	 *             #processConcurrently(Object[], UnsafeConsumer, String)}
 	 */
 	@Deprecated
 	protected void doVerify(Collection<? extends Callable<Void>> callables)

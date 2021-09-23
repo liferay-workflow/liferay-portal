@@ -322,7 +322,6 @@ public abstract class BaseDBProcess implements DBProcess {
 			}
 		}
 
-		@SuppressWarnings("unchecked")
 		public <T> T get(int columnIndex) throws SQLException {
 			int i = 1;
 
@@ -335,7 +334,6 @@ public abstract class BaseDBProcess implements DBProcess {
 			throw new SQLException("Invalid column index");
 		}
 
-		@SuppressWarnings("unchecked")
 		public <T> T get(String columnLabel) throws SQLException {
 			T value = (T)_columns.get(StringUtil.toLowerCase(columnLabel));
 
