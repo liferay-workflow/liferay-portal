@@ -87,6 +87,9 @@ public class EmailNotificationSender implements NotificationSender {
 
 			subscriptionSender.addFileAttachment(
 				(File)notificationTemplateContext.getAttribute("icsFile"));
+			subscriptionSender.addRuntimeSubscribers(
+				notificationRecipient.getEmailAddress(),
+				notificationRecipient.getName());
 			subscriptionSender.setClassName(
 				CalendarBookingLocalServiceImpl.class.getName());
 			subscriptionSender.setClassPK(
@@ -94,9 +97,9 @@ public class EmailNotificationSender implements NotificationSender {
 			subscriptionSender.setCompanyId(
 				notificationTemplateContext.getCompanyId());
 			subscriptionSender.setContextAttributes(
-				"[$COMPANY_ID$]", notificationTemplateContext.getCompanyId(),
 				"[$CALENDAR_NAME$]",
 				notificationTemplateContext.getAttribute("calendarName"),
+				"[$COMPANY_ID$]", notificationTemplateContext.getCompanyId(),
 				"[$EVENT_END_DATE$]",
 				notificationTemplateContext.getAttribute("endTime"),
 				"[$EVENT_LOCATION$]",
@@ -122,6 +125,14 @@ public class EmailNotificationSender implements NotificationSender {
 				notificationTemplateContext.getFromName());
 			subscriptionSender.setHtmlFormat(
 				notificationRecipient.isHTMLFormat());
+			subscriptionSender.setMailId(
+				"event", notificationTemplateContext.getCalendarId());
+			subscriptionSender.setPortletId(
+				PortletProviderUtil.getPortletId(
+					CalendarBooking.class.getName(),
+					PortletProvider.Action.EDIT));
+			subscriptionSender.setScopeGroupId(
+				notificationTemplateContext.getGroupId());
 
 			CalendarNotificationTemplate calendarNotificationTemplate =
 				notificationTemplateContext.getCalendarNotificationTemplate();
@@ -146,18 +157,6 @@ public class EmailNotificationSender implements NotificationSender {
 						notificationTemplateContext, NotificationField.SUBJECT,
 						NotificationTemplateRenderer.MODE_PLAIN));
 			}
-
-			subscriptionSender.setMailId(
-				"event", notificationTemplateContext.getCalendarId());
-			subscriptionSender.setPortletId(
-				PortletProviderUtil.getPortletId(
-					CalendarBooking.class.getName(),
-					PortletProvider.Action.EDIT));
-			subscriptionSender.setScopeGroupId(
-				notificationTemplateContext.getGroupId());
-			subscriptionSender.addRuntimeSubscribers(
-				notificationRecipient.getEmailAddress(),
-				notificationRecipient.getName());
 
 			subscriptionSender.flushNotificationsAsync();
 		}
