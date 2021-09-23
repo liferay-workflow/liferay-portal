@@ -129,7 +129,6 @@ import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Dictionary;
@@ -985,8 +984,6 @@ public class BundleSiteInitializer implements SiteInitializer {
 			return;
 		}
 
-		List<String> layoutPageTemplateEntryKeys = new ArrayList<>();
-
 		ZipWriter zipWriter = ZipWriterFactoryUtil.getZipWriter();
 
 		while (enumeration.hasMoreElements()) {
@@ -1007,20 +1004,6 @@ public class BundleSiteInitializer implements SiteInitializer {
 					json, "[$GROUP_FRIENDLY_URL$]",
 					scopeGroup.getFriendlyURL());
 
-				if (urlPath.endsWith("display-page-template.json")) {
-					JSONObject jsonObject = _jsonFactory.createJSONObject(json);
-
-					if (jsonObject.getBoolean("defaultTemplate")) {
-						layoutPageTemplateEntryKeys.add(
-							StringUtil.toLowerCase(
-								jsonObject.getString("name")));
-
-						jsonObject.remove("defaultTemplate");
-
-						json = jsonObject.toString();
-					}
-				}
-
 				zipWriter.addEntry(
 					StringUtil.removeFirst(
 						urlPath, "/site-initializer/layout-page-templates/"),
@@ -1037,21 +1020,6 @@ public class BundleSiteInitializer implements SiteInitializer {
 		_layoutPageTemplatesImporter.importFile(
 			serviceContext.getUserId(), serviceContext.getScopeGroupId(),
 			zipWriter.getFile(), false);
-
-		for (String layoutPageTemplateEntryKey : layoutPageTemplateEntryKeys) {
-			LayoutPageTemplateEntry layoutPageTemplateEntry =
-				_layoutPageTemplateEntryLocalService.
-					fetchLayoutPageTemplateEntry(
-						serviceContext.getScopeGroupId(),
-						layoutPageTemplateEntryKey);
-
-			if (layoutPageTemplateEntry == null) {
-				continue;
-			}
-
-			_layoutPageTemplateEntryLocalService.updateLayoutPageTemplateEntry(
-				layoutPageTemplateEntry.getLayoutPageTemplateEntryId(), true);
-		}
 	}
 
 	private void _addLayouts(
