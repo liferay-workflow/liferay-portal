@@ -70,12 +70,6 @@ public class AssetDisplayPageEntryUpgradeProcess extends UpgradeProcess {
 			JournalArticle.class);
 		User user = company.getDefaultUser();
 
-		String stagingGroupCondition = "Group_.liveGroupId != 0";
-
-		if (stagingGroups) {
-			stagingGroupCondition = "Group_.liveGroupId = 0";
-		}
-
 		try (LoggingTimer loggingTimer = new LoggingTimer();
 			PreparedStatement preparedStatement = connection.prepareStatement(
 				SQLTransformer.transform(
@@ -86,8 +80,8 @@ public class AssetDisplayPageEntryUpgradeProcess extends UpgradeProcess {
 						"AssetEntry.classNameId = ? and AssetEntry.classPK = ",
 						"JournalArticle.resourcePrimKey ) inner join Group_ ",
 						"on (Group_.groupId = JournalArticle.groupId and ",
-						stagingGroupCondition, ") where ",
-						"JournalArticle.companyId = ? and ",
+						"Group_.liveGroupId ", stagingGroups ? "" : "!",
+						"= 0) where JournalArticle.companyId = ? and ",
 						"JournalArticle.layoutUuid is not null and ",
 						"JournalArticle.layoutUuid != '' and ",
 						"Group_.remoteStagingGroupCount = 0 and not exists ( ",
