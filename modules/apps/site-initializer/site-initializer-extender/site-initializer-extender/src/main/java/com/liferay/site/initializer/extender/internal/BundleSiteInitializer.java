@@ -1001,7 +1001,7 @@ public class BundleSiteInitializer implements SiteInitializer {
 						urlPath, "/site-initializer/layout-page-templates/"),
 					StringUtil.replace(
 						json,
-						new String[] {"[$GROUP_FRIENDLY_URL$]", "[$SCOPE_GROUP_ID$]"},
+						new String[] {"[$GROUP_FRIENDLY_URL$]", "[$GROUP_ID$]"},
 						new String[] {scopeGroup.getFriendlyURL(), String.valueOf(serviceContext.getScopeGroupId())}));
 			}
 			else {
