@@ -83,7 +83,6 @@ public class MappedProductDTOConverter
 
 						return cProduct.getExternalReferenceCode();
 					});
-
 				setProductName(
 					() -> {
 						if (cpDefinition == null) {
@@ -93,7 +92,6 @@ public class MappedProductDTOConverter
 						return LanguageUtils.getLanguageIdMap(
 							cpDefinition.getNameMap());
 					});
-
 				setSkuExternalReferenceCode(
 					() -> {
 						CPInstance cpInstance =
