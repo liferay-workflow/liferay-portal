@@ -39,6 +39,10 @@ public class SXPParameterDataImpl implements SXPParameterData {
 
 	@Override
 	public SXPParameter getSXPParameterByName(String name) {
+		if (name == null) {
+			return null;
+		}
+
 		for (SXPParameter sxpParameter : _sxpParameters) {
 			if (Objects.equals(sxpParameter.getName(), name)) {
 				return sxpParameter;
@@ -51,6 +55,10 @@ public class SXPParameterDataImpl implements SXPParameterData {
 	@Override
 	public SXPParameter getSXPParameterByTemplateVariable(
 		String templateVariable) {
+
+		if (templateVariable == null) {
+			return null;
+		}
 
 		for (SXPParameter sxpParameter : _sxpParameters) {
 			if (Objects.equals(
