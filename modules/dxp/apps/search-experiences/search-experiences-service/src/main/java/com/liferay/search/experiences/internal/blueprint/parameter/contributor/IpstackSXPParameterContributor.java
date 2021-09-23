@@ -60,7 +60,7 @@ public class IpstackSXPParameterContributor implements SXPParameterContributor {
 		String ipAddress = (String)searchContext.getAttribute(
 			"search.experiences.ipaddress");
 
-		if (Validator.isBlank(ipAddress)) {
+		if (Validator.isNull(ipAddress)) {
 			return;
 		}
 

@@ -57,7 +57,7 @@ public class SXPTemplateVariableParser {
 
 		json = _parse(json, sxpParameterData);
 
-		if (!Validator.isBlank(json)) {
+		if (Validator.isNotNull(json)) {
 			try {
 				return JSONFactoryUtil.createJSONArray(json);
 			}
@@ -90,7 +90,7 @@ public class SXPTemplateVariableParser {
 
 		json = _parse(json, sxpParameterData);
 
-		if (!Validator.isBlank(json)) {
+		if (Validator.isNotNull(json)) {
 			try {
 				return JSONFactoryUtil.createJSONObject(json);
 			}
@@ -118,7 +118,7 @@ public class SXPTemplateVariableParser {
 	private static Map<String, String> _getOptions(String optionsString) {
 		Map<String, String> options = new HashMap<>();
 
-		if (Validator.isBlank(optionsString)) {
+		if (Validator.isNull(optionsString)) {
 			return options;
 		}
 

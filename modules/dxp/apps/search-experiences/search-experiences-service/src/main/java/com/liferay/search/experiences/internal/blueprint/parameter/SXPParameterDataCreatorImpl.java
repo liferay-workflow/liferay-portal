@@ -191,7 +191,7 @@ public class SXPParameterDataCreatorImpl implements SXPParameterDataCreator {
 
 		String dateString = _getString(name, searchContext);
 
-		if (Validator.isBlank(dateString)) {
+		if (Validator.isNull(dateString)) {
 			return;
 		}
 
@@ -432,11 +432,11 @@ public class SXPParameterDataCreatorImpl implements SXPParameterDataCreator {
 		for (String key : jsonObject.keySet()) {
 			String value = _getString(key, searchContext);
 
-			if (Validator.isBlank(value) && jsonObject.has("default")) {
+			if (Validator.isNull(value) && jsonObject.has("default")) {
 				value = GetterUtil.getString(jsonObject.getString("default"));
 			}
 
-			if (Validator.isBlank(value)) {
+			if (Validator.isNull(value)) {
 				return;
 			}
 
@@ -467,11 +467,11 @@ public class SXPParameterDataCreatorImpl implements SXPParameterDataCreator {
 
 		String value = _getString(name, searchContext);
 
-		if (Validator.isBlank(value) && jsonObject.has("default")) {
+		if (Validator.isNull(value) && jsonObject.has("default")) {
 			value = GetterUtil.getString(jsonObject.getString("default"));
 		}
 
-		if (Validator.isBlank(value)) {
+		if (Validator.isNull(value)) {
 			return;
 		}
 
@@ -484,7 +484,7 @@ public class SXPParameterDataCreatorImpl implements SXPParameterDataCreator {
 
 		String value = _getString(name, searchContext);
 
-		if (Validator.isBlank(value)) {
+		if (Validator.isNull(value)) {
 			return;
 		}
 

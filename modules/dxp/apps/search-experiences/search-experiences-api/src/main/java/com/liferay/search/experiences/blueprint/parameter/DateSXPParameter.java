@@ -120,7 +120,7 @@ public class DateSXPParameter extends BaseSXPParameter {
 	}
 
 	private Date _modify(Date date, String option) {
-		if (Validator.isBlank(option) ||
+		if (Validator.isNull(option) ||
 			!option.matches("^[\\+|\\-][0-9]+[h|d|w|M|y]")) {
 
 			return date;
