@@ -303,9 +303,9 @@ public class BundleSiteInitializer implements SiteInitializer {
 				_ddmStructureLocalService, _ddmTemplateLocalService,
 				documentsStringUtilReplaceValues, serviceContext);
 
+			_addLayouts(_journalArticleLocalService, serviceContext);
 			_addRemoteAppEntries(
 				documentsStringUtilReplaceValues, serviceContext);
-			_addLayouts(_journalArticleLocalService, serviceContext);
 		}
 		catch (Exception exception) {
 			throw new InitializationException(exception);
