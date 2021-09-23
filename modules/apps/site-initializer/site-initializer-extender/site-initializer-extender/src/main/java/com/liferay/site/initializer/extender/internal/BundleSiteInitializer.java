@@ -1143,13 +1143,30 @@ public class BundleSiteInitializer implements SiteInitializer {
 		for (int i = 0; i < jsonArray.length(); i++) {
 			JSONObject jsonObject = jsonArray.getJSONObject(i);
 
+			StringBundler sb = new StringBundler();
+
+			JSONObject propertiesJSONObject = jsonObject.getJSONObject(
+				"properties");
+
+			for (String key : propertiesJSONObject.keySet()) {
+				sb.append(key);
+				sb.append(StringPool.EQUAL);
+				sb.append(propertiesJSONObject.getString(key));
+				sb.append(StringPool.NEW_LINE);
+			}
+
 			_remoteAppEntryLocalService.addCustomElementRemoteAppEntry(
-				serviceContext.getUserId(), jsonObject.getString("cssURLs"),
+				serviceContext.getUserId(),
+				StringUtil.merge(
+					JSONUtil.toStringArray(jsonObject.getJSONArray("cssURLs")),
+					StringPool.NEW_LINE),
 				jsonObject.getString("htmlElementName"),
-				jsonObject.getString("elementURLs"),
+				StringUtil.merge(
+					JSONUtil.toStringArray(
+						jsonObject.getJSONArray("elementURLs")),
+					StringPool.NEW_LINE),
 				_toMap(jsonObject.getString("name_i18n")),
-				jsonObject.getString("portletCategoryName"),
-				jsonObject.getString("properties"));
+				jsonObject.getString("portletCategoryName"), sb.toString());
 		}
 	}
 
