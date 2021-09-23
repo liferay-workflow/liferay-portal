@@ -70,11 +70,12 @@ public class EmailNotificationSender implements NotificationSender {
 				notificationRecipient.getName());
 
 			_sendNotification(
-				notificationRecipient, notificationTemplateContext,
+				fromAddressValue, fromNameValue,
+				(File)notificationTemplateContext.getAttribute("icsFile"),
 				NotificationTemplateRenderer.render(
 					notificationTemplateContext, NotificationField.BODY,
 					NotificationTemplateRenderer.MODE_HTML),
-				fromAddressValue, fromNameValue,
+				notificationRecipient, notificationTemplateContext,
 				NotificationTemplateRenderer.render(
 					notificationTemplateContext, NotificationField.SUBJECT,
 					NotificationTemplateRenderer.MODE_PLAIN));
@@ -85,16 +86,17 @@ public class EmailNotificationSender implements NotificationSender {
 	}
 
 	private void _sendNotification(
+			String fromAddress, String fromName, File icsFile,
+			String notificationMessage,
 			NotificationRecipient notificationRecipient,
 			NotificationTemplateContext notificationTemplateContext,
-			String body, String fromEmail, String fromName, String subject)
+			String subject)
 		throws NotificationSenderException {
 
 		try {
 			SubscriptionSender subscriptionSender = new SubscriptionSender();
 
-			subscriptionSender.addFileAttachment(
-				(File)notificationTemplateContext.getAttribute("icsFile"));
+			subscriptionSender.addFileAttachment(icsFile);
 			subscriptionSender.setClassName(
 				CalendarBookingLocalServiceImpl.class.getName());
 			subscriptionSender.setClassPK(
@@ -125,7 +127,7 @@ public class EmailNotificationSender implements NotificationSender {
 				notificationTemplateContext.getAttribute("siteName"),
 				"[$TO_NAME$]", notificationRecipient.getName());
 			subscriptionSender.setContextCreatorUserPrefix("EVENT");
-			subscriptionSender.setFrom(fromEmail, fromName);
+			subscriptionSender.setFrom(fromAddress, fromName);
 			subscriptionSender.setHtmlFormat(
 				notificationRecipient.isHTMLFormat());
 
@@ -143,7 +145,7 @@ public class EmailNotificationSender implements NotificationSender {
 						calendarNotificationTemplate.getSubject()));
 			}
 			else {
-				subscriptionSender.setBody(body);
+				subscriptionSender.setBody(notificationMessage);
 				subscriptionSender.setSubject(subject);
 			}
 
