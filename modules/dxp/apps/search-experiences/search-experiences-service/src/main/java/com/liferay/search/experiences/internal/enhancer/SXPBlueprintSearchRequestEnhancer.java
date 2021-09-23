@@ -31,12 +31,7 @@ import com.liferay.search.experiences.rest.dto.v1_0.General;
 import com.liferay.search.experiences.rest.dto.v1_0.Query;
 import com.liferay.search.experiences.rest.dto.v1_0.SXPBlueprint;
 
-import java.beans.ExceptionListener;
-
-import java.util.Arrays;
 import java.util.Map;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 /**
  * @author Petteri Karttunen
@@ -61,71 +56,27 @@ public class SXPBlueprintSearchRequestEnhancer {
 		_processAggregations(_configuration.getAggregations());
 		_processGeneral(_configuration.getGeneral());
 		_processQueries(_configuration.getQueries());
+	}
 
-		if (!ArrayUtil.isEmpty(_runtimeException.getSuppressed())) {
-			throw _runtimeException;
+	private void _processAggregations(Map<String, Aggregation> aggregations) {
+		for (Map.Entry<String, Aggregation> entry : aggregations.entrySet()) {
+			_searchRequestBuilder.addAggregation(
+				_toPortalSearchAggregation(entry.getValue(), entry.getKey()));
 		}
-	}
-
-	private <V> void _forEach(
-		Iterable<V> iterable, Consumer<V> consumer,
-		ExceptionListener exceptionListener) {
-
-		for (V value : iterable) {
-			try {
-				consumer.accept(value);
-			}
-			catch (Exception exception) {
-				exceptionListener.exceptionThrown(exception);
-			}
-		}
-	}
-
-	private <K, V> void _forEach(
-		Map<K, V> map, BiConsumer<K, V> biConsumer,
-		ExceptionListener exceptionListener) {
-
-		map.forEach(
-			(key, value) -> {
-				try {
-					biConsumer.accept(key, value);
-				}
-				catch (Exception exception) {
-					exceptionListener.exceptionThrown(exception);
-				}
-			});
-	}
-
-	private void _processAggregation(String name, Aggregation aggregation) {
-		_searchRequestBuilder.addAggregation(
-			_toPortalSearchAggregation(name, aggregation));
-	}
-
-	private void _processAggregations(Map<String, Aggregation> map) {
-		_forEach(
-			map, this::_processAggregation, _runtimeException::addSuppressed);
 	}
 
 	private void _processClause(Clause clause) {
-		com.liferay.portal.search.query.Query query = _toQuery(
+		com.liferay.portal.search.query.Query query = _queries.wrapper(
 			clause.getQueryJSON());
 
 		if (query != null) {
 			_searchRequestBuilder.addComplexQueryPart(
 				_complexQueryPartBuilderFactory.builder(
-				).query(
-					query
 				).occur(
 					clause.getOccur()
+				).query(
+					query
 				).build());
-		}
-	}
-
-	private void _processClauses(Clause[] clauses) {
-		if (!ArrayUtil.isEmpty(clauses)) {
-			_forEach(
-				Arrays.asList(clauses), this::_processClause,
-				_runtimeException::addSuppressed);
 		}
 	}
 
@@ -139,24 +90,32 @@ public class SXPBlueprintSearchRequestEnhancer {
 	}
 
 	private void _processQueries(Query[] queries) {
-		if (!ArrayUtil.isEmpty(queries)) {
-			_forEach(
-				Arrays.asList(queries), this::_processQuery,
-				_runtimeException::addSuppressed);
+		if (ArrayUtil.isEmpty(queries)) {
+			return;
 		}
-	}
 
-	private void _processQuery(Query query) {
-		if (GetterUtil.getBoolean(query.getEnabled())) {
-			_processClauses(query.getClauses());
+		for (Query query : queries) {
+			if (!GetterUtil.getBoolean(query.getEnabled())) {
+				continue;
+			}
+
+			Clause[] clauses = query.getClauses();
+
+			if (ArrayUtil.isEmpty(clauses)) {
+				continue;
+			}
+
+			for (Clause clause : clauses) {
+				_processClause(clause);
+			}
 		}
 	}
 
 	private com.liferay.portal.search.aggregation.Aggregation
-		_toPortalSearchAggregation(String name1, Aggregation aggregation1) {
+		_toPortalSearchAggregation(Aggregation aggregation1, String name1) {
 
-		final com.liferay.portal.search.aggregation.Aggregation
-			portalSearchAggregation;
+		com.liferay.portal.search.aggregation.Aggregation
+			portalSearchAggregation = null;
 
 		if (aggregation1.getAvg() != null) {
 			Avg avg = aggregation1.getAvg();
@@ -182,18 +141,14 @@ public class SXPBlueprintSearchRequestEnhancer {
 			return portalSearchAggregation;
 		}
 
-		_forEach(
-			aggregation1.getAggs(),
-			(name2, aggregation2) ->
-				portalSearchAggregation.addChildAggregation(
-					_toPortalSearchAggregation(name2, aggregation2)),
-			_runtimeException::addSuppressed);
+		Map<String, Aggregation> aggs = aggregation1.getAggs();
+
+		for (Map.Entry<String, Aggregation> entry : aggs.entrySet()) {
+			portalSearchAggregation.addChildAggregation(
+				_toPortalSearchAggregation(entry.getValue(), entry.getKey()));
+		}
 
 		return portalSearchAggregation;
-	}
-
-	private com.liferay.portal.search.query.Query _toQuery(String queryJSON) {
-		return _queries.wrapper(queryJSON);
 	}
 
 	private final Aggregations _aggregations;
@@ -201,7 +156,6 @@ public class SXPBlueprintSearchRequestEnhancer {
 		_complexQueryPartBuilderFactory;
 	private final Configuration _configuration;
 	private final Queries _queries;
-	private final RuntimeException _runtimeException = new RuntimeException();
 	private final SearchRequestBuilder _searchRequestBuilder;
 
 }
