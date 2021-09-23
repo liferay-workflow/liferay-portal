@@ -234,8 +234,6 @@ public class JournalArticleInfoItemFieldValuesUpdaterImpl
 			journalArticle.getResourcePrimKey());
 
 		serviceContext.setAssetCategoryIds(assetEntry.getCategoryIds());
-		serviceContext.setAssetPriority(assetEntry.getPriority());
-		serviceContext.setAssetTagNames(assetEntry.getTagNames());
 
 		List<AssetLink> assetLinks = _assetLinkLocalService.getDirectLinks(
 			assetEntry.getEntryId(), false);
@@ -245,6 +243,9 @@ public class JournalArticleInfoItemFieldValuesUpdaterImpl
 				assetLinks,
 				assetLink -> _getAssetLinkEntryId(
 					assetEntry.getEntryId(), assetLink)));
+
+		serviceContext.setAssetPriority(assetEntry.getPriority());
+		serviceContext.setAssetTagNames(assetEntry.getTagNames());
 
 		ExpandoBridge expandoBridge = journalArticle.getExpandoBridge();
 
