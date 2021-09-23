@@ -401,15 +401,22 @@ public class RemoteAppEntryLocalServiceImpl
 			String customElementURLs)
 		throws PortalException {
 
-//		if (Validator.isNotNull(customElementCSSURLs)) {
-//			for (String customElementCSSURL :
-//					customElementCSSURLs.split(StringPool.NEW_LINE)) {
-//
-//				if (!Validator.isUrl(customElementCSSURL)) {
-//					throw new RemoteAppEntryCustomElementCSSURLsException();
-//				}
-//			}
-//		}
+		if (Validator.isNotNull(customElementCSSURLs)) {
+			for (String customElementCSSURL :
+					customElementCSSURLs.split(StringPool.NEW_LINE)) {
+
+				// TODO Fix ugly hack to allow relative path URLs
+
+				if (customElementCSSURL.startsWith("/")) {
+					customElementCSSURL =
+						"http://test.com" + customElementCSSURL;
+				}
+
+				if (!Validator.isUrl(customElementCSSURL)) {
+					throw new RemoteAppEntryCustomElementCSSURLsException();
+				}
+			}
+		}
 
 		if (Validator.isNull(customElementHTMLElementName)) {
 			throw new RemoteAppEntryCustomElementHTMLElementNameException(
@@ -463,13 +470,19 @@ public class RemoteAppEntryLocalServiceImpl
 			throw new RemoteAppEntryCustomElementURLsException();
 		}
 
-//		for (String customElementURL :
-//				customElementURLs.split(StringPool.NEW_LINE)) {
-//
-//			if (!Validator.isUrl(customElementURL)) {
-//				throw new RemoteAppEntryCustomElementURLsException();
-//			}
-//		}
+		for (String customElementURL :
+				customElementURLs.split(StringPool.NEW_LINE)) {
+
+			// TODO Fix ugly hack to allow relative path URLs
+
+			if (customElementURL.startsWith("/")) {
+				customElementURL = "http://test.com" + customElementURL;
+			}
+
+			if (!Validator.isUrl(customElementURL)) {
+				throw new RemoteAppEntryCustomElementURLsException();
+			}
+		}
 	}
 
 	private void _validateIFrameURL(String iFrameURL) throws PortalException {
