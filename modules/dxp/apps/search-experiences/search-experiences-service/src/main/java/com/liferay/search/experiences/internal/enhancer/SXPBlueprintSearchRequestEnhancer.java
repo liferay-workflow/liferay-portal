@@ -98,7 +98,7 @@ public class SXPBlueprintSearchRequestEnhancer {
 
 	private void _processAggregation(String name, Aggregation aggregation) {
 		_searchRequestBuilder.addAggregation(
-			_toPortalSearchAggregationWithChildren(name, aggregation));
+			_toPortalSearchAggregation(name, aggregation));
 	}
 
 	private void _processAggregations(Map<String, Aggregation> map) {
@@ -153,45 +153,41 @@ public class SXPBlueprintSearchRequestEnhancer {
 	}
 
 	private com.liferay.portal.search.aggregation.Aggregation
-		_toPortalSearchAggregation(String name, Aggregation aggregation) {
+		_toPortalSearchAggregation(String name1, Aggregation aggregation1) {
 
-		if (aggregation.getAvg() != null) {
-			Avg avg = aggregation.getAvg();
+		final com.liferay.portal.search.aggregation.Aggregation
+			portalSearchAggregation;
 
-			return _aggregations.avg(name, avg.getField());
+		if (aggregation1.getAvg() != null) {
+			Avg avg = aggregation1.getAvg();
+
+			portalSearchAggregation = _aggregations.avg(name1, avg.getField());
 		}
-		else if (aggregation.getCardinality() != null) {
-			Cardinality cardinality = aggregation.getCardinality();
+		else if (aggregation1.getCardinality() != null) {
+			Cardinality cardinality = aggregation1.getCardinality();
 
 			CardinalityAggregation cardinalityAggregation =
-				_aggregations.cardinality(name, cardinality.getField());
+				_aggregations.cardinality(name1, cardinality.getField());
 
 			cardinalityAggregation.setPrecisionThreshold(
 				cardinality.getPrecision_threshold());
 
-			return cardinalityAggregation;
+			portalSearchAggregation = cardinalityAggregation;
+		}
+		else {
+			throw new IllegalArgumentException();
 		}
 
-		throw new IllegalArgumentException();
-	}
-
-	private com.liferay.portal.search.aggregation.Aggregation
-		_toPortalSearchAggregationWithChildren(
-			String name1, Aggregation aggregation1) {
-
-		com.liferay.portal.search.aggregation.Aggregation
-			portalSearchAggregation = _toPortalSearchAggregation(
-				name1, aggregation1);
-
-		if (!MapUtil.isEmpty(aggregation1.getAggs())) {
-			_forEach(
-				aggregation1.getAggs(),
-				(name2, aggregation2) ->
-					portalSearchAggregation.addChildAggregation(
-						_toPortalSearchAggregationWithChildren(
-							name2, aggregation2)),
-				_runtimeException::addSuppressed);
+		if (MapUtil.isEmpty(aggregation1.getAggs())) {
+			return portalSearchAggregation;
 		}
+
+		_forEach(
+			aggregation1.getAggs(),
+			(name2, aggregation2) ->
+				portalSearchAggregation.addChildAggregation(
+					_toPortalSearchAggregation(name2, aggregation2)),
+			_runtimeException::addSuppressed);
 
 		return portalSearchAggregation;
 	}
