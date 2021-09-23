@@ -12,7 +12,7 @@
  *
  */
 
-package com.liferay.search.experiences.internal.enhancer;
+package com.liferay.search.experiences.internal.blueprint.enhancer;
 
 import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;

@@ -24,7 +24,7 @@ import com.liferay.portal.search.searcher.SearchRequest;
 import com.liferay.portal.search.searcher.SearchRequestBuilder;
 import com.liferay.portal.search.searcher.SearchRequestBuilderFactory;
 import com.liferay.portal.search.spi.searcher.SearchRequestContributor;
-import com.liferay.search.experiences.internal.enhancer.SXPBlueprintSearchRequestEnhancer;
+import com.liferay.search.experiences.internal.blueprint.enhancer.SXPBlueprintSearchRequestEnhancer;
 import com.liferay.search.experiences.model.SXPBlueprint;
 import com.liferay.search.experiences.rest.dto.v1_0.util.SXPBlueprintUtil;
 import com.liferay.search.experiences.service.SXPBlueprintLocalService;
