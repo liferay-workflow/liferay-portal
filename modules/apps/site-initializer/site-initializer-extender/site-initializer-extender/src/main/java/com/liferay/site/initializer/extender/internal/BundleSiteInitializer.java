@@ -1151,7 +1151,7 @@ public class BundleSiteInitializer implements SiteInitializer {
 			JSONObject propertiesJSONObject = jsonObject.getJSONObject(
 				"properties");
 
-			if(propertiesJSONObject != null) {
+			if (propertiesJSONObject != null) {
 				for (String key : propertiesJSONObject.keySet()) {
 					sb.append(key);
 					sb.append(StringPool.EQUAL);
