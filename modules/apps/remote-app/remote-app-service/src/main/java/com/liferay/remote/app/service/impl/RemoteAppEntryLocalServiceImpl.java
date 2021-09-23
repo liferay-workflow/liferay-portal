@@ -405,14 +405,7 @@ public class RemoteAppEntryLocalServiceImpl
 			for (String customElementCSSURL :
 					customElementCSSURLs.split(StringPool.NEW_LINE)) {
 
-				// TODO Fix ugly hack to allow relative path URLs
-
-				if (customElementCSSURL.startsWith("/")) {
-					customElementCSSURL =
-						"http://test.com" + customElementCSSURL;
-				}
-
-				if (!Validator.isUrl(customElementCSSURL)) {
+				if (!Validator.isUrl(customElementCSSURL, true)) {
 					throw new RemoteAppEntryCustomElementCSSURLsException();
 				}
 			}
@@ -473,13 +466,7 @@ public class RemoteAppEntryLocalServiceImpl
 		for (String customElementURL :
 				customElementURLs.split(StringPool.NEW_LINE)) {
 
-			// TODO Fix ugly hack to allow relative path URLs
-
-			if (customElementURL.startsWith("/")) {
-				customElementURL = "http://test.com" + customElementURL;
-			}
-
-			if (!Validator.isUrl(customElementURL)) {
+			if (!Validator.isUrl(customElementURL, true)) {
 				throw new RemoteAppEntryCustomElementURLsException();
 			}
 		}
