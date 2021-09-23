@@ -1002,7 +1002,10 @@ public class BundleSiteInitializer implements SiteInitializer {
 					StringUtil.replace(
 						json,
 						new String[] {"[$GROUP_FRIENDLY_URL$]", "[$GROUP_ID$]"},
-						new String[] {scopeGroup.getFriendlyURL(), String.valueOf(serviceContext.getScopeGroupId())}));
+						new String[] {
+							scopeGroup.getFriendlyURL(),
+							String.valueOf(serviceContext.getScopeGroupId())
+						}));
 			}
 			else {
 				zipWriter.addEntry(
