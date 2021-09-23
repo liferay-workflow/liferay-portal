@@ -994,20 +994,15 @@ public class BundleSiteInitializer implements SiteInitializer {
 			if (StringUtil.endsWith(urlPath, ".json")) {
 				String json = StringUtil.read(url.openStream());
 
-				StringUtil.replace(
-					json, "[$SCOPE_GROUP_ID$]",
-					String.valueOf(serviceContext.getScopeGroupId()));
-
 				Group scopeGroup = serviceContext.getScopeGroup();
-
-				StringUtil.replace(
-					json, "[$GROUP_FRIENDLY_URL$]",
-					scopeGroup.getFriendlyURL());
 
 				zipWriter.addEntry(
 					StringUtil.removeFirst(
 						urlPath, "/site-initializer/layout-page-templates/"),
-					json);
+					StringUtil.replace(
+						json,
+						new String[] {"[$GROUP_FRIENDLY_URL$]", "[$SCOPE_GROUP_ID$]"},
+						new String[] {scopeGroup.getFriendlyURL(), String.valueOf(serviceContext.getScopeGroupId())}));
 			}
 			else {
 				zipWriter.addEntry(
