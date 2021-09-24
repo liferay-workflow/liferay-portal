@@ -18,9 +18,8 @@ import com.liferay.portal.kernel.search.SearchContext;
 import com.liferay.search.experiences.blueprint.parameter.BooleanSXPParameter;
 import com.liferay.search.experiences.blueprint.parameter.SXPParameter;
 import com.liferay.search.experiences.blueprint.parameter.StringArraySXPParameter;
-import com.liferay.search.experiences.blueprint.parameter.contributor.SXPParameterContributor;
 import com.liferay.search.experiences.blueprint.parameter.contributor.SXPParameterContributorDefinition;
-import com.liferay.search.experiences.model.SXPBlueprint;
+import com.liferay.search.experiences.rest.dto.v1_0.SXPBlueprint;
 
 import java.util.Collections;
 import java.util.List;
@@ -51,7 +50,7 @@ public class SystemSXPParameterContributor implements SXPParameterContributor {
 
 		if (booleanValue != null) {
 			sxpParameters.add(
-				new BooleanSXPParameter("explain", false, booleanValue));
+				new BooleanSXPParameter("system.explain", false, booleanValue));
 		}
 
 		booleanValue = (Boolean)searchContext.getAttribute(
@@ -68,7 +67,7 @@ public class SystemSXPParameterContributor implements SXPParameterContributor {
 
 		if (booleanValue != null) {
 			sxpParameters.add(
-				new BooleanSXPParameter("preview", false, booleanValue));
+				new BooleanSXPParameter("system.preview", false, booleanValue));
 		}
 	}
 

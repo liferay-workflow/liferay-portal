@@ -12,11 +12,12 @@
  *
  */
 
-package com.liferay.search.experiences.blueprint.parameter.contributor;
+package com.liferay.search.experiences.internal.blueprint.parameter.contributor;
 
 import com.liferay.portal.kernel.search.SearchContext;
 import com.liferay.search.experiences.blueprint.parameter.SXPParameter;
-import com.liferay.search.experiences.model.SXPBlueprint;
+import com.liferay.search.experiences.blueprint.parameter.contributor.SXPParameterContributorDefinition;
+import com.liferay.search.experiences.rest.dto.v1_0.SXPBlueprint;
 
 import java.util.List;
 import java.util.Set;

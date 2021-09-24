@@ -43,10 +43,9 @@ import com.liferay.portal.search.sort.SortMode;
 import com.liferay.portal.search.sort.SortOrder;
 import com.liferay.portal.search.sort.Sorts;
 import com.liferay.search.experiences.blueprint.parameter.SXPParameter;
-import com.liferay.search.experiences.blueprint.parameter.SXPParameterData;
-import com.liferay.search.experiences.internal.blueprint.parameter.SXPParameterDataImpl;
+import com.liferay.search.experiences.internal.blueprint.parameter.SXPParameterData;
 import com.liferay.search.experiences.internal.blueprint.parser.SXPTemplateVariableParser;
-import com.liferay.search.experiences.model.SXPBlueprint;
+import com.liferay.search.experiences.rest.dto.v1_0.SXPBlueprint;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -127,6 +126,11 @@ public class SortSearchRequestBodyContributor
 		}
 	}
 
+	@Override
+	public String getName() {
+		return "sort";
+	}
+
 	private List<Sort> _getDefaultSorts(
 		JSONArray jsonArray, SXPParameterData sxpParameterData) {
 
@@ -167,8 +171,7 @@ public class SortSearchRequestBodyContributor
 
 		if (jsonObject.has("filter")) {
 			Query query = _getQuery(
-				jsonObject,
-				new SXPParameterDataImpl("", Collections.emptySet()));
+				jsonObject, new SXPParameterData("", Collections.emptySet()));
 
 			if (query != null) {
 				nestedSort.setFilterQuery(query);

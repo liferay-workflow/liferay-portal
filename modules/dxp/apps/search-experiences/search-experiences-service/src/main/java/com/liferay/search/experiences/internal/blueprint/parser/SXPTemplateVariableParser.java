@@ -25,7 +25,7 @@ import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.search.experiences.blueprint.parameter.DateSXPParameter;
 import com.liferay.search.experiences.blueprint.parameter.SXPParameter;
-import com.liferay.search.experiences.blueprint.parameter.SXPParameterData;
+import com.liferay.search.experiences.internal.blueprint.parameter.SXPParameterData;
 
 import java.util.HashMap;
 import java.util.Map;

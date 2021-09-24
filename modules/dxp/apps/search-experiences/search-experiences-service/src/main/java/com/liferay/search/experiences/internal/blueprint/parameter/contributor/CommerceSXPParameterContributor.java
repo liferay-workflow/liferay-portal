@@ -20,9 +20,8 @@ import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.search.experiences.blueprint.parameter.LongArraySXPParameter;
 import com.liferay.search.experiences.blueprint.parameter.LongSXPParameter;
 import com.liferay.search.experiences.blueprint.parameter.SXPParameter;
-import com.liferay.search.experiences.blueprint.parameter.contributor.SXPParameterContributor;
 import com.liferay.search.experiences.blueprint.parameter.contributor.SXPParameterContributorDefinition;
-import com.liferay.search.experiences.model.SXPBlueprint;
+import com.liferay.search.experiences.rest.dto.v1_0.SXPBlueprint;
 
 import java.util.Arrays;
 import java.util.List;

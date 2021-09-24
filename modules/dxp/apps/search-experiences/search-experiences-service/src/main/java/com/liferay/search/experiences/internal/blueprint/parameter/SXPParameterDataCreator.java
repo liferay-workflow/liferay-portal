@@ -43,19 +43,17 @@ import com.liferay.search.experiences.blueprint.parameter.IntegerSXPParameter;
 import com.liferay.search.experiences.blueprint.parameter.LongArraySXPParameter;
 import com.liferay.search.experiences.blueprint.parameter.LongSXPParameter;
 import com.liferay.search.experiences.blueprint.parameter.SXPParameter;
-import com.liferay.search.experiences.blueprint.parameter.SXPParameterData;
-import com.liferay.search.experiences.blueprint.parameter.SXPParameterDataCreator;
 import com.liferay.search.experiences.blueprint.parameter.StringArraySXPParameter;
 import com.liferay.search.experiences.blueprint.parameter.StringSXPParameter;
-import com.liferay.search.experiences.blueprint.parameter.contributor.SXPParameterContributor;
 import com.liferay.search.experiences.internal.blueprint.parameter.contributor.CommerceSXPParameterContributor;
 import com.liferay.search.experiences.internal.blueprint.parameter.contributor.ContextSXPParameterContributor;
 import com.liferay.search.experiences.internal.blueprint.parameter.contributor.IpstackSXPParameterContributor;
 import com.liferay.search.experiences.internal.blueprint.parameter.contributor.OpenWeatherMapSXPParameterContributor;
+import com.liferay.search.experiences.internal.blueprint.parameter.contributor.SXPParameterContributor;
 import com.liferay.search.experiences.internal.blueprint.parameter.contributor.SystemSXPParameterContributor;
 import com.liferay.search.experiences.internal.blueprint.parameter.contributor.TimeSXPParameterContributor;
 import com.liferay.search.experiences.internal.blueprint.parameter.contributor.UserSXPParameterContributor;
-import com.liferay.search.experiences.model.SXPBlueprint;
+import com.liferay.search.experiences.rest.dto.v1_0.SXPBlueprint;
 import com.liferay.segments.SegmentsEntryRetriever;
 
 import java.time.LocalDate;
@@ -79,9 +77,8 @@ import org.osgi.service.component.annotations.Reference;
  * @author Petteri Karttunen
  */
 @Component(immediate = true, service = SXPParameterDataCreator.class)
-public class SXPParameterDataCreatorImpl implements SXPParameterDataCreator {
+public class SXPParameterDataCreator {
 
-	@Override
 	public SXPParameterData create(
 		SearchContext searchContext, SXPBlueprint sxpBlueprint) {
 
@@ -108,7 +105,7 @@ public class SXPParameterDataCreatorImpl implements SXPParameterDataCreator {
 		_addCustomSXPParameters(
 			jsonObject.getJSONArray("custom"), searchContext, sxpParameters);
 
-		return new SXPParameterDataImpl(keywords, sxpParameters);
+		return new SXPParameterData(keywords, sxpParameters);
 	}
 
 	@Activate
@@ -423,7 +420,7 @@ public class SXPParameterDataCreatorImpl implements SXPParameterDataCreator {
 
 		try {
 			jsonObject = _jsonFactory.createJSONObject(
-				sxpBlueprint.getConfigurationsJSON());
+				String.valueOf(sxpBlueprint.getConfiguration()));
 		}
 		catch (JSONException jsonException) {
 			return;

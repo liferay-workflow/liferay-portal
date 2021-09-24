@@ -15,8 +15,8 @@
 package com.liferay.search.experiences.internal.blueprint.search.request;
 
 import com.liferay.portal.search.searcher.SearchRequestBuilder;
-import com.liferay.search.experiences.blueprint.parameter.SXPParameterData;
-import com.liferay.search.experiences.model.SXPBlueprint;
+import com.liferay.search.experiences.internal.blueprint.parameter.SXPParameterData;
+import com.liferay.search.experiences.rest.dto.v1_0.SXPBlueprint;
 
 /**
  * @author Petteri Karttunen
@@ -26,5 +26,7 @@ public interface SearchRequestBodyContributor {
 	public void contribute(
 		SearchRequestBuilder searchRequestBuilder, SXPBlueprint sxpBlueprint,
 		SXPParameterData sxpParameterData);
+
+	public String getName();
 
 }

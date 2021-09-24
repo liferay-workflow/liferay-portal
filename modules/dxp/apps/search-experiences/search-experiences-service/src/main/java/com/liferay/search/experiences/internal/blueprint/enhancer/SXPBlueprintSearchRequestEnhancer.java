@@ -20,8 +20,16 @@ import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.search.aggregation.Aggregations;
 import com.liferay.portal.search.aggregation.metrics.CardinalityAggregation;
 import com.liferay.portal.search.filter.ComplexQueryPartBuilderFactory;
+import com.liferay.portal.search.geolocation.GeoBuilders;
 import com.liferay.portal.search.query.Queries;
+import com.liferay.portal.search.script.Scripts;
 import com.liferay.portal.search.searcher.SearchRequestBuilder;
+import com.liferay.portal.search.sort.Sorts;
+import com.liferay.search.experiences.blueprint.parameter.SXPParameter;
+import com.liferay.search.experiences.internal.blueprint.parameter.SXPParameterData;
+import com.liferay.search.experiences.internal.blueprint.parameter.SXPParameterDataCreator;
+import com.liferay.search.experiences.internal.blueprint.search.request.SearchRequestBodyContributor;
+import com.liferay.search.experiences.internal.blueprint.search.request.SortSearchRequestBodyContributor;
 import com.liferay.search.experiences.rest.dto.v1_0.Aggregation;
 import com.liferay.search.experiences.rest.dto.v1_0.Avg;
 import com.liferay.search.experiences.rest.dto.v1_0.Cardinality;
@@ -31,46 +39,81 @@ import com.liferay.search.experiences.rest.dto.v1_0.General;
 import com.liferay.search.experiences.rest.dto.v1_0.Query;
 import com.liferay.search.experiences.rest.dto.v1_0.SXPBlueprint;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
+
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Petteri Karttunen
  */
+@Component(immediate = true, service = SXPBlueprintSearchRequestEnhancer.class)
 public class SXPBlueprintSearchRequestEnhancer {
 
-	public SXPBlueprintSearchRequestEnhancer(
-		Aggregations aggregations,
-		ComplexQueryPartBuilderFactory complexQueryPartBuilderFactory,
-		Queries queries, SearchRequestBuilder searchRequestBuilder,
-		SXPBlueprint sxpBlueprint) {
+	public void enhance(
+		SearchRequestBuilder searchRequestBuilder, SXPBlueprint sxpBlueprint) {
 
-		_aggregations = aggregations;
-		_complexQueryPartBuilderFactory = complexQueryPartBuilderFactory;
-		_queries = queries;
-		_searchRequestBuilder = searchRequestBuilder;
+		SXPParameterData sxpParameterData = _sxpParameterDataCreator.create(
+			searchRequestBuilder.withSearchContextGet(
+				searchContext -> searchContext),
+			sxpBlueprint);
 
-		_configuration = sxpBlueprint.getConfiguration();
+		SXPParameter sxpParameter = sxpParameterData.getSXPParameterByName(
+			"system.excluded_search_request_body_contributors");
+
+		String[] names = null;
+
+		if (sxpParameter != null) {
+			names = (String[])sxpParameter.getValue();
+		}
+
+		for (SearchRequestBodyContributor searchRequestBodyContributor :
+				_searchRequestBodyContributors) {
+
+			if (!ArrayUtil.contains(
+					names, searchRequestBodyContributor.getName())) {
+
+				searchRequestBodyContributor.contribute(
+					searchRequestBuilder, sxpBlueprint, sxpParameterData);
+			}
+		}
+
+		Configuration configuration = sxpBlueprint.getConfiguration();
+
+		_processAggregations(
+			configuration.getAggregations(), searchRequestBuilder);
+		_processGeneral(configuration.getGeneral(), searchRequestBuilder);
+		_processQueries(configuration.getQueries(), searchRequestBuilder);
 	}
 
-	public void enhance() {
-		_processAggregations(_configuration.getAggregations());
-		_processGeneral(_configuration.getGeneral());
-		_processQueries(_configuration.getQueries());
+	@Activate
+	protected void activate() {
+		_searchRequestBodyContributors = Arrays.asList(
+			new SortSearchRequestBodyContributor(
+				_geoBuilders, _queries, _scripts, _sorts));
 	}
 
-	private void _processAggregations(Map<String, Aggregation> aggregations) {
+	private void _processAggregations(
+		Map<String, Aggregation> aggregations,
+		SearchRequestBuilder searchRequestBuilder) {
+
 		for (Map.Entry<String, Aggregation> entry : aggregations.entrySet()) {
-			_searchRequestBuilder.addAggregation(
+			searchRequestBuilder.addAggregation(
 				_toPortalSearchAggregation(entry.getValue(), entry.getKey()));
 		}
 	}
 
-	private void _processClause(Clause clause) {
+	private void _processClause(
+		Clause clause, SearchRequestBuilder searchRequestBuilder) {
+
 		com.liferay.portal.search.query.Query query = _queries.wrapper(
 			clause.getQueryJSON());
 
 		if (query != null) {
-			_searchRequestBuilder.addComplexQueryPart(
+			searchRequestBuilder.addComplexQueryPart(
 				_complexQueryPartBuilderFactory.builder(
 				).occur(
 					clause.getOccur()
@@ -80,16 +123,20 @@ public class SXPBlueprintSearchRequestEnhancer {
 		}
 	}
 
-	private void _processGeneral(General general) {
+	private void _processGeneral(
+		General general, SearchRequestBuilder searchRequestBuilder) {
+
 		if (general.getApplyIndexerClauses() != null) {
-			_searchRequestBuilder.withSearchContext(
+			searchRequestBuilder.withSearchContext(
 				searchContext -> searchContext.setAttribute(
 					"search.full.query.suppress.indexer.provided.clauses",
 					!general.getApplyIndexerClauses()));
 		}
 	}
 
-	private void _processQueries(Query[] queries) {
+	private void _processQueries(
+		Query[] queries, SearchRequestBuilder searchRequestBuilder) {
+
 		if (ArrayUtil.isEmpty(queries)) {
 			return;
 		}
@@ -106,7 +153,7 @@ public class SXPBlueprintSearchRequestEnhancer {
 			}
 
 			for (Clause clause : clauses) {
-				_processClause(clause);
+				_processClause(clause, searchRequestBuilder);
 			}
 		}
 	}
@@ -151,11 +198,27 @@ public class SXPBlueprintSearchRequestEnhancer {
 		return portalSearchAggregation;
 	}
 
-	private final Aggregations _aggregations;
-	private final ComplexQueryPartBuilderFactory
-		_complexQueryPartBuilderFactory;
-	private final Configuration _configuration;
-	private final Queries _queries;
-	private final SearchRequestBuilder _searchRequestBuilder;
+	@Reference
+	private Aggregations _aggregations;
+
+	@Reference
+	private ComplexQueryPartBuilderFactory _complexQueryPartBuilderFactory;
+
+	@Reference
+	private GeoBuilders _geoBuilders;
+
+	@Reference
+	private Queries _queries;
+
+	@Reference
+	private Scripts _scripts;
+
+	private List<SearchRequestBodyContributor> _searchRequestBodyContributors;
+
+	@Reference
+	private Sorts _sorts;
+
+	@Reference
+	private SXPParameterDataCreator _sxpParameterDataCreator;
 
 }
