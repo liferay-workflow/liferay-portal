@@ -12,7 +12,7 @@
  *
  */
 
-package com.liferay.search.experiences.internal.search.spi.searcher;
+package com.liferay.search.experiences.internal.blueprint.search.spi.searcher;
 
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
