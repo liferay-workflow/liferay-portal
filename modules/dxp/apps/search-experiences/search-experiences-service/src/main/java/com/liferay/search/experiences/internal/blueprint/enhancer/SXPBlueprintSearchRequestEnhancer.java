@@ -21,6 +21,8 @@ import com.liferay.portal.search.aggregation.Aggregations;
 import com.liferay.portal.search.aggregation.metrics.CardinalityAggregation;
 import com.liferay.portal.search.filter.ComplexQueryPartBuilderFactory;
 import com.liferay.portal.search.geolocation.GeoBuilders;
+import com.liferay.portal.search.highlight.FieldConfigBuilderFactory;
+import com.liferay.portal.search.highlight.HighlightBuilderFactory;
 import com.liferay.portal.search.query.Queries;
 import com.liferay.portal.search.script.Scripts;
 import com.liferay.portal.search.searcher.SearchRequestBuilder;
@@ -28,6 +30,7 @@ import com.liferay.portal.search.sort.Sorts;
 import com.liferay.search.experiences.blueprint.parameter.SXPParameter;
 import com.liferay.search.experiences.internal.blueprint.parameter.SXPParameterData;
 import com.liferay.search.experiences.internal.blueprint.parameter.SXPParameterDataCreator;
+import com.liferay.search.experiences.internal.blueprint.search.request.HighlightSearchRequestBodyContributor;
 import com.liferay.search.experiences.internal.blueprint.search.request.SearchRequestBodyContributor;
 import com.liferay.search.experiences.internal.blueprint.search.request.SortSearchRequestBodyContributor;
 import com.liferay.search.experiences.rest.dto.v1_0.Aggregation;
@@ -87,6 +90,8 @@ public class SXPBlueprintSearchRequestEnhancer {
 	@Activate
 	protected void activate() {
 		_searchRequestBodyContributors = Arrays.asList(
+			new HighlightSearchRequestBodyContributor(
+				_fieldConfigBuilderFactory, _highlightBuilderFactory),
 			new SortSearchRequestBodyContributor(
 				_geoBuilders, _queries, _scripts, _sorts));
 	}
@@ -249,7 +254,13 @@ public class SXPBlueprintSearchRequestEnhancer {
 	private ComplexQueryPartBuilderFactory _complexQueryPartBuilderFactory;
 
 	@Reference
+	private FieldConfigBuilderFactory _fieldConfigBuilderFactory;
+
+	@Reference
 	private GeoBuilders _geoBuilders;
+
+	@Reference
+	private HighlightBuilderFactory _highlightBuilderFactory;
 
 	@Reference
 	private Queries _queries;
