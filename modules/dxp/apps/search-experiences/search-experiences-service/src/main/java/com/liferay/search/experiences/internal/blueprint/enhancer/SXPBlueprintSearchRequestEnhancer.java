@@ -61,6 +61,40 @@ public class SXPBlueprintSearchRequestEnhancer {
 				searchContext -> searchContext),
 			sxpBlueprint);
 
+		// TODO From and size
+
+		searchRequestBuilder.emptySearchEnabled(
+			true
+		).excludeContributors(
+			"com.liferay.search.experiences.blueprint"
+		).explain(
+			_isExplain(sxpParameterData)
+		).includeResponseString(
+			_isIncludeResponseString(sxpParameterData)
+		);
+
+		Configuration configuration = sxpBlueprint.getConfiguration();
+
+		_processAggregations(
+			configuration.getAggregations(), searchRequestBuilder);
+		_processGeneral(configuration.getGeneral(), searchRequestBuilder);
+		_processQueries(configuration.getQueries(), searchRequestBuilder);
+
+		_contributeSearchRequestBodyContributors(
+			searchRequestBuilder, sxpBlueprint, sxpParameterData);
+	}
+
+	@Activate
+	protected void activate() {
+		_searchRequestBodyContributors = Arrays.asList(
+			new SortSearchRequestBodyContributor(
+				_geoBuilders, _queries, _scripts, _sorts));
+	}
+
+	private void _contributeSearchRequestBodyContributors(
+		SearchRequestBuilder searchRequestBuilder, SXPBlueprint sxpBlueprint,
+		SXPParameterData sxpParameterData) {
+
 		SXPParameter sxpParameter = sxpParameterData.getSXPParameterByName(
 			"system.excluded_search_request_body_contributors");
 
@@ -80,20 +114,30 @@ public class SXPBlueprintSearchRequestEnhancer {
 					searchRequestBuilder, sxpBlueprint, sxpParameterData);
 			}
 		}
-
-		Configuration configuration = sxpBlueprint.getConfiguration();
-
-		_processAggregations(
-			configuration.getAggregations(), searchRequestBuilder);
-		_processGeneral(configuration.getGeneral(), searchRequestBuilder);
-		_processQueries(configuration.getQueries(), searchRequestBuilder);
 	}
 
-	@Activate
-	protected void activate() {
-		_searchRequestBodyContributors = Arrays.asList(
-			new SortSearchRequestBodyContributor(
-				_geoBuilders, _queries, _scripts, _sorts));
+	private boolean _isExplain(SXPParameterData sxpParameterData) {
+		SXPParameter sxpParameter = sxpParameterData.getSXPParameterByName(
+			"system.explain");
+
+		if (sxpParameter == null) {
+			return false;
+		}
+
+		return GetterUtil.getBoolean(sxpParameter.getValue());
+	}
+
+	private boolean _isIncludeResponseString(
+		SXPParameterData sxpParameterData) {
+
+		SXPParameter sxpParameter = sxpParameterData.getSXPParameterByName(
+			"system.include_response_string");
+
+		if (sxpParameter == null) {
+			return false;
+		}
+
+		return GetterUtil.getBoolean(sxpParameter.getValue());
 	}
 
 	private void _processAggregations(
