@@ -14,15 +14,25 @@
 
 package com.liferay.portal.workflow.kaleo.internal.search.spi.model.query.contributor;
 
+import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.search.BooleanClauseOccur;
 import com.liferay.portal.kernel.search.BooleanQuery;
+import com.liferay.portal.kernel.search.ParseException;
 import com.liferay.portal.kernel.search.SearchContext;
+import com.liferay.portal.kernel.search.generic.BooleanQueryImpl;
 import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.kernel.workflow.WorkflowHandler;
+import com.liferay.portal.kernel.workflow.WorkflowHandlerRegistryUtil;
 import com.liferay.portal.search.query.QueryHelper;
 import com.liferay.portal.search.spi.model.query.contributor.KeywordQueryContributor;
 import com.liferay.portal.search.spi.model.query.contributor.helper.KeywordQueryContributorHelper;
 import com.liferay.portal.workflow.kaleo.internal.search.KaleoInstanceTokenField;
+import com.liferay.portal.workflow.kaleo.internal.search.KaleoTaskInstanceTokenField;
 import com.liferay.portal.workflow.kaleo.service.persistence.KaleoInstanceTokenQuery;
+
+import java.util.List;
+import java.util.stream.Stream;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -117,18 +127,48 @@ public class KaleoInstanceTokenKeywordQueryContributor
 		KeywordQueryContributorHelper keywordQueryContributorHelper) {
 
 		if (Validator.isNull(className)) {
-			return;
+			BooleanQuery classNameBooleanQuery = new BooleanQueryImpl();
+
+			Stream.of(
+				WorkflowHandlerRegistryUtil.getWorkflowHandlers()
+			).flatMap(
+				List::stream
+			).filter(
+				WorkflowHandler::isAssetTypeSearchable
+			).map(
+				WorkflowHandler::getClassName
+			).forEach(
+				workflowHandlerClassName -> {
+					try {
+						classNameBooleanQuery.addTerm(
+							KaleoTaskInstanceTokenField.CLASS_NAME,
+							workflowHandlerClassName);
+					}
+					catch (ParseException parseException) {
+						throw new SystemException(parseException);
+					}
+				}
+			);
+
+			try {
+				booleanQuery.add(
+					classNameBooleanQuery, BooleanClauseOccur.SHOULD);
+			}
+			catch (ParseException parseException) {
+				throw new SystemException(parseException);
+			}
 		}
+		else {
+			SearchContext searchContext =
+				keywordQueryContributorHelper.getSearchContext();
 
-		SearchContext searchContext =
-			keywordQueryContributorHelper.getSearchContext();
+			searchContext.setAttribute(
+				KaleoInstanceTokenField.CLASS_NAME, className);
 
-		searchContext.setAttribute(
-			KaleoInstanceTokenField.CLASS_NAME, className);
-
-		queryHelper.addSearchTerm(
-			booleanQuery, keywordQueryContributorHelper.getSearchContext(),
-			KaleoInstanceTokenField.CLASS_NAME, false);
+			queryHelper.addSearchTerm(
+				booleanQuery, keywordQueryContributorHelper.getSearchContext(),
+				KaleoInstanceTokenField.CLASS_NAME, false);
+		}
 	}
 
 	protected void appendCurrentKaleoNodeNameTerm(
