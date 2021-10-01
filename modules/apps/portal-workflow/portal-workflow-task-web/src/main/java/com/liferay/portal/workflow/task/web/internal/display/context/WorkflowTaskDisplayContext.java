@@ -45,6 +45,7 @@ import com.liferay.portal.kernel.service.RoleLocalServiceUtil;
 import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.theme.PortletDisplay;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
+import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.FastDateFormatFactoryUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HtmlUtil;
@@ -82,6 +83,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.portlet.PortletException;
 import javax.portlet.PortletMode;
@@ -744,6 +747,19 @@ public class WorkflowTaskDisplayContext {
 	}
 
 	private String[] _getAssetType(String keywords) {
+		if (StringUtil.equals(keywords, "")) {
+			return ArrayUtil.toStringArray(
+				Stream.of(
+					_getSearchableAssetsWorkflowHandlers()
+				).flatMap(
+					List::stream
+				).map(
+					WorkflowHandler::getClassName
+				).collect(
+					Collectors.toList()
+				));
+		}
+
 		for (WorkflowHandler<?> workflowHandler :
 				_getSearchableAssetsWorkflowHandlers()) {
 
