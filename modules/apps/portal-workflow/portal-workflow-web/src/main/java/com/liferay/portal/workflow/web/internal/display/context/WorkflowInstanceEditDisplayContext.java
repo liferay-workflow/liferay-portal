@@ -33,6 +33,7 @@ import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HtmlUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.PortalUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.kernel.workflow.WorkflowDefinition;
@@ -53,6 +54,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -261,13 +264,21 @@ public class WorkflowInstanceEditDisplayContext
 	}
 
 	public String getWorkflowInstanceState() {
-		WorkflowInstance workflowInstance = _getWorkflowInstance();
-
-		List<String> currentNodeNames = workflowInstance.getCurrentNodeNames();
-
-		return LanguageUtil.get(
-			workflowInstanceRequestHelper.getRequest(),
-			currentNodeNames.get(0));
+		return StringUtil.merge(
+			Stream.of(
+				_getWorkflowInstance()
+			).map(
+				WorkflowInstance::getCurrentNodeNames
+			).flatMap(
+				List::stream
+			).map(
+				currentNodeName -> LanguageUtil.get(
+					workflowInstanceRequestHelper.getRequest(),
+					HtmlUtil.escape(currentNodeName))
+			).collect(
+				Collectors.toList()
+			),
+			StringPool.COMMA_AND_SPACE);
 	}
 
 	public String getWorkflowLogComment(WorkflowLog workflowLog) {
