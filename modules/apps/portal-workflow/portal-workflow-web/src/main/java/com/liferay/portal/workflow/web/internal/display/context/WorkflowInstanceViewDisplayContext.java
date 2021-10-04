@@ -58,6 +58,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.portlet.PortletException;
 import javax.portlet.PortletURL;
@@ -367,11 +369,19 @@ public class WorkflowInstanceViewDisplayContext
 	}
 
 	public String getStatus(WorkflowInstance workflowInstance) {
-		List<String> currentNodeNames = workflowInstance.getCurrentNodeNames();
-
-		return LanguageUtil.get(
-			workflowInstanceRequestHelper.getRequest(),
-			HtmlUtil.escape(currentNodeNames.get(0)));
+		return StringUtil.merge(
+			Stream.of(
+				workflowInstance.getCurrentNodeNames()
+			).flatMap(
+				List::stream
+			).map(
+				currentNodeName -> LanguageUtil.get(
+					workflowInstanceRequestHelper.getRequest(),
+					HtmlUtil.escape(currentNodeName))
+			).collect(
+				Collectors.toList()
+			),
+			StringPool.COMMA_AND_SPACE);
 	}
 
 	public int getTotalItems() throws PortalException {
