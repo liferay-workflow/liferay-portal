@@ -67,6 +67,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -513,7 +515,15 @@ public class DefaultWorkflowEngineImpl
 
 			return new WorkflowModelSearchResult<>(
 				toWorkflowInstances(
-					baseModelSearchResult.getBaseModels(), serviceContext),
+					Stream.of(
+						baseModelSearchResult.getBaseModels()
+					).flatMap(
+						List::stream
+					).distinct(
+					).collect(
+						Collectors.toList()
+					),
+					serviceContext),
 				baseModelSearchResult.getLength());
 		}
 		catch (WorkflowException workflowException) {
