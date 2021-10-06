@@ -53,18 +53,31 @@ WorkflowTask workflowTask = workflowTaskDisplayContext.getWorkflowTask();
 </div>
 
 <aui:script use="aui-base">
-	var maxLength = Liferay.AUI.getDateFormat().replace(/%[mdY]/gm, '').length + 8;
-
-	A.all('#<portlet:namespace />dueDate').set('maxLength', maxLength);
-
-	var done = A.one('#<portlet:namespace />done');
+	var dueDateInput = A.one('#<portlet:namespace />dueDate');
+	
+	dueDateInput.on(
+		'blur',
+		function(event){
+			if(dueDateInput.get('value') == ''){							
+				document.querySelector('span.lfr-input-date').classList.add('has-error');
+				document.getElementById('<portlet:namespace />done')?.setAttribute('disabled', 'true');
+			} else {
+				document.getElementById('<portlet:namespace />done')?.removeAttribute('disabled');
+			}	
+		});
+		
+		var done = A.one('#<portlet:namespace />done');
+		
+		var maxLength = Liferay.AUI.getDateFormat().replace(/%[mdY]/gm, '').length + 8;
+		
+		dueDateInput.set('maxLength', maxLength);
 
 	if (done) {
 		done.on('click', (event) => {
 			var data = new FormData(
 				document.querySelector('#<portlet:namespace />updateFm')
-			);
-
+			);		
+		
 			Liferay.Util.fetch('<%= updateURL.toString() %>', {
 				body: data,
 				method: 'POST',
@@ -75,7 +88,9 @@ WorkflowTask workflowTask = workflowTaskDisplayContext.getWorkflowTask();
 				Liferay.Util.getWindow(
 					'<portlet:namespace />updateDialog'
 				).destroy();
-			});
+			}); 										
 		});
 	}
+
+					
 </aui:script>
