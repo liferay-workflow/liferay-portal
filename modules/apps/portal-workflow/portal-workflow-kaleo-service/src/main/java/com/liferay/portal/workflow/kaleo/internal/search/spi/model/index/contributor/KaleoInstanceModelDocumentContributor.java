@@ -41,6 +41,7 @@ import org.osgi.service.component.annotations.Component;
 	service = ModelDocumentContributor.class
 )
 public class KaleoInstanceModelDocumentContributor
+	extends BaseKaleoModelDocumentContributor
 	implements ModelDocumentContributor<KaleoInstance> {
 
 	@Override
@@ -88,6 +89,10 @@ public class KaleoInstanceModelDocumentContributor
 		document.addKeyword(
 			"rootKaleoInstanceTokenId",
 			kaleoInstance.getRootKaleoInstanceTokenId());
+
+		addAssetEntryAttributes(
+			kaleoInstance.getClassName(), kaleoInstance.getClassPK(), document,
+			kaleoInstance.getGroupId());
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(
