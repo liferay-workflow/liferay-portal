@@ -3,12 +3,12 @@
 function check_usage {
 	if [ ! "${#}" -eq 2 ]
 	then
-		echo "Usage: ${0} <custom-element-name> <js-framework>"
+		echo "Usage: create_remote_app.sh <custom-element-name> <js-framework>"
 		echo ""
 		echo "  custom-element-name: liferay-hello-world"
 		echo "  js-framework: react, vue2, vue3"
 		echo ""
-		echo "Example: ${0} liferay-hello-world react"
+		echo "Example: create_remote_app.sh liferay-hello-world react"
 
 		exit 1
 	fi
