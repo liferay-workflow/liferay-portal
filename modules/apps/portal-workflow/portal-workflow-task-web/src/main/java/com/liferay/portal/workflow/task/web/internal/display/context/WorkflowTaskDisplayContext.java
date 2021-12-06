@@ -584,9 +584,9 @@ public class WorkflowTaskDisplayContext {
 		logTypes.add(WorkflowLog.TASK_UPDATE);
 		logTypes.add(WorkflowLog.TRANSITION);
 
-		return WorkflowLogManagerUtil.getWorkflowLogsByWorkflowTask(
+		return WorkflowLogManagerUtil.getWorkflowLogsByWorkflowInstance(
 			_workflowTaskRequestHelper.getCompanyId(),
-			workflowTask.getWorkflowTaskId(), logTypes, QueryUtil.ALL_POS,
+			_getWorkflowInstanceId(workflowTask), logTypes, QueryUtil.ALL_POS,
 			QueryUtil.ALL_POS,
 			WorkflowComparatorFactoryUtil.getLogCreateDateComparator(false));
 	}
@@ -972,9 +972,9 @@ public class WorkflowTaskDisplayContext {
 		throws PortalException {
 
 		List<WorkflowLog> workflowLogs =
-			WorkflowLogManagerUtil.getWorkflowLogsByWorkflowTask(
+			WorkflowLogManagerUtil.getWorkflowLogsByWorkflowInstance(
 				_workflowTaskRequestHelper.getCompanyId(),
-				workflowTask.getWorkflowTaskId(), null, 0, 1,
+				_getWorkflowInstanceId(workflowTask), null, 0, 1,
 				WorkflowComparatorFactoryUtil.getLogCreateDateComparator());
 
 		if (!workflowLogs.isEmpty()) {
