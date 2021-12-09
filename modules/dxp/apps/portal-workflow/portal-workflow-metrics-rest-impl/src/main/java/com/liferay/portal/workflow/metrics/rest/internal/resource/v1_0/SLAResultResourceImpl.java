@@ -63,7 +63,6 @@ public class SLAResultResourceImpl extends BaseSLAResultResourceImpl {
 		searchSearchRequest.setQuery(
 			booleanQuery.addFilterQueryClauses(
 				filterBooleanQuery.addMustQueryClauses(
-					_queries.term("deleted", false),
 					_queries.term("processId", processId)),
 				filterBooleanQuery.addMustNotQueryClauses(
 					_queries.term("instanceId", 0))));
