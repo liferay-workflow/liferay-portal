@@ -85,7 +85,7 @@ public class SLAResultResourceTest extends BaseSLAResultResourceTestCase {
 
 		SLAResult slaResult2 = randomSLAResult();
 
-		slaResult2.setDateModified(dateModified);
+		slaResult2.setDateModified(DateUtils.addDays(dateModified, -1));
 
 		_workflowMetricsRESTTestHelper.addSLAInstanceResults(
 			testGroup.getCompanyId(), _instance, slaResult1, slaResult2);
@@ -98,6 +98,23 @@ public class SLAResultResourceTest extends BaseSLAResultResourceTestCase {
 		Assert.assertEquals(slaResult2.getId(), getSLAResult.getId());
 
 		assertEquals(slaResult2, getSLAResult);
+		assertValid(getSLAResult);
+
+		SLAResult slaResult3 = randomSLAResult();
+
+		slaResult3.setDateModified(dateModified);
+
+		_workflowMetricsRESTTestHelper.addSLAInstanceResult(
+			testGroup.getCompanyId(), true, _instance, slaResult3);
+
+		getSLAResult = slaResultResource.getProcessLastSLAResult(
+			_process.getId());
+
+		Assert.assertEquals(
+			slaResult3.getDateModified(), getSLAResult.getDateModified());
+		Assert.assertEquals(slaResult3.getId(), getSLAResult.getId());
+
+		assertEquals(slaResult3, getSLAResult);
 		assertValid(getSLAResult);
 	}
 
