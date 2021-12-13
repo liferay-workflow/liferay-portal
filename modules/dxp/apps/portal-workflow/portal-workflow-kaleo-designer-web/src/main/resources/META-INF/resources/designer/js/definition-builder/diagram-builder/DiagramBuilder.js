@@ -21,13 +21,17 @@ import ReactFlow, {
 	Background,
 	Controls,
 	ReactFlowProvider,
+	addEdge,
 	isNode,
 } from 'react-flow-renderer';
 
 import {DefinitionBuilderContext} from '../DefinitionBuilderContext';
+import {singleEventObserver} from '../util/EventObserver';
 import {DiagramBuilderContextProvider} from './DiagramBuilderContext';
 import {defaultNodes, nodeTypes} from './components/nodes/utils';
 import Sidebar from './components/sidebar/Sidebar';
+import edgeTypes from './components/transitions/Edge';
+import FloatingConnectionLine from './components/transitions/FloatingConnectionLine';
 
 let id = 2;
 const getId = () => `node_${id++}`;
@@ -50,7 +54,10 @@ const isPositionAvailable = (elements, newElementPosition) => {
 	let available = true;
 
 	elements.forEach((element) => {
-		if (isOverlapping(element.position, newElementPosition)) {
+		if (
+			isNode(element) &&
+			isOverlapping(element.position, newElementPosition)
+		) {
 			available = false;
 		}
 	});
@@ -68,6 +75,30 @@ export default function DiagramBuilder({version}) {
 	const [reactFlowInstance, setReactFlowInstance] = useState(null);
 	const [selectedNode, setSelectedNode] = useState(null);
 	const [selectedNodeNewId, setSelectedNodeNewId] = useState(null);
+
+	const onConnect = (params) => {
+		setElements((els) =>
+			addEdge(
+				{
+					...params,
+					arrowHeadType: 'arrowclosed',
+					data: {
+						label: `transition label`,
+					},
+					type: 'transition',
+				},
+				els
+			)
+		);
+	};
+
+	const onConnectEnd = () => {
+		singleEventObserver.notify('handle-connect-end', true);
+	};
+
+	const onConnectStart = (event, {nodeId}) => {
+		singleEventObserver.notify('handle-connect-start', nodeId);
+	};
 
 	const onDragOver = (event) => {
 		const reactFlowBounds = reactFlowWrapperRef.current.getBoundingClientRect();
@@ -190,9 +221,14 @@ export default function DiagramBuilder({version}) {
 				<div className="diagram-area" ref={reactFlowWrapperRef}>
 					<ReactFlowProvider>
 						<ReactFlow
+							connectionLineComponent={FloatingConnectionLine}
+							edgeTypes={edgeTypes}
 							elements={elements}
 							minZoom="0.1"
 							nodeTypes={nodeTypes}
+							onConnect={onConnect}
+							onConnectEnd={onConnectEnd}
+							onConnectStart={onConnectStart}
 							onDragOver={onDragOver}
 							onDrop={onDrop}
 							onLoad={onLoad}
