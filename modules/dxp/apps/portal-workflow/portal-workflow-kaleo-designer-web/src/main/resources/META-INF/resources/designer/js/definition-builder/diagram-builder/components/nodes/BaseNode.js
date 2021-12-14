@@ -30,6 +30,7 @@ export default function BaseNode({
 	icon,
 	id,
 	label,
+	newNode,
 	type,
 	...otherProps
 }) {
@@ -95,12 +96,10 @@ export default function BaseNode({
 	if (selectedLanguageId) {
 		if (!label[selectedLanguageId]) {
 			nodeLabel = label[defaultLanguageId];
-		}
-		else {
+		} else {
 			nodeLabel = label[selectedLanguageId];
 		}
-	}
-	else {
+	} else {
 		nodeLabel = label[defaultLanguageId];
 	}
 
@@ -112,13 +111,24 @@ export default function BaseNode({
 
 			if (display && connectionNodeId !== id) {
 				handleRef.current.style.opacity = '1';
-			}
-			else {
+			} else {
 				targethandlesRef.current.style.opacity = '0';
 				sourcehandlesRef.current.style.opacity = '0';
 			}
 		}
 	};
+
+	if (newNode) {
+		setSelectedNode({
+			data: {
+				description,
+				label,
+				newNode: false,
+			},
+			id,
+			type,
+		});
+	}
 
 	return (
 		<div className="base-node">
@@ -191,16 +201,12 @@ export default function BaseNode({
 				</div>
 
 				<div className="node-info">
-					<span
-						className="node-label truncate-container"
-						title={nodeLabel}
-					>
+					<span className="node-label truncate-container">
 						{nodeLabel}
 					</span>
 
 					<span
 						className={`node-description truncate-container ${descriptionColor}`}
-						title={descriptionSidebar ?? description}
 					>
 						{descriptionSidebar ?? description}
 					</span>
