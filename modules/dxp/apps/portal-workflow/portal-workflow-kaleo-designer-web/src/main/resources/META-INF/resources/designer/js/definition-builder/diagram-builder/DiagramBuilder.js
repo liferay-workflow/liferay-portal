@@ -111,6 +111,9 @@ export default function DiagramBuilder({version}) {
 				);
 
 				const newNode = {
+					data: {
+						newNode: true,
+					},
 					id: getId(),
 					position,
 					type,
