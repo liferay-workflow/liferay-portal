@@ -14,7 +14,9 @@
 
 package com.liferay.portal.workflow.metrics.internal.search.index;
 
+import com.liferay.portal.kernel.search.Field;
 import com.liferay.portal.kernel.util.PortalRunMode;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.search.document.Document;
 import com.liferay.portal.search.document.DocumentBuilder;
 import com.liferay.portal.search.engine.adapter.document.BulkDocumentRequest;
@@ -59,6 +61,8 @@ public class NodeWorkflowMetricsIndexerImpl
 			"modifiedDate", getDate(modifiedDate)
 		).setString(
 			"name", name
+		).setString(
+			Field.getSortableFieldName("name"), StringUtil.toLowerCase(name)
 		).setLong(
 			"nodeId", nodeId
 		).setLong(
