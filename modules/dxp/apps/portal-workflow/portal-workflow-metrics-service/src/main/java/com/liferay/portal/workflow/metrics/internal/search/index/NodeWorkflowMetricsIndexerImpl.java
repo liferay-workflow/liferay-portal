@@ -186,6 +186,8 @@ public class NodeWorkflowMetricsIndexerImpl
 			"instanceId", 0L
 		).setString(
 			"name", name
+		).setString(
+			Field.getSortableFieldName("name"), StringUtil.toLowerCase(name)
 		).setLong(
 			"nodeId", nodeId
 		).setLong(
