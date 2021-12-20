@@ -15,6 +15,8 @@
 package com.liferay.portal.workflow.kaleo.metrics.integration.internal.model.listener;
 
 import com.liferay.portal.kernel.model.ModelListener;
+import com.liferay.portal.kernel.model.UserNotificationEvent;
+import com.liferay.portal.kernel.service.UserNotificationEventLocalService;
 import com.liferay.portal.workflow.kaleo.metrics.integration.internal.helper.IndexerHelper;
 import com.liferay.portal.workflow.kaleo.model.KaleoDefinitionVersion;
 import com.liferay.portal.workflow.kaleo.model.KaleoInstance;
@@ -24,6 +26,7 @@ import com.liferay.portal.workflow.metrics.search.index.InstanceWorkflowMetricsI
 import java.time.Duration;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 
 import org.osgi.service.component.annotations.Component;
@@ -64,6 +67,30 @@ public class KaleoInstanceModelListener
 	public void onAfterRemove(KaleoInstance kaleoInstance) {
 		_instanceWorkflowMetricsIndexer.deleteInstance(
 			kaleoInstance.getCompanyId(), kaleoInstance.getKaleoInstanceId());
+	}
+
+	@Override
+	public void onAfterUpdate(
+		KaleoInstance originalKaleoInstance, KaleoInstance kaleoInstance) {
+
+		if (originalKaleoInstance.isActive() == kaleoInstance.isActive()) {
+			return;
+		}
+
+		List<UserNotificationEvent> userNotificationEvents =
+			_userNotificationEventLocalService.
+				getDeliveredUserNotificationEvents(
+					originalKaleoInstance.getUserId(),
+					originalKaleoInstance.isActive());
+
+		for (UserNotificationEvent userNotificationEvent :
+				userNotificationEvents) {
+
+			userNotificationEvent.setDelivered(kaleoInstance.isActive());
+
+			_userNotificationEventLocalService.updateUserNotificationEvent(
+				userNotificationEvent);
+		}
 	}
 
 	@Override
@@ -110,5 +137,9 @@ public class KaleoInstanceModelListener
 
 	@Reference
 	private KaleoInstanceLocalService _kaleoInstanceLocalService;
+
+	@Reference
+	private UserNotificationEventLocalService
+		_userNotificationEventLocalService;
 
 }
