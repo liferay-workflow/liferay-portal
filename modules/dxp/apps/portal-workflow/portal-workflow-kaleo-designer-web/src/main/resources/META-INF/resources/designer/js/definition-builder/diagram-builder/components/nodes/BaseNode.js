@@ -39,7 +39,7 @@ export default function BaseNode({
 	const {defaultLanguageId, selectedLanguageId} = useContext(
 		DefinitionBuilderContext
 	);
-	const {availableArea, selectedNode, setSelectedNode} = useContext(
+	const {availableArea, selectedItem, setSelectedItem} = useContext(
 		DiagramBuilderContext
 	);
 
@@ -87,7 +87,7 @@ export default function BaseNode({
 		description = nodeDescription[type];
 	}
 
-	if (selectedNode?.id === id) {
+	if (selectedItem?.id === id) {
 		className = `${className} selected`;
 	}
 
@@ -122,7 +122,7 @@ export default function BaseNode({
 	};
 
 	if (newNode) {
-		setSelectedNode({
+		setSelectedItem({
 			data: {
 				description,
 				label,
@@ -180,7 +180,7 @@ export default function BaseNode({
 				className={`node ${className}`}
 				onClick={() => {
 					if (!descriptionSidebar) {
-						setSelectedNode({
+						setSelectedItem({
 							data: {
 								description,
 								label,
