@@ -17,8 +17,10 @@ package com.liferay.portal.workflow.kaleo.internal.runtime.integration.test;
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.model.UserNotificationEvent;
 import com.liferay.portal.kernel.model.WorkflowInstanceLink;
 import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.service.UserNotificationEventLocalServiceUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.test.util.UserTestUtil;
@@ -144,6 +146,15 @@ public class WorkflowInstanceManagerImplTest
 
 			WorkflowInstance workflowInstance = workflowInstances.get(0);
 
+			List<UserNotificationEvent> userNotificationEvents =
+				UserNotificationEventLocalServiceUtil.
+					getDeliveredUserNotificationEvents(
+						TestPropsValues.getUserId(), true);
+
+			Assert.assertEquals(
+				userNotificationEvents.toString(), 1,
+				userNotificationEvents.size());
+
 			workflowInstanceManager.updateActive(
 				TestPropsValues.getUserId(), TestPropsValues.getCompanyId(),
 				workflowInstance.getWorkflowInstanceId(), false);
@@ -160,6 +171,24 @@ public class WorkflowInstanceManagerImplTest
 
 			Assert.assertEquals(
 				workflowInstances.toString(), 0, workflowInstances.size());
+
+			userNotificationEvents =
+				UserNotificationEventLocalServiceUtil.
+					getDeliveredUserNotificationEvents(
+						TestPropsValues.getUserId(), true);
+
+			Assert.assertEquals(
+				userNotificationEvents.toString(), 0,
+				userNotificationEvents.size());
+
+			userNotificationEvents =
+				UserNotificationEventLocalServiceUtil.
+					getDeliveredUserNotificationEvents(
+						TestPropsValues.getUserId(), false);
+
+			Assert.assertEquals(
+				userNotificationEvents.toString(), 1,
+				userNotificationEvents.size());
 
 			workflowModelSearchResult =
 				workflowInstanceManager.searchWorkflowInstances(
