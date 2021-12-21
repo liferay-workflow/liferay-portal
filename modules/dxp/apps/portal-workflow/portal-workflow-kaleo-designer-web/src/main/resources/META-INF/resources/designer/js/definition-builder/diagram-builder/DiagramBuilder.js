@@ -22,6 +22,7 @@ import ReactFlow, {
 	Controls,
 	ReactFlowProvider,
 	addEdge,
+	isEdge,
 	isNode,
 } from 'react-flow-renderer';
 
@@ -35,7 +36,7 @@ import edgeTypes from './components/transitions/Edge';
 import FloatingConnectionLine from './components/transitions/FloatingConnectionLine';
 
 let id = 2;
-const getId = () => `node_${id++}`;
+const getId = () => `item_${id++}`;
 
 const isOverlapping = (elementPosition, newElementPosition) => {
 	const isInHorizontalBounds =
@@ -76,23 +77,34 @@ export default function DiagramBuilder({version}) {
 	const reactFlowWrapperRef = useRef(null);
 	const [availableArea, setAvailableArea] = useState(null);
 	const [reactFlowInstance, setReactFlowInstance] = useState(null);
-	const [selectedNode, setSelectedNode] = useState(null);
-	const [selectedNodeNewId, setSelectedNodeNewId] = useState(null);
+	const [selectedItem, setSelectedItem] = useState(null);
+	const [selectedItemNewId, setSelectedItemNewId] = useState(null);
 
 	const onConnect = (params) => {
-		setElements((els) =>
-			addEdge(
-				{
-					...params,
-					arrowHeadType: 'arrowclosed',
-					data: {
-						label: `transition label`,
-					},
-					type: 'transition',
+		const defaultEdge = !elements.filter(
+			(element) =>
+				isEdge(element) &&
+				element.source === params.source &&
+				element.data.defaultEdge
+		).length;
+
+		const newEdge = {
+			...params,
+			arrowHeadType: 'arrowclosed',
+			data: {
+				defaultEdge,
+				label: {
+					[defaultLanguageId]: Liferay.Language.get(
+						'transition-label'
+					),
 				},
-				els
-			)
-		);
+			},
+			id: getId(),
+			type: 'transition',
+		};
+
+		setElements((previousElements) => addEdge(newEdge, previousElements));
+		setSelectedItem(newEdge);
 	};
 
 	const onConnectEnd = () => {
@@ -166,19 +178,19 @@ export default function DiagramBuilder({version}) {
 
 	useEffect(() => {
 		if (
-			selectedNode &&
+			selectedItem &&
 			(selectedLanguageId
-				? selectedNode.data.label[selectedLanguageId] !== ''
-				: selectedNode.data.label[defaultLanguageId] !== '')
+				? selectedItem.data.label[selectedLanguageId] !== ''
+				: selectedItem.data.label[defaultLanguageId] !== '')
 		) {
 			setElements((elements) =>
 				elements.map((element) => {
-					if (isNode(element) && element.id === selectedNode.id) {
+					if (element.id === selectedItem.id) {
 						element = {
 							...element,
 							data: {
 								...element.data,
-								...selectedNode.data,
+								...selectedItem.data,
 							},
 						};
 					}
@@ -189,25 +201,25 @@ export default function DiagramBuilder({version}) {
 		}
 
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [selectedNode]);
+	}, [selectedItem]);
 
 	useEffect(() => {
 		if (
-			selectedNodeNewId &&
-			selectedNodeNewId.trim() !== '' &&
-			!isIdDuplicated(elements, selectedNodeNewId.trim())
+			selectedItemNewId &&
+			selectedItemNewId.trim() !== '' &&
+			!isIdDuplicated(elements, selectedItemNewId.trim())
 		) {
 			setElements((elements) =>
 				elements.map((element) => {
-					if (isNode(element) && element.id === selectedNode.id) {
+					if (element.id === selectedItem.id) {
 						element = {
 							...element,
-							id: selectedNodeNewId,
+							id: selectedItemNewId,
 						};
 
-						setSelectedNodeNewId(null);
+						setSelectedItemNewId(null);
 
-						setSelectedNode(element);
+						setSelectedItem(element);
 					}
 
 					return element;
@@ -216,17 +228,17 @@ export default function DiagramBuilder({version}) {
 		}
 
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [selectedNode, selectedNodeNewId]);
+	}, [selectedItem, selectedItemNewId]);
 
 	const contextProps = {
 		availableArea,
 		elements,
-		selectedNode,
-		selectedNodeNewId,
+		selectedItem,
+		selectedItemNewId,
 		setAvailableArea,
 		setElements,
-		setSelectedNode,
-		setSelectedNodeNewId,
+		setSelectedItem,
+		setSelectedItemNewId,
 	};
 
 	return (
