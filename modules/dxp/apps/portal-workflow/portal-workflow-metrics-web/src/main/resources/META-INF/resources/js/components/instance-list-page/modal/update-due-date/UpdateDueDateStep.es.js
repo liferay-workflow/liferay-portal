@@ -31,7 +31,9 @@ import {ModalContext} from '../ModalProvider.es';
 const getTimeOptions = (isAmPm) => {
 	const parse = (number) => (number < 10 ? `0${number}` : number);
 
-	if (isAmPm) {
+	console.log(isAmPm);
+
+	if (isAmPm == 'h:mm a') {
 		const times = {
 			AM: ['12:00 AM', '12:30 AM'],
 			PM: ['12:00 PM', '12:30 PM'],
@@ -54,15 +56,17 @@ const getTimeOptions = (isAmPm) => {
 		times.push(`${parse(i)}:30`);
 	}
 
+	console.log('times ' + times);
+	console.log('aqui');
+
 	return times;
 };
 
 function UpdateDueDateStep({className, dueDate = new Date()}) {
-	const {isAmPm} = useContext(AppContext);
+	const {isAmPm, timeFormat} = useContext(AppContext);
 	const {setUpdateDueDate, updateDueDate} = useContext(ModalContext);
 
 	const dateFormat = getLocaleDateFormat();
-	const timeFormat = getLocaleDateFormat('LT');
 
 	const dateMask = getMaskByDateFormat(dateFormat);
 
@@ -77,9 +81,15 @@ function UpdateDueDateStep({className, dueDate = new Date()}) {
 
 	useEffect(() => {
 		let newDueDate = null;
-		const validDate = isValidDate(date, dateFormat);
+		
+		console.log('time ' + time);
+		console.log('timeFormat ', timeFormat);
+		console.log('dateFormat ', dateFormat);
 
-		if (validDate && isValidDate(time, timeFormat)) {
+		const validDate = isValidDate(date, dateFormat);
+		const validTime = isValidDate(time, timeFormat);
+
+		if (validDate && validTime) {
 			const newDateTime = formatDate(
 				`${date} ${time}`,
 				defaultDateFormat,
@@ -154,7 +164,7 @@ function TimePickerInputWithOptions({format, isAmPm, setValue, value}) {
 	const [invalidTime, setInvalidTime] = useState(false);
 	const [showOptions, setShowOptions] = useState(false);
 	const inputRef = useRef();
-	const options = getTimeOptions(isAmPm);
+	const options = getTimeOptions(format, isAmPm);
 
 	useEffect(() => {
 		setInvalidTime(!isValidDate(value, format));

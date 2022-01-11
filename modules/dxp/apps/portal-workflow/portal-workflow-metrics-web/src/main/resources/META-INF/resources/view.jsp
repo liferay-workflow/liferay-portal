@@ -31,6 +31,8 @@
 			).put(
 				"maxPages", PropsValues.SEARCH_CONTAINER_PAGE_ITERATOR_MAX_PAGES
 			).put(
+				"timeFormat", WorkflowMetricsUtil.getTimeFormat(locale)
+			).put(
 				"userId", themeDisplay.getUserId()
 			).put(
 				"userName", PortalUtil.getUserName(themeDisplay.getUserId(), String.valueOf(themeDisplay.getUserId()))
