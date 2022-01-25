@@ -1096,13 +1096,14 @@ public class DLImpl implements DL {
 				getEntryURL(dlFileVersion, serviceContext)
 			).put(
 				"event", syncEventType
+			).put(
+				"fileVersionId", dlFileVersion.getFileVersionId()
 			).build();
 
 		WorkflowHandlerRegistryUtil.startWorkflowInstance(
 			dlFileVersion.getCompanyId(), dlFileVersion.getGroupId(), userId,
-			DLFileEntryConstants.getClassName(),
-			dlFileVersion.getFileVersionId(), dlFileVersion, serviceContext,
-			workflowContext);
+			DLFileEntryConstants.getClassName(), dlFileVersion.getFileEntryId(),
+			dlFileVersion, serviceContext, workflowContext);
 	}
 
 	protected String getEntryURL(

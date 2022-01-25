@@ -15,11 +15,9 @@
 package com.liferay.document.library.internal.workflow;
 
 import com.liferay.asset.kernel.AssetRendererFactoryRegistryUtil;
-import com.liferay.asset.kernel.model.AssetRenderer;
 import com.liferay.asset.kernel.model.AssetRendererFactory;
 import com.liferay.document.library.kernel.model.DLFileEntry;
 import com.liferay.document.library.kernel.model.DLFileEntryTypeConstants;
-import com.liferay.document.library.kernel.model.DLFileVersion;
 import com.liferay.document.library.kernel.model.DLFolder;
 import com.liferay.document.library.kernel.model.DLFolderConstants;
 import com.liferay.document.library.kernel.service.DLFileEntryLocalService;
@@ -56,25 +54,6 @@ public class DLFileEntryWorkflowHandler
 	extends BaseWorkflowHandler<DLFileEntry> {
 
 	@Override
-	public AssetRenderer<DLFileEntry> getAssetRenderer(long classPK)
-		throws PortalException {
-
-		AssetRendererFactory<DLFileEntry> assetRendererFactory =
-			getAssetRendererFactory();
-
-		if (assetRendererFactory != null) {
-			DLFileVersion dlFileVersion =
-				_dlFileVersionLocalService.getFileVersion(classPK);
-
-			return assetRendererFactory.getAssetRenderer(
-				dlFileVersion.getFileEntryId(),
-				AssetRendererFactory.TYPE_LATEST);
-		}
-
-		return null;
-	}
-
-	@Override
 	public AssetRendererFactory<DLFileEntry> getAssetRendererFactory() {
 		return (AssetRendererFactory<DLFileEntry>)
 			AssetRendererFactoryRegistryUtil.getAssetRendererFactoryByClassName(
@@ -96,10 +75,10 @@ public class DLFileEntryWorkflowHandler
 			long companyId, long groupId, long classPK)
 		throws PortalException {
 
-		DLFileVersion dlFileVersion = _dlFileVersionLocalService.getFileVersion(
+		DLFileEntry dlFileEntry = _dlFileEntryLocalService.fetchDLFileEntry(
 			classPK);
 
-		long folderId = dlFileVersion.getFolderId();
+		long folderId = dlFileEntry.getFolderId();
 
 		while (folderId != DLFolderConstants.DEFAULT_PARENT_FOLDER_ID) {
 			DLFolder dlFolder = _dlFolderLocalService.getFolder(folderId);
@@ -116,7 +95,7 @@ public class DLFileEntryWorkflowHandler
 		WorkflowDefinitionLink workflowDefinitionLink =
 			_workflowDefinitionLinkLocalService.fetchWorkflowDefinitionLink(
 				companyId, groupId, DLFolder.class.getName(), folderId,
-				dlFileVersion.getFileEntryTypeId(), true);
+				dlFileEntry.getFileEntryTypeId(), true);
 
 		if (workflowDefinitionLink == null) {
 			workflowDefinitionLink =
@@ -140,15 +119,14 @@ public class DLFileEntryWorkflowHandler
 
 		long userId = GetterUtil.getLong(
 			(String)workflowContext.get(WorkflowConstants.CONTEXT_USER_ID));
-		long classPK = GetterUtil.getLong(
-			(String)workflowContext.get(
-				WorkflowConstants.CONTEXT_ENTRY_CLASS_PK));
+		long fileVersionId = GetterUtil.getLong(
+			workflowContext.get("fileVersionId"));
 
 		ServiceContext serviceContext = (ServiceContext)workflowContext.get(
 			"serviceContext");
 
 		return _dlFileEntryLocalService.updateStatus(
-			userId, classPK, status, serviceContext, workflowContext);
+			userId, fileVersionId, status, serviceContext, workflowContext);
 	}
 
 	@Reference(unbind = "-")
