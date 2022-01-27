@@ -124,7 +124,9 @@ DeserializeUtil.prototype = {
 						elements.push({
 							arrowHeadType: 'arrowclosed',
 							data: {
-								defaultEdge: JSON.parse(transition.default),
+								defaultEdge: transition?.default
+									? JSON.parse(transition.default)
+									: true,
 								label,
 							},
 							id: transitionId,
