@@ -56,4 +56,13 @@ function getUpdatedLabelItem(key, selectedItem, target) {
 	};
 }
 
-export {checkLabelErrors, checkIdErrors, getUpdatedLabelItem};
+function limitValue({defaultValue, min, value}) {
+	if (isNaN(value) || value < min) {
+		return defaultValue;
+	}
+
+	return value;
+}
+
+
+export {checkLabelErrors, checkIdErrors, getUpdatedLabelItem, limitValue};

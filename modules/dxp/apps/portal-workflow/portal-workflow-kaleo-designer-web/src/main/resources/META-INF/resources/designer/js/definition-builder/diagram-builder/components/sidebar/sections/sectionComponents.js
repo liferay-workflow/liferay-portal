@@ -11,6 +11,8 @@
 
 import EdgeInformation from './EdgeInformation';
 import NodeInformation from './NodeInformation';
+import Actions from './actions/Actions';
+import ActionsSummary from './actions/ActionsSummary';
 import Assignments from './assignments/Assignments';
 import AssignmentsSummary from './assignments/AssignmentsSummary';
 import SourceCode from './assignments/SourceCode';
@@ -18,6 +20,8 @@ import Notifications from './notifications/Notifications';
 import NotificationsSummary from './notifications/NotificationsSummary';
 
 const sectionComponents = {
+	actions: Actions,
+	actionsSummary: ActionsSummary,
 	assignments: Assignments,
 	assignmentsSummary: AssignmentsSummary,
 	edgeInformation: EdgeInformation,
