@@ -93,7 +93,7 @@ const NotificationsInfo = ({
 	sectionsLength,
 	setSections,
 }) => {
-	const {setSelectedItem} = useContext(DiagramBuilderContext);
+	const {selectedItem, setSelectedItem} = useContext(DiagramBuilderContext);
 	const [executionType, setExecutionType] = useState('');
 	const [notificationDescription, setNotificationDescription] = useState('');
 	const [notificationName, setNotificationName] = useState('');
@@ -291,6 +291,23 @@ const NotificationsInfo = ({
 					))}
 				</ClaySelect>
 			</ClayForm.Group>
+
+			{selectedItem?.data?.notifications?.recipientType[0] ===
+				'scriptedRecipient' && (
+				<SidebarPanel panelTitle={Liferay.Language.get('type')}>
+					<label htmlFor="nodeScript">
+						{`${Liferay.Language.get(
+							'script'
+						)} (${Liferay.Language.get('groovy')})`}
+					</label>
+
+					<ClayInput
+						component="textarea"
+						id="scriptedRecipient"
+						type="text"
+					/>
+				</SidebarPanel>
+			)}
 
 			<div className="sheet-subtitle" />
 
