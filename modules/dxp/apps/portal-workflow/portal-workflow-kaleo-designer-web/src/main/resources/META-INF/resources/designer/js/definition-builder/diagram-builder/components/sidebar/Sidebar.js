@@ -21,6 +21,14 @@ const contents = {
 	'actions': {
 		backButton: (setContentName, selectedItemType) => () =>
 			setContentName(selectedItemType),
+		deleteFunction: (setSelectedItem) => () =>
+			setSelectedItem((previousValue) => ({
+				...previousValue,
+				data: {
+					...previousValue.data,
+					actions: null,
+				},
+			})),
 		sections: ['actions'],
 		showDeleteButton: true,
 		title: Liferay.Language.get('actions'),
@@ -144,6 +152,10 @@ export default function Sidebar() {
 				backButtonFunction={
 					content?.backButton?.(setContentName, selectedItem?.type) ||
 					defaultBackButton
+				}
+				contentName={contentName}
+				deleteButtonFunction={
+					content?.deleteFunction?.(setSelectedItem) || null
 				}
 				showBackButton={!!content}
 				showDeleteButton={content?.showDeleteButton}
