@@ -64,5 +64,14 @@ function limitValue({defaultValue, min, value}) {
 	return value;
 }
 
+function sortElements(array, property) {
+	array.sort((a, b) => (a[property] > b[property] ? 1 : -1));
+}
 
-export {checkLabelErrors, checkIdErrors, getUpdatedLabelItem, limitValue};
+export {
+	checkLabelErrors,
+	checkIdErrors,
+	getUpdatedLabelItem,
+	limitValue,
+	sortElements,
+};

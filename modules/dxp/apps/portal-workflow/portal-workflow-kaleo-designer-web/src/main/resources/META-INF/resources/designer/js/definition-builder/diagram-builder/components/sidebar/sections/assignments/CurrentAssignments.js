@@ -16,6 +16,7 @@ import React, {useContext, useEffect, useState} from 'react';
 
 import lang from '../../../../../util/lang';
 import {DiagramBuilderContext} from '../../../../DiagramBuilderContext';
+import {sortElements} from '../utils';
 import {options} from './select-assignment/SelectAssignment';
 import {getAssignmentType} from './utils';
 
@@ -53,20 +54,10 @@ const CurrentAssignments = ({assignments, setContentName}) => {
 			});
 		}
 		else if (assignmentType === 'user') {
+			sortElements(assignments.sectionsData, 'name');
 			setAssignmentsDetails({
 				assignmentsCount: assignments.sectionsData.length,
-				firstName: assignments.sectionsData
-					.sort((firstElement, secondElement) => {
-						if (firstElement.name < secondElement.name) {
-							return -1;
-						}
-						if (firstElement.name > secondElement.name) {
-							return 1;
-						}
-
-						return 0;
-					})[0]
-					.name.split(' ')[0],
+				firstName: assignments.sectionsData[0].name.split(' ')[0],
 			});
 		}
 	}, [assignmentType, assignments]);
