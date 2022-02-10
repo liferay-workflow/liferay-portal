@@ -11,20 +11,31 @@
 
 import ClayButton from '@clayui/button';
 import PropTypes from 'prop-types';
-import React from 'react';
+import React, {useContext} from 'react';
 
+import {DiagramBuilderContext} from '../../../../DiagramBuilderContext';
 import SidebarPanel from '../../SidebarPanel';
+import CurrentActions from './CurrentActions';
 
 const ActionsSummary = ({setContentName}) => {
+	const {selectedItem} = useContext(DiagramBuilderContext);
+
 	return (
 		<SidebarPanel panelTitle={Liferay.Language.get('actions')}>
-			<ClayButton
-				className="mr-3"
-				displayType="secondary"
-				onClick={() => setContentName('actions')}
-			>
-				{Liferay.Language.get('new')}
-			</ClayButton>
+			{!selectedItem?.data?.actions ? (
+				<ClayButton
+					className="mr-3"
+					displayType="secondary"
+					onClick={() => setContentName('actions')}
+				>
+					{Liferay.Language.get('new')}
+				</ClayButton>
+			) : (
+				<CurrentActions
+					actions={selectedItem.data?.actions}
+					setContentName={setContentName}
+				/>
+			)}
 		</SidebarPanel>
 	);
 };
