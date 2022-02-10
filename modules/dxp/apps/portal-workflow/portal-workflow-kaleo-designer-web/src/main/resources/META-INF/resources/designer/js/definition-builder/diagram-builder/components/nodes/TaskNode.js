@@ -16,7 +16,7 @@ import {defaultLanguageId} from '../../../constants';
 import BaseNode from './BaseNode';
 
 export default function TaskNode({
-	data: {assignments, description, label, newNode} = {},
+	data: {actions, assignments, description, label, newNode} = {},
 	descriptionSidebar,
 	id,
 	...otherProps
@@ -29,6 +29,7 @@ export default function TaskNode({
 
 	return (
 		<BaseNode
+			actions={actions}
 			assignments={assignments}
 			className="task-node"
 			description={description}
