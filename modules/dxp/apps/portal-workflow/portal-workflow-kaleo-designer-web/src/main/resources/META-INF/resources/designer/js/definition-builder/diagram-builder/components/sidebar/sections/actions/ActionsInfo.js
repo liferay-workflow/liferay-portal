@@ -11,21 +11,18 @@
 
 import ClayButton, {ClayButtonWithIcon} from '@clayui/button';
 import ClayForm, {ClayInput, ClaySelect} from '@clayui/form';
+import ClayIcon from '@clayui/icon';
 import PropTypes from 'prop-types';
-import React, {useContext, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 
 import {DiagramBuilderContext} from '../../../../DiagramBuilderContext';
 import SidebarPanel from '../../SidebarPanel';
-import {limitValue} from '../utils';
+import {limitValue, sortElements} from '../utils';
 
 const DEFAULT_LIMIT = 1;
 const MIN_PRIORITY = 1;
 
-const executionTypeOptions = [
-	{
-		label: Liferay.Language.get('on-assignment'),
-		value: 'onAssignment',
-	},
+let executionTypeOptions = [
 	{
 		label: Liferay.Language.get('on-entry'),
 		value: 'onEntry',
@@ -36,39 +33,63 @@ const executionTypeOptions = [
 	},
 ];
 
-const ActionsInfo = ({identifier, sectionsLength, setSections}) => {
-	const {setSelectedItem} = useContext(DiagramBuilderContext);
+const ActionsInfo = ({identifier, index, sectionsLength, setSections}) => {
+	const {selectedItem, setSelectedItem} = useContext(DiagramBuilderContext);
+
+	const [description, setDescription] = useState('');
 	const [executionType, setExecutionType] = useState('');
-	const [priority, setPriority] = useState();
-	const [actionDescription, setActionDescription] = useState('');
-	const [actionName, setActionName] = useState('');
+	const [name, setName] = useState('');
+	const [priority, setPriority] = useState(DEFAULT_LIMIT);
 	const [template, setTemplate] = useState('');
 
-	const updateSelectedItem = (values) => {
-		setSelectedItem((previousItem) => ({
-			...previousItem,
-			data: {
-				...previousItem.data,
-				notifications: {
-					description: values.map(({description}) => description),
-					executionType: values.map(
-						({executionType}) => executionType
-					),
-					name: values.map(({name}) => name),
-					notificationType: values.map(
-						({notificationType}) => notificationType
-					),
-					recipientType: values.map(
-						({recipientType}) => recipientType
-					),
-					template: values.map(({template}) => template),
-					templateLanguage: values.map(
-						({templateLanguage}) => templateLanguage
-					),
-				},
-			},
-		}));
-	};
+	useEffect(() => {
+		if (selectedItem.type === 'task' && executionTypeOptions.length < 3) {
+			executionTypeOptions.push({
+				label: Liferay.Language.get('on-assignment'),
+				value: 'onAssignment',
+			});
+		}
+
+		sortElements(executionTypeOptions, 'value');
+
+		return function cleanup() {
+			executionTypeOptions = executionTypeOptions.filter(({value}) => {
+				return value !== 'onAssignment';
+			});
+		};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
+
+	useEffect(() => {
+		const currentSectionData =
+			selectedItem.data.actions?.sectionsData[index];
+
+		setDescription((prev) =>
+			currentSectionData
+				? currentSectionData?.description
+				: prev.description ?? ''
+		);
+		setExecutionType((prev) =>
+			currentSectionData
+				? currentSectionData?.executionType
+				: prev.executionType ?? executionTypeOptions[0].value
+		);
+		setName((prev) =>
+			currentSectionData ? currentSectionData?.name : prev.name ?? ''
+		);
+		setPriority((prev) =>
+			currentSectionData
+				? currentSectionData?.priority
+				: prev.priority ?? ''
+		);
+		setTemplate((prev) =>
+			currentSectionData
+				? currentSectionData?.template
+				: prev.template ?? ''
+		);
+
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
 
 	const deleteSection = () => {
 		setSections((prevSections) => {
@@ -82,44 +103,117 @@ const ActionsInfo = ({identifier, sectionsLength, setSections}) => {
 		});
 	};
 
+	const selectExecutionType = (item) => {
+		if (item.name && item.template && item.executionType) {
+			setSections((prev) => {
+				prev[index] = {
+					...prev[index],
+					...item,
+				};
+
+				updateSelectedItem(prev);
+
+				return prev;
+			});
+		}
+	};
+
+	const updateSelectedItem = (values) => {
+		setSelectedItem((previousItem) => ({
+			...previousItem,
+			data: {
+				...previousItem.data,
+				actions: {
+					description: values.map(({description}) => description),
+					executionType: values.map(
+						({executionType}) => executionType
+					),
+					name: values.map(({name}) => name),
+					priority: values.map(({priority}) => priority),
+					sectionsData: values.map((values) => values),
+					template: values.map(({template}) => template),
+				},
+			},
+		}));
+	};
+
 	return (
 		<SidebarPanel panelTitle={Liferay.Language.get('information')}>
 			<ClayForm.Group>
-				<label htmlFor="actionName">
+				<label htmlFor="name">
 					{Liferay.Language.get('name')}
+
+					<span className="ml-1 mr-1 text-warning">*</span>
 				</label>
 
 				<ClayInput
-					id="actionName"
-					onChange={({target}) => setActionName(target.value)}
+					id="name"
+					onBlur={() =>
+						selectExecutionType({
+							description,
+							executionType,
+							name,
+							priority,
+							template,
+						})
+					}
+					onChange={({target}) => {
+						setName(target.value);
+					}}
 					placeholder={Liferay.Language.get('my-action')}
 					type="text"
-					value={actionName}
+					value={name}
 				/>
 			</ClayForm.Group>
 
 			<ClayForm.Group>
-				<label htmlFor="actionDescription">
+				<label htmlFor="description">
 					{Liferay.Language.get('description')}
 				</label>
 
 				<ClayInput
-					id="actionDescription"
-					onChange={({target}) => setActionDescription(target.value)}
+					id="description"
+					onBlur={() =>
+						selectExecutionType({
+							description,
+							executionType,
+							name,
+							priority,
+							template,
+						})
+					}
+					onChange={({target}) => {
+						setDescription(target.value);
+					}}
 					type="text"
-					value={actionDescription}
+					value={description}
 				/>
 			</ClayForm.Group>
 
 			<ClayForm.Group>
 				<label htmlFor="template">
-					{Liferay.Language.get('template')}
+					{`${Liferay.Language.get(
+						'template'
+					)} (${Liferay.Language.get('groovy')})`}
+
+					<span className="ml-1 mr-1 text-warning">*</span>
 				</label>
 
 				<ClayInput
 					component="textarea"
 					id="template"
-					onChange={({target}) => setTemplate(target.value)}
+					onBlur={() =>
+						selectExecutionType({
+							description,
+							executionType,
+							name,
+							priority,
+							template,
+						})
+					}
+					onChange={({target}) => {
+						setTemplate(target.value);
+					}}
 					placeholder="${userName} sent you a ${entryType} for review in the workflow."
 					type="text"
 					value={template}
@@ -134,12 +228,24 @@ const ActionsInfo = ({identifier, sectionsLength, setSections}) => {
 				<ClaySelect
 					aria-label="Select"
 					id="execution-type"
-					onChange={({target}) => setExecutionType(target.value)}
+					onChange={({target}) => {
+						setExecutionType(target.value);
+					}}
+					onClickCapture={() =>
+						selectExecutionType({
+							description,
+							executionType,
+							name,
+							priority,
+							template,
+						})
+					}
 				>
 					{executionTypeOptions.map((item) => (
 						<ClaySelect.Option
 							key={item.value}
 							label={item.label}
+							selected={item.value === executionType}
 							value={item.value}
 						/>
 					))}
@@ -150,6 +256,16 @@ const ActionsInfo = ({identifier, sectionsLength, setSections}) => {
 				<label htmlFor="priority">
 					{Liferay.Language.get('priority')}
 				</label>
+
+				<span
+					className="ml-1"
+					title={Liferay.Language.get('label-name')}
+				>
+					<ClayIcon
+						className="text-muted"
+						symbol="question-circle-full"
+					/>
+				</span>
 
 				<ClayInput
 					aria-label="Select"
@@ -165,6 +281,14 @@ const ActionsInfo = ({identifier, sectionsLength, setSections}) => {
 						});
 
 						setPriority(newValue);
+
+						selectExecutionType({
+							description,
+							executionType,
+							name,
+							priority,
+							template,
+						});
 					}}
 					onChange={({target}) => {
 						let {value: newValue} = target;
@@ -184,9 +308,7 @@ const ActionsInfo = ({identifier, sectionsLength, setSections}) => {
 			<div className="section-buttons-area">
 				<ClayButton
 					className="mr-3"
-					disabled={
-						actionName.trim() === '' || template.trim() === ''
-					}
+					disabled={name?.trim() === '' || template?.trim() === ''}
 					displayType="secondary"
 					onClick={() =>
 						setSections((prev) => {

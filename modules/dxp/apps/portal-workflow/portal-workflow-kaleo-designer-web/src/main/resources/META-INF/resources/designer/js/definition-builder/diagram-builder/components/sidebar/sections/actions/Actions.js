@@ -9,22 +9,35 @@
  * distribution rights of the Software.
  */
 
-import React, {useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 
+import {DiagramBuilderContext} from '../../../../DiagramBuilderContext';
 import ActionsInfo from './ActionsInfo';
 
 const Actions = (props) => {
+	const {selectedItem} = useContext(DiagramBuilderContext);
+	const {actions} = selectedItem?.data;
 	const [sections, setSections] = useState([{identifier: `${Date.now()}-0`}]);
 
-	return sections.map(({identifier}, index) => (
-		<ActionsInfo
-			{...props}
-			identifier={identifier}
-			index={index}
-			key={`section-${identifier}`}
-			sectionsLength={sections?.length}
-			setSections={setSections}
-		/>
-	));
+	useEffect(() => {
+		if (actions?.sectionsData) {
+			setSections(actions?.sectionsData);
+		}
+
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
+
+	return sections.map(({identifier}, index) => {
+		return (
+			<ActionsInfo
+				{...props}
+				identifier={identifier}
+				index={index}
+				key={`section-${identifier}`}
+				sectionsLength={sections?.length}
+				setSections={setSections}
+			/>
+		);
+	});
 };
 export default Actions;
