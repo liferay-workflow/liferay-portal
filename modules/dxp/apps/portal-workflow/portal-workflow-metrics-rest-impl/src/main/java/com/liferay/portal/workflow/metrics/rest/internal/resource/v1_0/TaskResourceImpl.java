@@ -14,9 +14,14 @@
 
 package com.liferay.portal.workflow.metrics.rest.internal.resource.v1_0;
 
+import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.Language;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Role;
 import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.model.role.RoleConstants;
+import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -235,8 +240,10 @@ public class TaskResourceImpl extends BaseTaskResourceImpl {
 				new Long[] {-1L, contextUser.getUserId()});
 		}
 
+		TaskBulkSelection.Action action = taskBulkSelection.getAction();
+
 		SearchSearchResponse searchSearchResponse = _getSearchSearchResponse(
-			taskBulkSelection.getAssigneeIds(),
+			action.getValue(), taskBulkSelection.getAssigneeIds(),
 			taskBulkSelection.getInstanceIds(),
 			taskBulkSelection.getProcessId(),
 			taskBulkSelection.getSlaStatuses(),
@@ -270,7 +277,7 @@ public class TaskResourceImpl extends BaseTaskResourceImpl {
 
 			return Page.of(
 				_getTasks(
-					taskBulkSelection.getAssigneeIds(),
+					action.getValue(), taskBulkSelection.getAssigneeIds(),
 					taskBulkSelection.getInstanceIds(), pagination,
 					taskBulkSelection.getProcessId(),
 					taskBulkSelection.getSlaStatuses(),
@@ -515,6 +522,14 @@ public class TaskResourceImpl extends BaseTaskResourceImpl {
 				_queries.term("processId", processId));
 		}
 
+		if (_isAdmin()) {
+			return booleanQuery.addMustQueryClauses(
+				_queries.term("companyId", contextCompany.getCompanyId()),
+				_queries.term("completed", Boolean.FALSE),
+				_queries.term("deleted", Boolean.FALSE),
+				_queries.term("instanceCompleted", Boolean.FALSE));
+		}
+
 		return booleanQuery.addMustQueryClauses(
 			_createAssigneeIdsTermsBooleanQuery(assigneeIds),
 			_queries.term("companyId", contextCompany.getCompanyId()),
@@ -524,7 +539,7 @@ public class TaskResourceImpl extends BaseTaskResourceImpl {
 	}
 
 	private SearchSearchResponse _getSearchSearchResponse(
-		Long[] assigneeIds, Long[] instanceIds, Long processId,
+		String action, Long[] assigneeIds, Long[] instanceIds, Long processId,
 		String[] slaStatuses, String[] taskNames) {
 
 		SearchSearchRequest searchSearchRequest = new SearchSearchRequest();
@@ -533,7 +548,7 @@ public class TaskResourceImpl extends BaseTaskResourceImpl {
 
 		termsAggregation.addChildrenAggregations(
 			_resourceHelper.creatTaskCountScriptedMetricAggregation(
-				ListUtil.fromArray(assigneeIds),
+				action, _isAdmin(), ListUtil.fromArray(assigneeIds),
 				ListUtil.fromArray(slaStatuses),
 				ListUtil.fromArray(taskNames)));
 
@@ -547,7 +562,7 @@ public class TaskResourceImpl extends BaseTaskResourceImpl {
 
 		searchSearchRequest.addAggregation(
 			_resourceHelper.creatTaskCountScriptedMetricAggregation(
-				ListUtil.fromArray(assigneeIds),
+				action, _isAdmin(), ListUtil.fromArray(assigneeIds),
 				ListUtil.fromArray(slaStatuses),
 				ListUtil.fromArray(taskNames)));
 		searchSearchRequest.setIndexNames(
@@ -614,9 +629,9 @@ public class TaskResourceImpl extends BaseTaskResourceImpl {
 	}
 
 	private List<Task> _getTasks(
-		Long[] assigneeIds, Long[] instanceIds, Pagination pagination,
-		Long processId, String[] slaStatuses, long taskCount,
-		String[] taskNames) {
+		String action, Long[] assigneeIds, Long[] instanceIds,
+		Pagination pagination, Long processId, String[] slaStatuses,
+		long taskCount, String[] taskNames) {
 
 		SearchSearchRequest searchSearchRequest = new SearchSearchRequest();
 
@@ -639,7 +654,7 @@ public class TaskResourceImpl extends BaseTaskResourceImpl {
 		termsAggregation.addChildrenAggregations(
 			indexFilterAggregation,
 			_resourceHelper.creatTaskCountScriptedMetricAggregation(
-				ListUtil.fromArray(assigneeIds),
+				action, _isAdmin(), ListUtil.fromArray(assigneeIds),
 				ListUtil.fromArray(slaStatuses),
 				ListUtil.fromArray(taskNames)));
 
@@ -700,6 +715,22 @@ public class TaskResourceImpl extends BaseTaskResourceImpl {
 		);
 	}
 
+	private boolean _isAdmin() {
+		try {
+			if (_roleLocalService.hasUserRole(
+					contextUser.getUserId(), contextUser.getCompanyId(),
+					RoleConstants.ADMINISTRATOR, true)) {
+
+				return true;
+			}
+		}
+		catch (PortalException portalException) {
+			_log.error(portalException);
+		}
+
+		return false;
+	}
+
 	private AddTaskRequest _toAddTaskRequest(Long processId, Task task) {
 		AddTaskRequest.Builder addTaskRequestBuilder =
 			new AddTaskRequest.Builder();
@@ -755,6 +786,9 @@ public class TaskResourceImpl extends BaseTaskResourceImpl {
 		).build();
 	}
 
+	private static final Log _log = LogFactoryUtil.getLog(
+		TaskResourceImpl.class);
+
 	@Reference
 	private Aggregations _aggregations;
 
@@ -769,6 +803,9 @@ public class TaskResourceImpl extends BaseTaskResourceImpl {
 
 	@Reference
 	private ResourceHelper _resourceHelper;
+
+	@Reference
+	private RoleLocalService _roleLocalService;
 
 	@Reference
 	private Scripts _scripts;

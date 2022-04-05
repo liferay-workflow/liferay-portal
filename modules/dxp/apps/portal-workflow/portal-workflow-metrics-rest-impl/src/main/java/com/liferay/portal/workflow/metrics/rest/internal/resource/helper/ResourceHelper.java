@@ -53,6 +53,7 @@ import java.io.IOException;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -292,8 +293,8 @@ public class ResourceHelper {
 	}
 
 	public ScriptedMetricAggregation creatTaskCountScriptedMetricAggregation(
-		List<Long> assigneeIds, List<String> slaStatuses,
-		List<String> taskNames) {
+		String action, boolean admin, List<Long> assigneeIds,
+		List<String> slaStatuses, List<String> taskNames) {
 
 		ScriptedMetricAggregation scriptedMetricAggregation =
 			_aggregations.scriptedMetric("taskCount");
@@ -304,8 +305,23 @@ public class ResourceHelper {
 			_workflowMetricsTaskCountInitScript);
 		scriptedMetricAggregation.setMapScript(
 			_workflowMetricsTaskCountMapScript);
-		scriptedMetricAggregation.setParameters(
-			HashMapBuilder.<String, Object>put(
+
+		Map<String, Object> mapWrapper = null;
+
+		if (StringUtil.equals(action, "REASSIGN") && admin) {
+			mapWrapper = HashMapBuilder.<String, Object>put(
+				"taskNames",
+				() -> Optional.ofNullable(
+					taskNames
+				).filter(
+					ListUtil::isNotEmpty
+				).orElse(
+					null
+				)
+			).build();
+		}
+		else {
+			mapWrapper = HashMapBuilder.<String, Object>put(
 				"assigneeIds",
 				() -> Optional.ofNullable(
 					assigneeIds
@@ -342,7 +358,10 @@ public class ResourceHelper {
 				).orElse(
 					null
 				)
-			).build());
+			).build();
+		}
+
+		scriptedMetricAggregation.setParameters(mapWrapper);
 		scriptedMetricAggregation.setReduceScript(
 			_workflowMetricsTaskCountReduceScript);
 
