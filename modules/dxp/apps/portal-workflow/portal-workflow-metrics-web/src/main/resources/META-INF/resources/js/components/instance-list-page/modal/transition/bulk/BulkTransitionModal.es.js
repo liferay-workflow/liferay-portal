@@ -24,6 +24,7 @@ import SelectTransitionStep from './select-transition-step/SelectTransitionStep.
 export default function BulkTransitionModal() {
 	const {setSelectAll, setSelectedItems} = useContext(InstanceListContext);
 	const {
+		bulkAction,
 		bulkTransition: {
 			transition: {errors},
 			transitionTasks,
@@ -35,6 +36,7 @@ export default function BulkTransitionModal() {
 		visibleModal,
 	} = useContext(ModalContext);
 	const {clearFilters, fetchTasks} = useFetchTasks({
+		action: bulkAction,
 		callback: ({items}) => {
 			setFetching(false);
 			setSelectTasks({selectAll, tasks: items});

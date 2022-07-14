@@ -18,6 +18,7 @@ import {InstanceListContext} from '../../../../InstanceListPageProvider.es';
 import {ModalContext} from '../../../ModalProvider.es';
 
 const useFetchTasks = ({
+	action,
 	callback,
 	page = 1,
 	pageSize = 10000,
@@ -50,6 +51,7 @@ const useFetchTasks = ({
 
 	let {data, postData: fetchTasks} = usePost({
 		body: {
+			action,
 			assigneeIds: withoutUnassigned ? availableUsers : assigneeIds,
 			instanceIds,
 			processId,

@@ -24,6 +24,7 @@ import UpdateDueDateStep from './UpdateDueDateStep.es';
 export default function BulkUpdateDueDateModal() {
 	const {setSelectAll, setSelectedItems} = useContext(InstanceListContext);
 	const {
+		bulkAction,
 		closeModal,
 		selectTasks: {selectAll, tasks},
 		setSelectTasks,
@@ -32,6 +33,7 @@ export default function BulkUpdateDueDateModal() {
 		visibleModal,
 	} = useContext(ModalContext);
 	const {clearFilters, fetchTasks} = useFetchTasks({
+		action: bulkAction,
 		callback: ({items}) => {
 			setCurrentStep('selectDueDate');
 			setFetching(false);

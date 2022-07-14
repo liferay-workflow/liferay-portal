@@ -24,6 +24,7 @@ import SelectAssigneesStep from './select-assignees-step/SelectAssigneesStep.es'
 
 export default function BulkReassignModal() {
 	const {
+		bulkAction,
 		bulkReassign: {reassignedTasks, reassigning},
 		closeModal,
 		selectTasks,
@@ -32,6 +33,7 @@ export default function BulkReassignModal() {
 		visibleModal,
 	} = useContext(ModalContext);
 	const {clearFilters, fetchTasks} = useFetchTasks({
+		action: bulkAction,
 		callback: ({items}) => {
 			setFetching(false);
 			setSelectTasks({selectAll, tasks: items});

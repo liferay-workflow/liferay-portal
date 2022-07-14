@@ -14,6 +14,7 @@ import React, {createContext, useState} from 'react';
 const ModalContext = createContext();
 
 export default function ModalProvider({children, processId}) {
+	const [bulkAction, setBulkAction] = useState('');
 	const [bulkReassign, setBulkReassign] = useState({
 		reassignedTasks: [],
 		reassigning: false,
@@ -45,6 +46,7 @@ export default function ModalProvider({children, processId}) {
 	};
 
 	const modalState = {
+		bulkAction,
 		bulkReassign,
 		bulkTransition,
 		closeModal,
@@ -52,6 +54,7 @@ export default function ModalProvider({children, processId}) {
 		openModal: setVisibleModal,
 		processId,
 		selectTasks,
+		setBulkAction,
 		setBulkReassign,
 		setBulkTransition,
 		setSelectTasks,

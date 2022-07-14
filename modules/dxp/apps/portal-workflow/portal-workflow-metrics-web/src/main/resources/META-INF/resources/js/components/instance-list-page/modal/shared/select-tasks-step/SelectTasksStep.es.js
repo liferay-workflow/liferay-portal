@@ -22,7 +22,7 @@ import {useFetchTasks} from './hooks/useFetchTasks.es';
 
 function SelectTasksStep({setErrorToast, withoutUnassigned}) {
 	const {deltaValues} = useContext(AppContext);
-	const {setSelectTasks} = useContext(ModalContext);
+	const {bulkAction, setSelectTasks} = useContext(ModalContext);
 
 	const {
 		filterValues: {bulkAssigneeIds, bulkTaskNames},
@@ -33,6 +33,7 @@ function SelectTasksStep({setErrorToast, withoutUnassigned}) {
 	});
 
 	const {data, fetchTasks, instanceIds} = useFetchTasks({
+		action: bulkAction,
 		page,
 		pageSize,
 		withoutUnassigned,
