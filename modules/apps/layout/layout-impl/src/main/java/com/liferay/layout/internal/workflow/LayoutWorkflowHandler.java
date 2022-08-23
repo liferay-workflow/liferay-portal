@@ -66,7 +66,7 @@ public class LayoutWorkflowHandler extends BaseWorkflowHandler<Layout> {
 
 		Layout layout = _layoutLocalService.getLayout(classPK);
 
-		if (layout.isHidden() || layout.isSystem() || !layout.isTypeContent()) {
+		if (layout.isSystem() || !layout.isTypeContent()) {
 			return null;
 		}
 
