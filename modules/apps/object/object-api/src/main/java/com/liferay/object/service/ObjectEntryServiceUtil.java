@@ -19,6 +19,7 @@ import com.liferay.portal.kernel.exception.PortalException;
 
 import java.io.Serializable;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -79,6 +80,10 @@ public class ObjectEntryServiceUtil {
 		throws PortalException {
 
 		return getService().fetchObjectEntry(objectEntryId);
+	}
+
+	public static List<ObjectEntry> getObjectEntries(long objectDefinitionId) {
+		return getService().getObjectEntries(objectDefinitionId);
 	}
 
 	public static ObjectEntry getObjectEntry(long objectEntryId)
