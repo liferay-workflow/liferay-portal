@@ -158,6 +158,30 @@ public class InstanceWorkflowMetricsIndexerImpl
 	}
 
 	@Override
+	public Document createDefaultDocument(
+		boolean active, Map<Locale, String> assetTitleMap,
+		Map<Locale, String> assetTypeMap, long companyId, long instanceId,
+		Date modifiedDate) {
+
+		DocumentBuilder documentBuilder = documentBuilderFactory.builder();
+
+		documentBuilder.setValue(
+			"active", active
+		).setLong(
+			"companyId", companyId
+		).setDate(
+			"modifiedDate", getDate(modifiedDate)
+		).setString(
+			"uid", digest(companyId, instanceId)
+		);
+
+		setLocalizedField(documentBuilder, "assetTitle", assetTitleMap);
+		setLocalizedField(documentBuilder, "assetType", assetTypeMap);
+
+		return documentBuilder.build();
+	}
+
+	@Override
 	public void deleteInstance(long companyId, long instanceId) {
 		DocumentBuilder documentBuilder = documentBuilderFactory.builder();
 
