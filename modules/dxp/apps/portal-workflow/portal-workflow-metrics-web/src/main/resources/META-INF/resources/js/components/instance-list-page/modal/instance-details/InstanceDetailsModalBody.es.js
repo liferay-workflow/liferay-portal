@@ -195,7 +195,7 @@ function Body({
 					{!completed && (
 						<Body.SectionAttribute
 							description={Liferay.Language.get('current-step')}
-							detail={taskNames.join(', ')}
+							detail={taskNames[taskNames.length - 1]}
 						/>
 					)}
 
