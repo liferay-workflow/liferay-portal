@@ -52,7 +52,7 @@ export default function Header({
 		setSelectAll,
 		setSelectedItems,
 	} = useContext(InstanceListContext);
-	const {openModal} = useContext(ModalContext);
+	const {openModal, setBulkAction} = useContext(ModalContext);
 	const previousCount = usePrevious(totalCount);
 
 	const previousFetchData = usePrevious(fetchData);
@@ -85,18 +85,28 @@ export default function Header({
 			icon: 'arrow-start',
 			label: capitalize(Liferay.Language.get('transition')),
 			onClick: () => {
+				setBulkAction('TRANSITION');
+
 				openModal('bulkTransition');
 			},
 		},
 		{
 			icon: 'date',
 			label: Liferay.Language.get('update-tasks-due-dates'),
-			onClick: () => handleClick('bulkUpdateDueDate', 'updateDueDate'),
+			onClick: () => {
+				setBulkAction('UPDATE_DUE_DATE');
+
+				return handleClick('bulkUpdateDueDate', 'updateDueDate');
+			},
 		},
 		{
 			icon: 'change',
 			label: Liferay.Language.get('reassign-task'),
-			onClick: () => handleClick('bulkReassign', 'singleReassign'),
+			onClick: () => {
+				setBulkAction('REASSIGN');
+
+				return handleClick('bulkReassign', 'singleReassign');
+			},
 		},
 	];
 

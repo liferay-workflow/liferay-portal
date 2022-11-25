@@ -33,7 +33,7 @@ function Body({
 	filtered,
 	routeParams,
 }) {
-	const {fetchOnClose, visibleModal} = useContext(ModalContext);
+	const {bulkAction, fetchOnClose, visibleModal} = useContext(ModalContext);
 	const previousFetchData = usePrevious(fetchData);
 
 	const promises = useMemo(() => {
@@ -84,19 +84,19 @@ function Body({
 				</ContentView>
 			</ClayLayout.ContainerFluid>
 
-			<Body.ModalWrapper />
+			<Body.ModalWrapper action={bulkAction} />
 		</PromisesResolver>
 	);
 }
 
-function ModalWrapper() {
+function ModalWrapper({action}) {
 	return (
 		<>
-			<BulkReassignModal />
+			{action === 'REASSIGN' && <BulkReassignModal />}
 
-			<BulkTransitionModal />
+			{action === 'TRANSITION' && <BulkTransitionModal />}
 
-			<BulkUpdateDueDateModal />
+			{action === 'UPDATE_DUE_DATE' && <BulkUpdateDueDateModal />}
 
 			<InstanceDetailsModal />
 
