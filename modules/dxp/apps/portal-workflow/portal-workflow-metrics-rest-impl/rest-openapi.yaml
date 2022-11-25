@@ -516,6 +516,9 @@ components:
             description:
                 https://schema.org/TaskBulkSelection
             properties:
+                action:
+                    enum: [REASSIGN, TRANSITION, UPDATE_DUE_DATE]
+                    type: string
                 assigneeIds:
                     items:
                         format: int64
