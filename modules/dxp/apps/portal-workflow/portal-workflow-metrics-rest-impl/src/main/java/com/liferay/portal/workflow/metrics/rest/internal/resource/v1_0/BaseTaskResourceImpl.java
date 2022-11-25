@@ -344,7 +344,7 @@ public abstract class BaseTaskResourceImpl
 	/**
 	 * Invoke this method with the command line:
 	 *
-	 * curl -X 'POST' 'http://localhost:8080/o/portal-workflow-metrics/v1.0/tasks' -d $'{"assigneeIds": ___, "instanceIds": ___, "processId": ___, "slaStatuses": ___, "taskNames": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
+	 * curl -X 'POST' 'http://localhost:8080/o/portal-workflow-metrics/v1.0/tasks' -d $'{"action": ___, "assigneeIds": ___, "instanceIds": ___, "processId": ___, "slaStatuses": ___, "taskNames": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
 	 */
 	@io.swagger.v3.oas.annotations.Parameters(
 		value = {

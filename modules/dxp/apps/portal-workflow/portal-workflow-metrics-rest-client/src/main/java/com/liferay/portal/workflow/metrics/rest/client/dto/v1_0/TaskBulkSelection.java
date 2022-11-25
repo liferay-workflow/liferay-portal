@@ -34,6 +34,35 @@ public class TaskBulkSelection implements Cloneable, Serializable {
 		return TaskBulkSelectionSerDes.toDTO(json);
 	}
 
+	public Action getAction() {
+		return action;
+	}
+
+	public String getActionAsString() {
+		if (action == null) {
+			return null;
+		}
+
+		return action.toString();
+	}
+
+	public void setAction(Action action) {
+		this.action = action;
+	}
+
+	public void setAction(
+		UnsafeSupplier<Action, Exception> actionUnsafeSupplier) {
+
+		try {
+			action = actionUnsafeSupplier.get();
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	protected Action action;
+
 	public Long[] getAssigneeIds() {
 		return assigneeIds;
 	}
@@ -168,6 +197,40 @@ public class TaskBulkSelection implements Cloneable, Serializable {
 
 	public String toString() {
 		return TaskBulkSelectionSerDes.toJSON(this);
+	}
+
+	public static enum Action {
+
+		REASSIGN("REASSIGN"), TRANSITION("TRANSITION"),
+		UPDATE_DUE_DATE("UPDATE_DUE_DATE");
+
+		public static Action create(String value) {
+			for (Action action : values()) {
+				if (Objects.equals(action.getValue(), value) ||
+					Objects.equals(action.name(), value)) {
+
+					return action;
+				}
+			}
+
+			return null;
+		}
+
+		public String getValue() {
+			return _value;
+		}
+
+		@Override
+		public String toString() {
+			return _value;
+		}
+
+		private Action(String value) {
+			_value = value;
+		}
+
+		private final String _value;
+
 	}
 
 }

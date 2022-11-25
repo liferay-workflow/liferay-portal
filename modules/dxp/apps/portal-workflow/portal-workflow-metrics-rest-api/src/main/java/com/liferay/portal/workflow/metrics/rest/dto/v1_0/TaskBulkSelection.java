@@ -14,9 +14,11 @@
 
 package com.liferay.portal.workflow.metrics.rest.dto.v1_0;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 import com.liferay.petra.function.UnsafeSupplier;
 import com.liferay.petra.string.StringBundler;
@@ -35,6 +37,8 @@ import java.util.Objects;
 import java.util.Set;
 
 import javax.annotation.Generated;
+
+import javax.validation.Valid;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -58,6 +62,44 @@ public class TaskBulkSelection implements Serializable {
 	public static TaskBulkSelection unsafeToDTO(String json) {
 		return ObjectMapperUtil.unsafeReadValue(TaskBulkSelection.class, json);
 	}
+
+	@Schema
+	@Valid
+	public Action getAction() {
+		return action;
+	}
+
+	@JsonIgnore
+	public String getActionAsString() {
+		if (action == null) {
+			return null;
+		}
+
+		return action.toString();
+	}
+
+	public void setAction(Action action) {
+		this.action = action;
+	}
+
+	@JsonIgnore
+	public void setAction(
+		UnsafeSupplier<Action, Exception> actionUnsafeSupplier) {
+
+		try {
+			action = actionUnsafeSupplier.get();
+		}
+		catch (RuntimeException re) {
+			throw re;
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@GraphQLField
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	protected Action action;
 
 	@Schema
 	public Long[] getAssigneeIds() {
@@ -226,6 +268,20 @@ public class TaskBulkSelection implements Serializable {
 
 		sb.append("{");
 
+		if (action != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"action\": ");
+
+			sb.append("\"");
+
+			sb.append(action);
+
+			sb.append("\"");
+		}
+
 		if (assigneeIds != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
@@ -335,6 +391,45 @@ public class TaskBulkSelection implements Serializable {
 		name = "x-class-name"
 	)
 	public String xClassName;
+
+	@GraphQLName("Action")
+	public static enum Action {
+
+		REASSIGN("REASSIGN"), TRANSITION("TRANSITION"),
+		UPDATE_DUE_DATE("UPDATE_DUE_DATE");
+
+		@JsonCreator
+		public static Action create(String value) {
+			if ((value == null) || value.equals("")) {
+				return null;
+			}
+
+			for (Action action : values()) {
+				if (Objects.equals(action.getValue(), value)) {
+					return action;
+				}
+			}
+
+			throw new IllegalArgumentException("Invalid enum value: " + value);
+		}
+
+		@JsonValue
+		public String getValue() {
+			return _value;
+		}
+
+		@Override
+		public String toString() {
+			return _value;
+		}
+
+		private Action(String value) {
+			_value = value;
+		}
+
+		private final String _value;
+
+	}
 
 	private static String _escape(Object object) {
 		return StringUtil.replace(

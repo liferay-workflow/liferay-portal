@@ -55,6 +55,20 @@ public class TaskBulkSelectionSerDes {
 
 		sb.append("{");
 
+		if (taskBulkSelection.getAction() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"action\": ");
+
+			sb.append("\"");
+
+			sb.append(taskBulkSelection.getAction());
+
+			sb.append("\"");
+		}
+
 		if (taskBulkSelection.getAssigneeIds() != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
@@ -180,6 +194,13 @@ public class TaskBulkSelectionSerDes {
 
 		Map<String, String> map = new TreeMap<>();
 
+		if (taskBulkSelection.getAction() == null) {
+			map.put("action", null);
+		}
+		else {
+			map.put("action", String.valueOf(taskBulkSelection.getAction()));
+		}
+
 		if (taskBulkSelection.getAssigneeIds() == null) {
 			map.put("assigneeIds", null);
 		}
@@ -244,7 +265,14 @@ public class TaskBulkSelectionSerDes {
 			TaskBulkSelection taskBulkSelection, String jsonParserFieldName,
 			Object jsonParserFieldValue) {
 
-			if (Objects.equals(jsonParserFieldName, "assigneeIds")) {
+			if (Objects.equals(jsonParserFieldName, "action")) {
+				if (jsonParserFieldValue != null) {
+					taskBulkSelection.setAction(
+						TaskBulkSelection.Action.create(
+							(String)jsonParserFieldValue));
+				}
+			}
+			else if (Objects.equals(jsonParserFieldName, "assigneeIds")) {
 				if (jsonParserFieldValue != null) {
 					taskBulkSelection.setAssigneeIds(
 						toLongs((Object[])jsonParserFieldValue));
