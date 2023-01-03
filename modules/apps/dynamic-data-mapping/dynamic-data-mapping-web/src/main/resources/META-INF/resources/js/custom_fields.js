@@ -89,7 +89,7 @@ AUI.add(
 		const TPL_COLOR =
 			'<input class="field form-control" type="text" value="' +
 			A.Escape.html(Liferay.Language.get('color')) +
-			'" readonly="readonly">';
+			'" >';
 
 		const TPL_GEOLOCATION =
 			'<div class="field-labels-inline">' +
@@ -102,7 +102,7 @@ AUI.add(
 
 		const TPL_INPUT_BUTTON =
 			'<div class="form-group">' +
-			'<input class="field form-control" type="text" value="" readonly="readonly">' +
+			'<input class="field form-control" type="text" value="" >' +
 			'<div class="button-holder">' +
 			'<button class="btn btn-secondary select-button" type="button">' +
 			'<span class="lfr-btn-label">' +
