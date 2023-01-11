@@ -18,6 +18,9 @@ import com.liferay.account.constants.AccountConstants;
 import com.liferay.account.model.AccountRole;
 import com.liferay.account.service.AccountRoleLocalServiceUtil;
 import com.liferay.petra.string.StringBundler;
+import com.liferay.petra.string.StringPool;
+import com.liferay.petra.string.StringUtil;
+import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.DuplicateRoleException;
 import com.liferay.portal.kernel.exception.NoSuchRoleException;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -49,8 +52,9 @@ public class RoleUtil {
 			ServiceContext serviceContext)
 		throws PortalException {
 
-		Role role = RoleLocalServiceUtil.fetchRole(
-			serviceContext.getCompanyId(), name);
+		long companyId = serviceContext.getCompanyId();
+
+		Role role = RoleLocalServiceUtil.fetchRole(companyId, name);
 
 		if (role != null) {
 			if (role.getType() != roleType) {
@@ -61,11 +65,52 @@ public class RoleUtil {
 			return role;
 		}
 
-		if (!autoCreate) {
+		List<Role> candidateRoles = RoleLocalServiceUtil.search(
+			companyId, name, new Integer[] {roleType}, QueryUtil.ALL_POS,
+			QueryUtil.ALL_POS, null);
+
+		List<Role> matchingRoles = new ArrayList<>();
+
+		for (Role candidateRole : candidateRoles) {
+			Map<Locale, String> titleMap = candidateRole.getTitleMap();
+
+			for (String localizedTitle : titleMap.values()) {
+				if (StringUtil.equalsIgnoreCase(name, localizedTitle)) {
+					matchingRoles.add(candidateRole);
+
+					break;
+				}
+			}
+		}
+
+		if (matchingRoles.size() == 1) {
+			return matchingRoles.get(0);
+		}
+		else if (matchingRoles.size() > 1) {
+			StringBundler sb = new StringBundler(
+				5 + (5 * matchingRoles.size()));
+
+			sb.append("No Role exists with the key {companyId=");
+			sb.append(companyId);
+			sb.append(", name=");
+			sb.append(name);
+			sb.append("}, unable to use title due to multiple matches");
+
+			for (Role matchingRole : matchingRoles) {
+				sb.append("; {companyId=");
+				sb.append(companyId);
+				sb.append(", name=");
+				sb.append(matchingRole.getName());
+				sb.append(StringPool.CLOSE_CURLY_BRACE);
+			}
+
+			throw new NoSuchRoleException(sb.toString());
+		}
+		else if (!autoCreate) {
 			throw new NoSuchRoleException(
 				StringBundler.concat(
-					"No Role exists with the key {companyId=",
-					serviceContext.getCompanyId(), ", name=", name, "}"));
+					"No Role exists with the key {companyId=", companyId,
+					", name=", name, "}"));
 		}
 
 		Map<Locale, String> descriptionMap = HashMapBuilder.put(
