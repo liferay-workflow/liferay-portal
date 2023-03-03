@@ -100,24 +100,10 @@ function appendXMLActions(
 				);
 			}
 
-			if (isValidValue(status, index) && isValidValue(script, index)) {
-				if (scriptLanguage[index] !== 'update-status') {
-					buffer.push(XMLUtil.create('script', cdata(script[index])));
-
-					buffer.push(
-						createTagWithEscapedContent(
-							'scriptLanguage',
-							scriptLanguage[index] || DEFAULT_LANGUAGE
-						)
-					);
-				}
-				else {
-					buffer.push(
-						createTagWithEscapedContent('status', status[index])
-					);
-				}
-			}
-			else if (isValidValue(status, index)) {
+			if (
+				isValidValue(status, index) &&
+				scriptLanguage[index] === 'update-status'
+			) {
 				buffer.push(
 					createTagWithEscapedContent('status', status[index])
 				);
