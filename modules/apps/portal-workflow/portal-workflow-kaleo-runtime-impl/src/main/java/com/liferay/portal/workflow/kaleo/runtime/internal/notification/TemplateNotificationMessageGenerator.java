@@ -80,6 +80,11 @@ public class TemplateNotificationMessageGenerator
 				new StringTemplateResource(templateId, notificationTemplate),
 				false);
 
+			ServiceContext serviceContext =
+				executionContext.getServiceContext();
+
+			template.prepare(serviceContext.getRequest());
+
 			_populateContextVariables(template, executionContext);
 
 			if (_log.isDebugEnabled()) {
