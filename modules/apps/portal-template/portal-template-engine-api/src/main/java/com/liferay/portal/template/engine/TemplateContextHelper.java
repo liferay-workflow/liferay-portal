@@ -809,6 +809,10 @@ public class TemplateContextHelper {
 			(ThemeDisplay)httpServletRequest.getAttribute(
 				WebKeys.THEME_DISPLAY);
 
+		if (themeDisplay == null) {
+			return;
+		}
+
 		Definition definition = (Definition)httpServletRequest.getAttribute(
 			TilesUtil.DEFINITION);
 
