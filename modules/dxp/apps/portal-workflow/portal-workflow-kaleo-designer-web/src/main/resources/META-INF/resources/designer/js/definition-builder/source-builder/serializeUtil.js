@@ -373,11 +373,22 @@ function appendXMLRecipients(buffer, exporting, recipients) {
 	const recipientsAttrs = {};
 	const roleTypeName = exporting ? 'depot' : 'asset library';
 
-	if (
-		recipients?.receptionType &&
-		recipients.receptionType.some((receptionType) => receptionType !== '')
-	) {
-		recipientsAttrs.receptionType = recipients.receptionType;
+	if (recipients?.receptionType) {
+		if (
+			recipients.receptionType.some(
+				(receptionType) =>
+					receptionType !== '' && receptionType !== undefined
+			)
+		) {
+			recipientsAttrs.receptionType = recipients.receptionType;
+		}
+		else if (
+			recipients.assignmentType.some(
+				(assignmentType) => assignmentType === 'user'
+			)
+		) {
+			recipientsAttrs.receptionType = ['to'];
+		}
 	}
 
 	recipients?.roleType?.forEach((item, roleTypeIndex) => {
