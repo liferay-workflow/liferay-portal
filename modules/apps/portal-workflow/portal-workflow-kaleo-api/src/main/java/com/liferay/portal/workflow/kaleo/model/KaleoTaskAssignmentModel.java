@@ -353,6 +353,41 @@ public interface KaleoTaskAssignmentModel
 	public void setAssigneeScript(String assigneeScript);
 
 	/**
+	 * Returns the assignee script cacheable of this kaleo task assignment.
+	 *
+	 * @return the assignee script cacheable of this kaleo task assignment
+	 */
+	public boolean getAssigneeScriptCacheable();
+
+	/**
+	 * Returns <code>true</code> if this kaleo task assignment is assignee script cacheable.
+	 *
+	 * @return <code>true</code> if this kaleo task assignment is assignee script cacheable; <code>false</code> otherwise
+	 */
+	public boolean isAssigneeScriptCacheable();
+
+	/**
+	 * Sets whether this kaleo task assignment is assignee script cacheable.
+	 *
+	 * @param assigneeScriptCacheable the assignee script cacheable of this kaleo task assignment
+	 */
+	public void setAssigneeScriptCacheable(boolean assigneeScriptCacheable);
+
+	/**
+	 * Returns the assignee script cache duration of this kaleo task assignment.
+	 *
+	 * @return the assignee script cache duration of this kaleo task assignment
+	 */
+	public int getAssigneeScriptCacheDuration();
+
+	/**
+	 * Sets the assignee script cache duration of this kaleo task assignment.
+	 *
+	 * @param assigneeScriptCacheDuration the assignee script cache duration of this kaleo task assignment
+	 */
+	public void setAssigneeScriptCacheDuration(int assigneeScriptCacheDuration);
+
+	/**
 	 * Returns the assignee script language of this kaleo task assignment.
 	 *
 	 * @return the assignee script language of this kaleo task assignment

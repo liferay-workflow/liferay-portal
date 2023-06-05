@@ -91,6 +91,14 @@ public class KaleoTaskAssignmentTable
 	public final Column<KaleoTaskAssignmentTable, Clob> assigneeScript =
 		createColumn(
 			"assigneeScript", Clob.class, Types.CLOB, Column.FLAG_DEFAULT);
+	public final Column<KaleoTaskAssignmentTable, Boolean>
+		assigneeScriptCacheable = createColumn(
+			"assigneeScriptCacheable", Boolean.class, Types.BOOLEAN,
+			Column.FLAG_DEFAULT);
+	public final Column<KaleoTaskAssignmentTable, Integer>
+		assigneeScriptCacheDuration = createColumn(
+			"assigneeScriptCacheDuration", Integer.class, Types.INTEGER,
+			Column.FLAG_DEFAULT);
 	public final Column<KaleoTaskAssignmentTable, String>
 		assigneeScriptLanguage = createColumn(
 			"assigneeScriptLanguage", String.class, Types.VARCHAR,

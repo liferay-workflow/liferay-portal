@@ -3224,6 +3224,8 @@ public class KaleoTaskAssignmentPersistenceImpl
 		ctStrictColumnNames.add("assigneeClassPK");
 		ctStrictColumnNames.add("assigneeActionId");
 		ctStrictColumnNames.add("assigneeScript");
+		ctStrictColumnNames.add("assigneeScriptCacheable");
+		ctStrictColumnNames.add("assigneeScriptCacheDuration");
 		ctStrictColumnNames.add("assigneeScriptLanguage");
 		ctStrictColumnNames.add("assigneeScriptRequiredContexts");
 

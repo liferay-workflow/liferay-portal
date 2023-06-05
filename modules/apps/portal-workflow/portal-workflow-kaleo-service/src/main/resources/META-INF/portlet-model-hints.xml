@@ -390,6 +390,8 @@
 		<field name="assigneeScript" type="String">
 			<hint-collection name="CLOB" />
 		</field>
+		<field name="assigneeScriptCacheable" type="boolean" />
+		<field name="assigneeScriptCacheDuration" type="int" />
 		<field name="assigneeScriptLanguage" type="String" />
 		<field name="assigneeScriptRequiredContexts" type="String">
 			<hint-collection name="TEXTAREA" />

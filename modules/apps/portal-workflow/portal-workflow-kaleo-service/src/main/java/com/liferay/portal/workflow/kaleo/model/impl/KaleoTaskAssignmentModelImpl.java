@@ -80,6 +80,8 @@ public class KaleoTaskAssignmentModelImpl
 		{"kaleoNodeId", Types.BIGINT}, {"assigneeClassName", Types.VARCHAR},
 		{"assigneeClassPK", Types.BIGINT}, {"assigneeActionId", Types.VARCHAR},
 		{"assigneeScript", Types.CLOB},
+		{"assigneeScriptCacheable", Types.BOOLEAN},
+		{"assigneeScriptCacheDuration", Types.INTEGER},
 		{"assigneeScriptLanguage", Types.VARCHAR},
 		{"assigneeScriptRequiredContexts", Types.VARCHAR}
 	};
@@ -106,12 +108,14 @@ public class KaleoTaskAssignmentModelImpl
 		TABLE_COLUMNS_MAP.put("assigneeClassPK", Types.BIGINT);
 		TABLE_COLUMNS_MAP.put("assigneeActionId", Types.VARCHAR);
 		TABLE_COLUMNS_MAP.put("assigneeScript", Types.CLOB);
+		TABLE_COLUMNS_MAP.put("assigneeScriptCacheable", Types.BOOLEAN);
+		TABLE_COLUMNS_MAP.put("assigneeScriptCacheDuration", Types.INTEGER);
 		TABLE_COLUMNS_MAP.put("assigneeScriptLanguage", Types.VARCHAR);
 		TABLE_COLUMNS_MAP.put("assigneeScriptRequiredContexts", Types.VARCHAR);
 	}
 
 	public static final String TABLE_SQL_CREATE =
-		"create table KaleoTaskAssignment (mvccVersion LONG default 0 not null,ctCollectionId LONG default 0 not null,kaleoTaskAssignmentId LONG not null,groupId LONG,companyId LONG,userId LONG,userName VARCHAR(200) null,createDate DATE null,modifiedDate DATE null,kaleoClassName VARCHAR(200) null,kaleoClassPK LONG,kaleoDefinitionId LONG,kaleoDefinitionVersionId LONG,kaleoNodeId LONG,assigneeClassName VARCHAR(200) null,assigneeClassPK LONG,assigneeActionId VARCHAR(75) null,assigneeScript TEXT null,assigneeScriptLanguage VARCHAR(75) null,assigneeScriptRequiredContexts STRING null,primary key (kaleoTaskAssignmentId, ctCollectionId))";
+		"create table KaleoTaskAssignment (mvccVersion LONG default 0 not null,ctCollectionId LONG default 0 not null,kaleoTaskAssignmentId LONG not null,groupId LONG,companyId LONG,userId LONG,userName VARCHAR(200) null,createDate DATE null,modifiedDate DATE null,kaleoClassName VARCHAR(200) null,kaleoClassPK LONG,kaleoDefinitionId LONG,kaleoDefinitionVersionId LONG,kaleoNodeId LONG,assigneeClassName VARCHAR(200) null,assigneeClassPK LONG,assigneeActionId VARCHAR(75) null,assigneeScript TEXT null,assigneeScriptCacheable BOOLEAN,assigneeScriptCacheDuration INTEGER,assigneeScriptLanguage VARCHAR(75) null,assigneeScriptRequiredContexts STRING null,primary key (kaleoTaskAssignmentId, ctCollectionId))";
 
 	public static final String TABLE_SQL_DROP =
 		"drop table KaleoTaskAssignment";
@@ -314,6 +318,12 @@ public class KaleoTaskAssignmentModelImpl
 			attributeGetterFunctions.put(
 				"assigneeScript", KaleoTaskAssignment::getAssigneeScript);
 			attributeGetterFunctions.put(
+				"assigneeScriptCacheable",
+				KaleoTaskAssignment::getAssigneeScriptCacheable);
+			attributeGetterFunctions.put(
+				"assigneeScriptCacheDuration",
+				KaleoTaskAssignment::getAssigneeScriptCacheDuration);
+			attributeGetterFunctions.put(
 				"assigneeScriptLanguage",
 				KaleoTaskAssignment::getAssigneeScriptLanguage);
 			attributeGetterFunctions.put(
@@ -410,6 +420,14 @@ public class KaleoTaskAssignmentModelImpl
 				"assigneeScript",
 				(BiConsumer<KaleoTaskAssignment, String>)
 					KaleoTaskAssignment::setAssigneeScript);
+			attributeSetterBiConsumers.put(
+				"assigneeScriptCacheable",
+				(BiConsumer<KaleoTaskAssignment, Boolean>)
+					KaleoTaskAssignment::setAssigneeScriptCacheable);
+			attributeSetterBiConsumers.put(
+				"assigneeScriptCacheDuration",
+				(BiConsumer<KaleoTaskAssignment, Integer>)
+					KaleoTaskAssignment::setAssigneeScriptCacheDuration);
 			attributeSetterBiConsumers.put(
 				"assigneeScriptLanguage",
 				(BiConsumer<KaleoTaskAssignment, String>)
@@ -773,6 +791,41 @@ public class KaleoTaskAssignmentModelImpl
 	}
 
 	@Override
+	public boolean getAssigneeScriptCacheable() {
+		return _assigneeScriptCacheable;
+	}
+
+	@Override
+	public boolean isAssigneeScriptCacheable() {
+		return _assigneeScriptCacheable;
+	}
+
+	@Override
+	public void setAssigneeScriptCacheable(boolean assigneeScriptCacheable) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
+		_assigneeScriptCacheable = assigneeScriptCacheable;
+	}
+
+	@Override
+	public int getAssigneeScriptCacheDuration() {
+		return _assigneeScriptCacheDuration;
+	}
+
+	@Override
+	public void setAssigneeScriptCacheDuration(
+		int assigneeScriptCacheDuration) {
+
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
+		_assigneeScriptCacheDuration = assigneeScriptCacheDuration;
+	}
+
+	@Override
 	public String getAssigneeScriptLanguage() {
 		if (_assigneeScriptLanguage == null) {
 			return "";
@@ -890,6 +943,10 @@ public class KaleoTaskAssignmentModelImpl
 		kaleoTaskAssignmentImpl.setAssigneeClassPK(getAssigneeClassPK());
 		kaleoTaskAssignmentImpl.setAssigneeActionId(getAssigneeActionId());
 		kaleoTaskAssignmentImpl.setAssigneeScript(getAssigneeScript());
+		kaleoTaskAssignmentImpl.setAssigneeScriptCacheable(
+			isAssigneeScriptCacheable());
+		kaleoTaskAssignmentImpl.setAssigneeScriptCacheDuration(
+			getAssigneeScriptCacheDuration());
 		kaleoTaskAssignmentImpl.setAssigneeScriptLanguage(
 			getAssigneeScriptLanguage());
 		kaleoTaskAssignmentImpl.setAssigneeScriptRequiredContexts(
@@ -941,6 +998,11 @@ public class KaleoTaskAssignmentModelImpl
 			this.<String>getColumnOriginalValue("assigneeActionId"));
 		kaleoTaskAssignmentImpl.setAssigneeScript(
 			this.<String>getColumnOriginalValue("assigneeScript"));
+		kaleoTaskAssignmentImpl.setAssigneeScriptCacheable(
+			this.<Boolean>getColumnOriginalValue("assigneeScriptCacheable"));
+		kaleoTaskAssignmentImpl.setAssigneeScriptCacheDuration(
+			this.<Integer>getColumnOriginalValue(
+				"assigneeScriptCacheDuration"));
 		kaleoTaskAssignmentImpl.setAssigneeScriptLanguage(
 			this.<String>getColumnOriginalValue("assigneeScriptLanguage"));
 		kaleoTaskAssignmentImpl.setAssigneeScriptRequiredContexts(
@@ -1120,6 +1182,12 @@ public class KaleoTaskAssignmentModelImpl
 			kaleoTaskAssignmentCacheModel.assigneeScript = null;
 		}
 
+		kaleoTaskAssignmentCacheModel.assigneeScriptCacheable =
+			isAssigneeScriptCacheable();
+
+		kaleoTaskAssignmentCacheModel.assigneeScriptCacheDuration =
+			getAssigneeScriptCacheDuration();
+
 		kaleoTaskAssignmentCacheModel.assigneeScriptLanguage =
 			getAssigneeScriptLanguage();
 
@@ -1225,6 +1293,8 @@ public class KaleoTaskAssignmentModelImpl
 	private long _assigneeClassPK;
 	private String _assigneeActionId;
 	private String _assigneeScript;
+	private boolean _assigneeScriptCacheable;
+	private int _assigneeScriptCacheDuration;
 	private String _assigneeScriptLanguage;
 	private String _assigneeScriptRequiredContexts;
 
@@ -1276,6 +1346,10 @@ public class KaleoTaskAssignmentModelImpl
 		_columnOriginalValues.put("assigneeClassPK", _assigneeClassPK);
 		_columnOriginalValues.put("assigneeActionId", _assigneeActionId);
 		_columnOriginalValues.put("assigneeScript", _assigneeScript);
+		_columnOriginalValues.put(
+			"assigneeScriptCacheable", _assigneeScriptCacheable);
+		_columnOriginalValues.put(
+			"assigneeScriptCacheDuration", _assigneeScriptCacheDuration);
 		_columnOriginalValues.put(
 			"assigneeScriptLanguage", _assigneeScriptLanguage);
 		_columnOriginalValues.put(
@@ -1329,9 +1403,13 @@ public class KaleoTaskAssignmentModelImpl
 
 		columnBitmasks.put("assigneeScript", 131072L);
 
-		columnBitmasks.put("assigneeScriptLanguage", 262144L);
+		columnBitmasks.put("assigneeScriptCacheable", 262144L);
 
-		columnBitmasks.put("assigneeScriptRequiredContexts", 524288L);
+		columnBitmasks.put("assigneeScriptCacheDuration", 524288L);
+
+		columnBitmasks.put("assigneeScriptLanguage", 1048576L);
+
+		columnBitmasks.put("assigneeScriptRequiredContexts", 2097152L);
 
 		_columnBitmasks = Collections.unmodifiableMap(columnBitmasks);
 	}

@@ -162,6 +162,12 @@ public class KaleoTaskAssignmentPersistenceTest {
 
 		newKaleoTaskAssignment.setAssigneeScript(RandomTestUtil.randomString());
 
+		newKaleoTaskAssignment.setAssigneeScriptCacheable(
+			RandomTestUtil.randomBoolean());
+
+		newKaleoTaskAssignment.setAssigneeScriptCacheDuration(
+			RandomTestUtil.nextInt());
+
 		newKaleoTaskAssignment.setAssigneeScriptLanguage(
 			RandomTestUtil.randomString());
 
@@ -229,6 +235,12 @@ public class KaleoTaskAssignmentPersistenceTest {
 		Assert.assertEquals(
 			existingKaleoTaskAssignment.getAssigneeScript(),
 			newKaleoTaskAssignment.getAssigneeScript());
+		Assert.assertEquals(
+			existingKaleoTaskAssignment.isAssigneeScriptCacheable(),
+			newKaleoTaskAssignment.isAssigneeScriptCacheable());
+		Assert.assertEquals(
+			existingKaleoTaskAssignment.getAssigneeScriptCacheDuration(),
+			newKaleoTaskAssignment.getAssigneeScriptCacheDuration());
 		Assert.assertEquals(
 			existingKaleoTaskAssignment.getAssigneeScriptLanguage(),
 			newKaleoTaskAssignment.getAssigneeScriptLanguage());
@@ -302,7 +314,8 @@ public class KaleoTaskAssignmentPersistenceTest {
 			"modifiedDate", true, "kaleoClassName", true, "kaleoClassPK", true,
 			"kaleoDefinitionId", true, "kaleoDefinitionVersionId", true,
 			"kaleoNodeId", true, "assigneeClassName", true, "assigneeClassPK",
-			true, "assigneeActionId", true, "assigneeScriptLanguage", true,
+			true, "assigneeActionId", true, "assigneeScriptCacheable", true,
+			"assigneeScriptCacheDuration", true, "assigneeScriptLanguage", true,
 			"assigneeScriptRequiredContexts", true);
 	}
 
@@ -570,6 +583,12 @@ public class KaleoTaskAssignmentPersistenceTest {
 		kaleoTaskAssignment.setAssigneeActionId(RandomTestUtil.randomString());
 
 		kaleoTaskAssignment.setAssigneeScript(RandomTestUtil.randomString());
+
+		kaleoTaskAssignment.setAssigneeScriptCacheable(
+			RandomTestUtil.randomBoolean());
+
+		kaleoTaskAssignment.setAssigneeScriptCacheDuration(
+			RandomTestUtil.nextInt());
 
 		kaleoTaskAssignment.setAssigneeScriptLanguage(
 			RandomTestUtil.randomString());

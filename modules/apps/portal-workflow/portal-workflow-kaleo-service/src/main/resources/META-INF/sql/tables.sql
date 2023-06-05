@@ -279,6 +279,8 @@ create table KaleoTaskAssignment (
 	assigneeClassPK LONG,
 	assigneeActionId VARCHAR(75) null,
 	assigneeScript TEXT null,
+	assigneeScriptCacheable BOOLEAN,
+	assigneeScriptCacheDuration INTEGER,
 	assigneeScriptLanguage VARCHAR(75) null,
 	assigneeScriptRequiredContexts STRING null,
 	primary key (kaleoTaskAssignmentId, ctCollectionId)

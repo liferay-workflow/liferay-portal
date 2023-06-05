@@ -78,7 +78,7 @@ public class KaleoTaskAssignmentCacheModel
 
 	@Override
 	public String toString() {
-		StringBundler sb = new StringBundler(41);
+		StringBundler sb = new StringBundler(45);
 
 		sb.append("{mvccVersion=");
 		sb.append(mvccVersion);
@@ -116,6 +116,10 @@ public class KaleoTaskAssignmentCacheModel
 		sb.append(assigneeActionId);
 		sb.append(", assigneeScript=");
 		sb.append(assigneeScript);
+		sb.append(", assigneeScriptCacheable=");
+		sb.append(assigneeScriptCacheable);
+		sb.append(", assigneeScriptCacheDuration=");
+		sb.append(assigneeScriptCacheDuration);
 		sb.append(", assigneeScriptLanguage=");
 		sb.append(assigneeScriptLanguage);
 		sb.append(", assigneeScriptRequiredContexts=");
@@ -194,6 +198,11 @@ public class KaleoTaskAssignmentCacheModel
 			kaleoTaskAssignmentImpl.setAssigneeScript(assigneeScript);
 		}
 
+		kaleoTaskAssignmentImpl.setAssigneeScriptCacheable(
+			assigneeScriptCacheable);
+		kaleoTaskAssignmentImpl.setAssigneeScriptCacheDuration(
+			assigneeScriptCacheDuration);
+
 		if (assigneeScriptLanguage == null) {
 			kaleoTaskAssignmentImpl.setAssigneeScriptLanguage("");
 		}
@@ -247,6 +256,10 @@ public class KaleoTaskAssignmentCacheModel
 		assigneeClassPK = objectInput.readLong();
 		assigneeActionId = objectInput.readUTF();
 		assigneeScript = (String)objectInput.readObject();
+
+		assigneeScriptCacheable = objectInput.readBoolean();
+
+		assigneeScriptCacheDuration = objectInput.readInt();
 		assigneeScriptLanguage = objectInput.readUTF();
 		assigneeScriptRequiredContexts = objectInput.readUTF();
 	}
@@ -313,6 +326,10 @@ public class KaleoTaskAssignmentCacheModel
 			objectOutput.writeObject(assigneeScript);
 		}
 
+		objectOutput.writeBoolean(assigneeScriptCacheable);
+
+		objectOutput.writeInt(assigneeScriptCacheDuration);
+
 		if (assigneeScriptLanguage == null) {
 			objectOutput.writeUTF("");
 		}
@@ -346,6 +363,8 @@ public class KaleoTaskAssignmentCacheModel
 	public long assigneeClassPK;
 	public String assigneeActionId;
 	public String assigneeScript;
+	public boolean assigneeScriptCacheable;
+	public int assigneeScriptCacheDuration;
 	public String assigneeScriptLanguage;
 	public String assigneeScriptRequiredContexts;
 

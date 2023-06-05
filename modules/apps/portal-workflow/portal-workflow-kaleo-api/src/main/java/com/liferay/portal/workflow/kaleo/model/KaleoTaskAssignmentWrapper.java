@@ -63,6 +63,9 @@ public class KaleoTaskAssignmentWrapper
 		attributes.put("assigneeClassPK", getAssigneeClassPK());
 		attributes.put("assigneeActionId", getAssigneeActionId());
 		attributes.put("assigneeScript", getAssigneeScript());
+		attributes.put("assigneeScriptCacheable", isAssigneeScriptCacheable());
+		attributes.put(
+			"assigneeScriptCacheDuration", getAssigneeScriptCacheDuration());
 		attributes.put("assigneeScriptLanguage", getAssigneeScriptLanguage());
 		attributes.put(
 			"assigneeScriptRequiredContexts",
@@ -183,6 +186,20 @@ public class KaleoTaskAssignmentWrapper
 			setAssigneeScript(assigneeScript);
 		}
 
+		Boolean assigneeScriptCacheable = (Boolean)attributes.get(
+			"assigneeScriptCacheable");
+
+		if (assigneeScriptCacheable != null) {
+			setAssigneeScriptCacheable(assigneeScriptCacheable);
+		}
+
+		Integer assigneeScriptCacheDuration = (Integer)attributes.get(
+			"assigneeScriptCacheDuration");
+
+		if (assigneeScriptCacheDuration != null) {
+			setAssigneeScriptCacheDuration(assigneeScriptCacheDuration);
+		}
+
 		String assigneeScriptLanguage = (String)attributes.get(
 			"assigneeScriptLanguage");
 
@@ -241,6 +258,26 @@ public class KaleoTaskAssignmentWrapper
 	@Override
 	public String getAssigneeScript() {
 		return model.getAssigneeScript();
+	}
+
+	/**
+	 * Returns the assignee script cacheable of this kaleo task assignment.
+	 *
+	 * @return the assignee script cacheable of this kaleo task assignment
+	 */
+	@Override
+	public boolean getAssigneeScriptCacheable() {
+		return model.getAssigneeScriptCacheable();
+	}
+
+	/**
+	 * Returns the assignee script cache duration of this kaleo task assignment.
+	 *
+	 * @return the assignee script cache duration of this kaleo task assignment
+	 */
+	@Override
+	public int getAssigneeScriptCacheDuration() {
+		return model.getAssigneeScriptCacheDuration();
 	}
 
 	/**
@@ -423,6 +460,16 @@ public class KaleoTaskAssignmentWrapper
 		return model.getUserUuid();
 	}
 
+	/**
+	 * Returns <code>true</code> if this kaleo task assignment is assignee script cacheable.
+	 *
+	 * @return <code>true</code> if this kaleo task assignment is assignee script cacheable; <code>false</code> otherwise
+	 */
+	@Override
+	public boolean isAssigneeScriptCacheable() {
+		return model.isAssigneeScriptCacheable();
+	}
+
 	@Override
 	public void persist() {
 		model.persist();
@@ -466,6 +513,28 @@ public class KaleoTaskAssignmentWrapper
 	@Override
 	public void setAssigneeScript(String assigneeScript) {
 		model.setAssigneeScript(assigneeScript);
+	}
+
+	/**
+	 * Sets whether this kaleo task assignment is assignee script cacheable.
+	 *
+	 * @param assigneeScriptCacheable the assignee script cacheable of this kaleo task assignment
+	 */
+	@Override
+	public void setAssigneeScriptCacheable(boolean assigneeScriptCacheable) {
+		model.setAssigneeScriptCacheable(assigneeScriptCacheable);
+	}
+
+	/**
+	 * Sets the assignee script cache duration of this kaleo task assignment.
+	 *
+	 * @param assigneeScriptCacheDuration the assignee script cache duration of this kaleo task assignment
+	 */
+	@Override
+	public void setAssigneeScriptCacheDuration(
+		int assigneeScriptCacheDuration) {
+
+		model.setAssigneeScriptCacheDuration(assigneeScriptCacheDuration);
 	}
 
 	/**
