@@ -668,6 +668,8 @@
 		<column name="assigneeClassPK" type="long" />
 		<column name="assigneeActionId" type="String" />
 		<column name="assigneeScript" type="String" />
+		<column name="assigneeScriptCacheable" type="boolean" />
+		<column name="assigneeScriptCacheDuration" type="int" />
 		<column name="assigneeScriptLanguage" type="String" />
 		<column name="assigneeScriptRequiredContexts" type="String" />
 
