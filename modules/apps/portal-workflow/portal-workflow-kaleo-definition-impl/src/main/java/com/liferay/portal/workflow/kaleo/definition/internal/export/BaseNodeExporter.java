@@ -14,6 +14,7 @@
 
 package com.liferay.portal.workflow.kaleo.definition.internal.export;
 
+import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.Validator;
@@ -165,9 +166,12 @@ public abstract class BaseNodeExporter implements NodeExporter {
 				ScriptLanguage scriptLanguage =
 					scriptAssignment.getScriptLanguage();
 
-				populateScriptingElement(
-					scriptedAssignmentElement, scriptAssignment.getScript(),
-					scriptLanguage.getValue(),
+				populateScriptedAssignmentElement(
+					scriptedAssignmentElement,
+					GetterUtil.getString(scriptAssignment.getScriptCacheable()),
+					GetterUtil.getString(
+						scriptAssignment.getScriptCacheDuration()),
+					scriptAssignment.getScript(), scriptLanguage.getValue(),
 					scriptAssignment.getScriptRequiredContexts());
 			}
 			else if (assignmentType.equals(AssignmentType.USER)) {
@@ -238,6 +242,24 @@ public abstract class BaseNodeExporter implements NodeExporter {
 				exportAssignmentsElement(
 					assignments, timerActionsElement, "reassignments");
 			}
+		}
+	}
+
+	protected void populateScriptedAssignmentElement(
+		Element scriptingElement, String script, String scriptCacheable,
+		String scriptCacheDuration, String scriptLanguage,
+		String scriptRequiredContexts) {
+
+		addCDataElement(scriptingElement, "script", script);
+		addTextElement(scriptingElement, "script-cacheable", scriptCacheable);
+		addTextElement(
+			scriptingElement, "script-cache-duration", scriptCacheDuration);
+		addTextElement(scriptingElement, "script-language", scriptLanguage);
+
+		if (Validator.isNotNull(scriptRequiredContexts)) {
+			addTextElement(
+				scriptingElement, "script-required-contexts",
+				scriptRequiredContexts);
 		}
 	}
 

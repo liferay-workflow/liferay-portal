@@ -311,6 +311,10 @@ public class XMLWorkflowModelParser implements WorkflowModelParser {
 		for (Element scriptedAssignmentElement : scriptedAssignmentElements) {
 			String script = StringUtil.trim(
 				scriptedAssignmentElement.elementText("script"));
+			boolean scriptCacheable = GetterUtil.getBoolean(
+				scriptedAssignmentElement.elementText("script-cacheable"));
+			int scriptCacheDuration = GetterUtil.getInteger(
+				scriptedAssignmentElement.elementText("script-cache-duration"));
 			String scriptLanguage = scriptedAssignmentElement.elementTextTrim(
 				"script-language");
 			String scriptRequiredContexts =
@@ -318,7 +322,8 @@ public class XMLWorkflowModelParser implements WorkflowModelParser {
 					"script-required-contexts");
 
 			ScriptAssignment scriptAssignment = new ScriptAssignment(
-				script, scriptLanguage, scriptRequiredContexts);
+				script, scriptCacheable, scriptCacheDuration, scriptLanguage,
+				scriptRequiredContexts);
 
 			assignments.add(scriptAssignment);
 		}

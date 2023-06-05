@@ -178,6 +178,12 @@ public class KaleoTaskAssignmentLocalServiceImpl
 
 			kaleoTaskAssignment.setAssigneeScript(scriptAssignment.getScript());
 
+			kaleoTaskAssignment.setAssigneeScriptCacheable(
+				scriptAssignment.getScriptCacheable());
+
+			kaleoTaskAssignment.setAssigneeScriptCacheDuration(
+				scriptAssignment.getScriptCacheDuration());
+
 			ScriptLanguage scriptLanguage =
 				scriptAssignment.getScriptLanguage();
 

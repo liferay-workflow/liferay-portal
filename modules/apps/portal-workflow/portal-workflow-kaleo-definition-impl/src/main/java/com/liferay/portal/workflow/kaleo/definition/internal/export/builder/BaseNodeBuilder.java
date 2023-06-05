@@ -112,6 +112,8 @@ public abstract class BaseNodeBuilder<T extends Node> implements NodeBuilder {
 			if (assigneeClassName.equals(AssignmentType.SCRIPT.name())) {
 				assignment = new ScriptAssignment(
 					kaleoTaskAssignment.getAssigneeScript(),
+					kaleoTaskAssignment.getAssigneeScriptCacheable(),
+					kaleoTaskAssignment.getAssigneeScriptCacheDuration(),
 					kaleoTaskAssignment.getAssigneeScriptLanguage(),
 					kaleoTaskAssignment.getAssigneeScriptRequiredContexts());
 			}

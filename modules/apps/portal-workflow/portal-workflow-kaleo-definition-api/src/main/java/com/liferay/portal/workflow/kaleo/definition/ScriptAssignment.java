@@ -22,18 +22,36 @@ import com.liferay.portal.workflow.kaleo.definition.exception.KaleoDefinitionVal
 public class ScriptAssignment extends Assignment {
 
 	public ScriptAssignment(
-			String script, String scriptLanguage, String scriptRequiredContexts)
+			String script, boolean scriptCacheable, int scriptCacheDuration,
+			String scriptLanguage, String scriptRequiredContexts)
 		throws KaleoDefinitionValidationException {
 
 		super(AssignmentType.SCRIPT);
 
 		_script = script;
+		_scriptCacheable = scriptCacheable;
+		_scriptCacheDuration = scriptCacheDuration;
 		_scriptLanguage = ScriptLanguage.parse(scriptLanguage);
 		_scriptRequiredContexts = scriptRequiredContexts;
 	}
 
+	public ScriptAssignment(
+			String script, String scriptLanguage, String scriptRequiredContexts)
+		throws KaleoDefinitionValidationException {
+
+		this(script, false, 0, scriptLanguage, scriptRequiredContexts);
+	}
+
 	public String getScript() {
 		return _script;
+	}
+
+	public boolean getScriptCacheable() {
+		return _scriptCacheable;
+	}
+
+	public int getScriptCacheDuration() {
+		return _scriptCacheDuration;
 	}
 
 	public ScriptLanguage getScriptLanguage() {
@@ -53,6 +71,8 @@ public class ScriptAssignment extends Assignment {
 	}
 
 	private String _script;
+	private boolean _scriptCacheable;
+	private int _scriptCacheDuration;
 	private ScriptLanguage _scriptLanguage;
 	private final String _scriptRequiredContexts;
 
