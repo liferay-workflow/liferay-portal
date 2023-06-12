@@ -107,6 +107,8 @@
 	<xs:complexType name="script-complex-type">
 		<xs:sequence>
 			<xs:element name="script" type="xs:string" />
+			<xs:element maxOccurs="1" minOccurs="0" name="script-cacheable" type="xs:boolean" />
+			<xs:element maxOccurs="1" minOccurs="0" name="script-cache-duration" type="xs:nonNegativeInteger" />
 			<xs:element name="script-language" type="script-language-type" />
 			<xs:element minOccurs="0" name="script-required-contexts" type="xs:string" />
 		</xs:sequence>
