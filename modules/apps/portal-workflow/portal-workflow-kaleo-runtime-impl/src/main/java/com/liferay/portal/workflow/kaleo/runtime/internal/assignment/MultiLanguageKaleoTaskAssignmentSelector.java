@@ -24,6 +24,7 @@ import com.liferay.portal.workflow.kaleo.runtime.ExecutionContext;
 import com.liferay.portal.workflow.kaleo.runtime.assignment.BaseKaleoTaskAssignmentSelector;
 import com.liferay.portal.workflow.kaleo.runtime.assignment.KaleoTaskAssignmentSelector;
 import com.liferay.portal.workflow.kaleo.runtime.assignment.ScriptingAssigneeSelector;
+import com.liferay.portal.workflow.kaleo.runtime.internal.util.KaleoScriptingCache;
 import com.liferay.portal.workflow.kaleo.runtime.internal.util.ServiceSelectorUtil;
 import com.liferay.portal.workflow.kaleo.service.KaleoInstanceLocalService;
 
@@ -64,10 +65,30 @@ public class MultiLanguageKaleoTaskAssignmentSelector
 					kaleoTaskAssignment.toString());
 		}
 
-		Collection<KaleoTaskAssignment> kaleoTaskAssignments =
-			getKaleoTaskAssignments(
+		Collection<KaleoTaskAssignment> kaleoTaskAssignments = null;
+
+		boolean assigneeScriptCacheable =
+			kaleoTaskAssignment.isAssigneeScriptCacheable();
+
+		if (assigneeScriptCacheable) {
+			kaleoTaskAssignments = _kaleoScriptingCache.getKaleoTaskAssignments(
+				kaleoTaskAssignment.getKaleoTaskAssignmentId());
+		}
+
+		if (kaleoTaskAssignments == null) {
+			kaleoTaskAssignments = getKaleoTaskAssignments(
 				scriptingAssigneeSelector.getAssignees(
 					executionContext, kaleoTaskAssignment));
+
+			if (assigneeScriptCacheable &&
+				(kaleoTaskAssignment.getAssigneeScriptCacheDuration() > 0)) {
+
+				_kaleoScriptingCache.putKaleoTaskAssignments(
+					kaleoTaskAssignment.getKaleoTaskAssignmentId(),
+					kaleoTaskAssignments,
+					kaleoTaskAssignment.getAssigneeScriptCacheDuration() * 60);
+			}
+		}
 
 		KaleoInstanceToken kaleoInstanceToken =
 			executionContext.getKaleoInstanceToken();
@@ -93,6 +114,9 @@ public class MultiLanguageKaleoTaskAssignmentSelector
 
 	@Reference
 	private KaleoInstanceLocalService _kaleoInstanceLocalService;
+
+	@Reference
+	private KaleoScriptingCache _kaleoScriptingCache;
 
 	private ServiceTrackerMap<String, List<ScriptingAssigneeSelector>>
 		_serviceTrackerMap;
