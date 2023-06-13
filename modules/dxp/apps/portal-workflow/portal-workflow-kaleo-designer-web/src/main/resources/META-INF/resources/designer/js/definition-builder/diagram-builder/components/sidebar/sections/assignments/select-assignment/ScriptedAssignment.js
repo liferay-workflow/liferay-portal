@@ -106,7 +106,7 @@ const ScriptedAssignment = ({setContentName}) => {
 			{showScriptData ? (
 				<>
 					<ClayLayout.ContentCol
-						className="current-node-data-area"
+						className="current-node-data-area custom-control"
 						float
 					>
 						<ClayLayout.Row
