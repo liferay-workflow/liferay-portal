@@ -292,6 +292,14 @@ AUI.add(
 							xmlScriptedAssignment.open,
 							XMLUtil.create('script', cdata(item)),
 							XMLUtil.create(
+								'scriptCacheable',
+								String(dataAssignments.scriptCacheable)
+							),
+							XMLUtil.create(
+								'scriptCacheDuration',
+								dataAssignments.scriptCacheDuration
+							),
+							XMLUtil.create(
 								'scriptLanguage',
 								dataAssignments.scriptLanguage[index]
 							),

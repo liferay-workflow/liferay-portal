@@ -781,6 +781,7 @@ AUI.add(
 					const inputTpl = Template.get('input');
 					const selectTpl = Template.get('select');
 					const textareaTpl = Template.get('textarea');
+					const checkboxTpl = Template.get('checkbox');
 
 					const select = selectTpl.render({
 						auiCssClass: 'form-control input-sm',
@@ -873,6 +874,26 @@ AUI.add(
 							label: strings.scriptLanguage,
 							name: 'scriptLanguage',
 							options: instance.get('scriptLanguages'),
+						}),
+
+						checkboxTpl.parse({
+							auiCssClass: 'assignments-cell-editor-input',
+							auiLabelCssClass: 'celleditor-label-checkbox',
+							checked: false,
+							id: A.guid(),
+							label: strings.cacheable,
+							name: 'scriptCacheable',
+							type: 'checkbox',
+						}),
+
+						inputTpl.parse({
+							auiCssClass: 'form-control input-sm',
+							auiLabelCssClass: 'celleditor-label',
+							id: A.guid(),
+							label: strings.scriptCacheDurationMinutes,
+							name: 'scriptCacheDuration',
+							size: 35,
+							type: 'text',
 						}),
 					].join(STR_BLANK);
 

@@ -41,6 +41,7 @@ AUI.add(
 			autoCreate: Liferay.Language.get('auto-create'),
 			beanshell: Liferay.Language.get('beanshell'),
 			blocking: Liferay.Language.get('blocking'),
+			cacheable: Liferay.Language.get('cacheable'),
 			cancel: Liferay.Language.get('cancel'),
 			closeMessage: Liferay.Language.get('close'),
 			day: Liferay.Language.get('day'),
@@ -98,6 +99,9 @@ AUI.add(
 			scale: Liferay.Language.get('scale'),
 			screenName: Liferay.Language.get('screen-name'),
 			script: Liferay.Language.get('script'),
+			scriptCacheDurationMinutes: Liferay.Language.get(
+				'script-cache-duration-minutes'
+			),
 			scriptLanguage: Liferay.Language.get('script-language'),
 			scriptedAssignment: Liferay.Language.get('scripted-assignment'),
 			scriptedRecipient: Liferay.Language.get('scripted-recipient'),
