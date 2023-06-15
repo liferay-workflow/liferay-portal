@@ -164,6 +164,14 @@ XMLDefinition.prototype = {
 									locator: 'script',
 								},
 								{
+									key: 'scriptCacheable',
+									locator: 'script-cacheable',
+								},
+								{
+									key: 'scriptCacheDuration',
+									locator: 'script-cache-duration',
+								},
+								{
 									key: 'scriptLanguage',
 									locator: 'script-language',
 								},

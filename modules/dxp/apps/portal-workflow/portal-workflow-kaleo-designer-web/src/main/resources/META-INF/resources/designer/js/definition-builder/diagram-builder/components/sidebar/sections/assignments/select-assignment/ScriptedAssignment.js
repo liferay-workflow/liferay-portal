@@ -10,7 +10,8 @@
  */
 
 import ClayButton, {ClayButtonWithIcon} from '@clayui/button';
-import {ClaySelect} from '@clayui/form';
+import {ClayCheckbox, ClayInput, ClaySelect} from '@clayui/form';
+import ClayIcon from '@clayui/icon';
 import ClayLayout from '@clayui/layout';
 import ClayLink from '@clayui/link';
 import React, {useContext, useEffect, useState} from 'react';
@@ -38,6 +39,14 @@ const ScriptedAssignment = ({setContentName}) => {
 
 	const [scriptLanguage, setScriptLanguage] = useState(
 		selectedItem?.data.assignments?.scriptLanguage
+	);
+
+	const [scriptCacheable, setScriptCacheable] = useState(
+		selectedItem?.data.assignments?.scriptCacheable === 'true'
+	);
+
+	const [scriptCacheDuration, setScriptCacheDuration] = useState(
+		selectedItem?.data.assignments?.scriptCacheDuration
 	);
 
 	const addSourceButtonName = Liferay.Language.get('add-source-code');
@@ -95,34 +104,109 @@ const ScriptedAssignment = ({setContentName}) => {
 			</ClaySelect>
 
 			{showScriptData ? (
-				<ClayLayout.ContentCol className="current-node-data-area" float>
-					<ClayLayout.Row
-						className="current-node-data-row"
-						justify="between"
+				<>
+					<ClayLayout.ContentCol
+						className="current-node-data-area"
+						float
 					>
-						<ClayLink
-							button={false}
-							className="truncate-container"
-							displayType="secondary"
-							href="#"
-							onClick={goToEditor}
+						<ClayLayout.Row
+							className="current-node-data-row"
+							justify="between"
 						>
-							<span>{Liferay.Language.get('script')}</span>
-						</ClayLink>
+							<ClayLink
+								button={false}
+								className="truncate-container"
+								displayType="secondary"
+								href="#"
+								onClick={goToEditor}
+							>
+								<span>{Liferay.Language.get('script')}</span>
+							</ClayLink>
 
-						<ClayButtonWithIcon
-							className="delete-button text-secondary trash-button"
-							displayType="unstyled"
-							onClick={deleteScript}
-							symbol="trash"
-						/>
-					</ClayLayout.Row>
-				</ClayLayout.ContentCol>
+							<ClayButtonWithIcon
+								className="delete-button text-secondary trash-button"
+								displayType="unstyled"
+								onClick={deleteScript}
+								symbol="trash"
+							/>
+						</ClayLayout.Row>
+					</ClayLayout.ContentCol>
+
+					<ClayCheckbox
+						checked={scriptCacheable}
+						id="script-cacheable"
+						label={Liferay.Language.get('cacheable')}
+						onChange={() => {
+							setScriptCacheable(
+								(scriptCacheable) => !scriptCacheable
+							);
+
+							setSelectedItem((previous) => {
+								return {
+									...previous,
+									data: {
+										...previous.data,
+										assignments: {
+											...previous.data.assignments,
+											scriptCacheable: !scriptCacheable,
+										},
+									},
+								};
+							});
+						}}
+					/>
+
+					<label htmlFor="script-cache-duration">
+						{Liferay.Language.get('script-cache-duration-minutes')}
+
+						<span
+							className="ml-2"
+							title={Liferay.Language.get(
+								'choose-for-how-long-in-minutes-the-result-of-the-script-will-be-cached'
+							)}
+						>
+							<ClayIcon
+								className="text-muted"
+								symbol="question-circle-full"
+							/>
+						</span>
+					</label>
+
+					<ClayInput
+						aria-label="Select"
+						defaultValue="1"
+						disabled={!scriptCacheable}
+						id="script-cache-duration"
+						min="1"
+						onChange={({target}) => {
+							const {value: newValue} = target;
+
+							setScriptCacheDuration(newValue);
+
+							setSelectedItem((previous) => {
+								return {
+									...previous,
+									data: {
+										...previous.data,
+										assignments: {
+											...previous.data.assignments,
+											scriptCacheDuration: newValue,
+										},
+									},
+								};
+							});
+						}}
+						type="number"
+						value={scriptCacheDuration}
+					/>
+				</>
 			) : (
 				<ClayButton displayType="secondary" onClick={goToEditor}>
 					{addSourceButtonName.toUpperCase()}
 				</ClayButton>
 			)}
+
+			{showScriptData && <></>}
 		</SidebarPanel>
 	);
 };

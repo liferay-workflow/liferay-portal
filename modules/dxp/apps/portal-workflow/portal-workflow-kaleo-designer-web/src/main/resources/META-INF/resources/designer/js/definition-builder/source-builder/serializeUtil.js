@@ -262,6 +262,14 @@ function appendXMLAssignments(
 				buffer.push(
 					xmlScriptedAssignment.open,
 					XMLUtil.create('script', cdata(item)),
+					XMLUtil.create(
+						'scriptCacheable',
+						String(dataAssignments.scriptCacheable || false)
+					),
+					XMLUtil.create(
+						'scriptCacheDuration',
+						dataAssignments.scriptCacheDuration
+					),
 					createTagWithEscapedContent(
 						'scriptLanguage',
 						dataAssignments.scriptLanguage

@@ -59,6 +59,8 @@ export function parseAssignments(node) {
 		else if (itemKeys.includes('script')) {
 			assignments.assignmentType = ['scriptedAssignment'];
 			assignments.script = [item.script];
+			assignments.scriptCacheable = item['script-cacheable'];
+			assignments.scriptCacheDuration = item['script-cache-duration'];
 			assignments.scriptLanguage = item['script-language'];
 		}
 		else if (itemKeys.includes('user')) {
