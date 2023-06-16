@@ -272,7 +272,7 @@ function appendXMLAssignments(
 					),
 					createTagWithEscapedContent(
 						'scriptLanguage',
-						dataAssignments.scriptLanguage
+						dataAssignments.scriptLanguage || DEFAULT_LANGUAGE
 					),
 					xmlScriptedAssignment.close
 				);
