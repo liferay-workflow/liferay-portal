@@ -45,6 +45,7 @@ import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.transaction.TransactionCommitCallbackUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
+import com.liferay.portal.kernel.util.comparator.RoleNameComparator;
 import com.liferay.portal.kernel.util.comparator.UserScreenNameComparator;
 import com.liferay.portal.kernel.workflow.DefaultWorkflowTransition;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
@@ -103,7 +104,24 @@ public class WorkflowTaskManagerImpl implements WorkflowTaskManager {
 			long companyId, long userId, long workflowTaskId, long roleId,
 			String comment, Date dueDate,
 			Map<String, Serializable> workflowContext)
-		throws WorkflowException {
+		throws PortalException {
+
+		List<User> assignableUsers = getAssignableUsers(workflowTaskId);
+
+		if (!assignableUsers.contains(_userLocalService.getUser(userId))) {
+			throw new PrincipalException.MustHavePermission(
+				userId, WorkflowTask.class.getName(), workflowTaskId,
+				ActionKeys.ASSIGN_USER_ROLES);
+		}
+
+		List<Role> assignableRoles = _getAssignableRoles(workflowTaskId);
+
+		if (!assignableRoles.contains(_roleLocalService.getRole(roleId))) {
+			throw new PrincipalException(
+				StringBundler.concat(
+					"The role ", roleId, " must have permission for ",
+					WorkflowTask.class.getName(), " ", workflowTaskId));
+		}
 
 		ServiceContext serviceContext = new ServiceContext();
 
@@ -857,6 +875,52 @@ public class WorkflowTaskManagerImpl implements WorkflowTaskManager {
 
 		return new ExecutionContext(
 			kaleoInstanceToken, workflowContext, workflowContextServiceContext);
+	}
+
+	private List<Role> _getAssignableRoles(long workflowTaskId)
+		throws WorkflowException {
+
+		try {
+			KaleoTaskInstanceToken kaleoTaskInstanceToken =
+				_kaleoTaskInstanceTokenLocalService.getKaleoTaskInstanceToken(
+					workflowTaskId);
+
+			if (kaleoTaskInstanceToken.isCompleted()) {
+				return Collections.emptyList();
+			}
+
+			Set<Role> allowedRoles = new TreeSet<>(
+				new RoleNameComparator(true));
+
+			Collection<KaleoTaskAssignment> kaleoTaskAssignments =
+				_aggregateKaleoTaskAssignmentSelector.getKaleoTaskAssignments(
+					_kaleoTaskAssignmentLocalService.getKaleoTaskAssignments(
+						kaleoTaskInstanceToken.getKaleoTaskId()),
+					_createExecutionContext(kaleoTaskInstanceToken));
+
+			for (KaleoTaskAssignment kaleoTaskAssignment :
+					kaleoTaskAssignments) {
+
+				if (Objects.equals(
+						kaleoTaskAssignment.getAssigneeClassName(),
+						User.class.getName())) {
+
+					continue;
+				}
+
+				allowedRoles.add(
+					_roleLocalService.getRole(
+						kaleoTaskAssignment.getAssigneeClassPK()));
+			}
+
+			return ListUtil.fromCollection(allowedRoles);
+		}
+		catch (WorkflowException workflowException) {
+			throw workflowException;
+		}
+		catch (Exception exception) {
+			throw new WorkflowException(exception);
+		}
 	}
 
 	private long _getAssignedUserId(long kaleoTaskInstanceTokenId) {

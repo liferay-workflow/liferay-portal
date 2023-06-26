@@ -39,7 +39,7 @@ public class WorkflowTaskManagerUtil {
 			long companyId, long userId, long workflowTaskId, long roleId,
 			String comment, Date dueDate,
 			Map<String, Serializable> workflowContext)
-		throws WorkflowException {
+		throws PortalException {
 
 		return _workflowTaskManager.assignWorkflowTaskToRole(
 			companyId, userId, workflowTaskId, roleId, comment, dueDate,
