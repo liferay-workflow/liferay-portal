@@ -52,6 +52,7 @@ import com.liferay.journal.model.JournalArticle;
 import com.liferay.journal.model.JournalFolder;
 import com.liferay.journal.service.JournalArticleLocalService;
 import com.liferay.journal.service.JournalFolderLocalService;
+import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.configuration.test.util.ConfigurationTestUtil;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
@@ -71,6 +72,7 @@ import com.liferay.portal.kernel.model.role.RoleConstants;
 import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.repository.model.FileVersion;
 import com.liferay.portal.kernel.repository.model.Folder;
+import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.security.auth.PrincipalThreadLocal;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.security.permission.PermissionCheckerFactoryUtil;
@@ -84,6 +86,7 @@ import com.liferay.portal.kernel.service.UserGroupRoleLocalService;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.service.UserNotificationEventLocalService;
 import com.liferay.portal.kernel.settings.LocalizedValuesMap;
+import com.liferay.portal.kernel.test.AssertUtils;
 import com.liferay.portal.kernel.test.constants.TestDataConstants;
 import com.liferay.portal.kernel.test.randomizerbumpers.NumericStringRandomizerBumper;
 import com.liferay.portal.kernel.test.randomizerbumpers.UniqueStringRandomizerBumper;
@@ -91,6 +94,7 @@ import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
 import com.liferay.portal.kernel.test.util.CompanyTestUtil;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
+import com.liferay.portal.kernel.test.util.RoleTestUtil;
 import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.test.util.UserTestUtil;
@@ -751,8 +755,6 @@ public class WorkflowTaskManagerImplTest extends BaseWorkflowManagerTestCase {
 	public void testAssignApproveWorkflowBlogsEntryAsPortalContentReviewer()
 		throws Exception {
 
-		_activateSingleApproverWorkflow(BlogsEntry.class.getName(), 0, 0);
-
 		BlogsEntry blogsEntry = _addBlogsEntry();
 
 		_checkUserNotificationEventsByUsers(
@@ -775,6 +777,44 @@ public class WorkflowTaskManagerImplTest extends BaseWorkflowManagerTestCase {
 			WorkflowConstants.STATUS_APPROVED, blogsEntry.getStatus());
 
 		_deactivateWorkflow(BlogsEntry.class.getName(), 0, 0);
+	}
+
+	@Test
+	public void testAssignWorkflowTaskToRolePermissions() throws Exception {
+		_activateSingleApproverWorkflow(BlogsEntry.class.getName(), 0, 0);
+
+		_addBlogsEntry();
+
+		_checkUserNotificationEventsByUsers(
+			_adminUser, _portalContentReviewerUser, _siteAdminUser);
+
+		long roleId = RoleTestUtil.addRegularRole(_group.getGroupId());
+
+		WorkflowTask workflowTask = _getWorkflowTask(
+			_adminUser, null, false, null, 0);
+
+		AssertUtils.assertFailure(
+			PrincipalException.class,
+			StringBundler.concat(
+				"The role ", roleId, " must have permission for ",
+				WorkflowTask.class.getName(), " ",
+				workflowTask.getWorkflowTaskId()),
+			() -> _assignWorkflowTaskToRole(
+				_adminUser, _roleLocalService.getRole(roleId),
+				workflowTask.getWorkflowTaskId()));
+
+		User user = UserTestUtil.addUser();
+
+		AssertUtils.assertFailure(
+			PrincipalException.MustHavePermission.class,
+			StringBundler.concat(
+				"User ", user.getUserId(),
+				" must have ASSIGN_USER_ROLES permission for ",
+				WorkflowTask.class.getName(), " ",
+				workflowTask.getWorkflowTaskId()),
+			() -> _assignWorkflowTaskToRole(
+				user, _roleLocalService.getRole(roleId),
+				workflowTask.getWorkflowTaskId()));
 	}
 
 	@Test
@@ -1490,6 +1530,15 @@ public class WorkflowTaskManagerImplTest extends BaseWorkflowManagerTestCase {
 				workflowTask1.getWorkflowTaskId(),
 				workflowTask2.getWorkflowTaskId());
 		}
+	}
+
+	private WorkflowTask _assignWorkflowTaskToRole(
+			User user, Role assigneeRole, long workflowTaskId)
+		throws Exception {
+
+		return _workflowTaskManager.assignWorkflowTaskToRole(
+			_group.getCompanyId(), user.getUserId(), workflowTaskId,
+			assigneeRole.getRoleId(), StringPool.BLANK, null, null);
 	}
 
 	private void _assignWorkflowTaskToUser(User user, User assigneeUser)
