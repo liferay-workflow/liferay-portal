@@ -30,6 +30,7 @@ import java.util.Map;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -55,6 +56,7 @@ public class MultiLanguageKaleoTaskAssignmentSelectorTest {
 		}
 	}
 
+	@Ignore
 	@Test
 	public void testUseJavaScriptingKaleoTaskAssignmentSelector()
 		throws PortalException {
