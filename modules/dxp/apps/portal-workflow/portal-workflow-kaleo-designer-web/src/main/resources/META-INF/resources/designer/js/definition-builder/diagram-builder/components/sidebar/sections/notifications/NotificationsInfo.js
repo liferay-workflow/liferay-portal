@@ -370,13 +370,13 @@ const NotificationsInfo = ({
 						].emailAddress;
 					}
 				}
-				else if (recipientType === 'taskAssignees') {
-					recipientDetails = {assignmentType: ['taskAssignees']};
-				}
 				else if (recipientType === 'scriptedRecipient') {
 					recipientDetails = {scriptLanguage: ['groovy']};
 				}
-
+				else if (recipientType === 'taskAssignees') {
+					recipientDetails = {assignmentType: ['taskAssignees']};
+				}
+				
 				const currentRecipient = {
 					...recipientDetails,
 				};
