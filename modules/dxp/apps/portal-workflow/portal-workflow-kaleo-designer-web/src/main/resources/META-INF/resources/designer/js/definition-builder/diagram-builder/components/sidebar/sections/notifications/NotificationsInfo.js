@@ -373,6 +373,9 @@ const NotificationsInfo = ({
 				else if (recipientType === 'taskAssignees') {
 					recipientDetails = {assignmentType: ['taskAssignees']};
 				}
+				else if (recipientType === 'scriptedRecipient') {
+					recipientDetails = {scriptLanguage: ['groovy']};
+				}
 
 				const currentRecipient = {
 					...recipientDetails,
