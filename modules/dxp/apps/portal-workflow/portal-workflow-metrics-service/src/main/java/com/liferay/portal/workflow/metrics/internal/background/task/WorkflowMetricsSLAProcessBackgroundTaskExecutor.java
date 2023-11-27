@@ -23,7 +23,6 @@ import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.PortalRunMode;
 import com.liferay.portal.kernel.util.StringUtil;
-import com.liferay.portal.search.capabilities.SearchCapabilities;
 import com.liferay.portal.search.document.Document;
 import com.liferay.portal.search.engine.adapter.SearchEngineAdapter;
 import com.liferay.portal.search.engine.adapter.document.BulkDocumentRequest;
@@ -51,6 +50,7 @@ import com.liferay.portal.workflow.metrics.internal.sla.processor.WorkflowMetric
 import com.liferay.portal.workflow.metrics.internal.sla.processor.WorkflowMetricsSLATaskResult;
 import com.liferay.portal.workflow.metrics.model.WorkflowMetricsSLADefinition;
 import com.liferay.portal.workflow.metrics.model.WorkflowMetricsSLADefinitionVersion;
+import com.liferay.portal.workflow.metrics.search.index.WorkflowMetricsIndicesAvailabilityChecker;
 import com.liferay.portal.workflow.metrics.search.index.constants.WorkflowMetricsIndexNameConstants;
 import com.liferay.portal.workflow.metrics.service.WorkflowMetricsSLADefinitionLocalService;
 import com.liferay.portal.workflow.metrics.service.WorkflowMetricsSLADefinitionVersionLocalService;
@@ -91,10 +91,6 @@ public class WorkflowMetricsSLAProcessBackgroundTaskExecutor
 	public BackgroundTaskResult execute(BackgroundTask backgroundTask)
 		throws Exception {
 
-		if (!_searchCapabilities.isWorkflowMetricsSupported()) {
-			return BackgroundTaskResult.SUCCESS;
-		}
-
 		long workflowMetricsSLADefinitionId = MapUtil.getLong(
 			backgroundTask.getTaskContextMap(),
 			"workflowMetricsSLADefinitionId");
@@ -103,6 +99,12 @@ public class WorkflowMetricsSLAProcessBackgroundTaskExecutor
 			_workflowMetricsSLADefinitionLocalService.
 				fetchWorkflowMetricsSLADefinition(
 					workflowMetricsSLADefinitionId);
+
+		if (!_workflowMetricsIndicesAvailabilityChecker.check(
+				workflowMetricsSLADefinition.getCompanyId())) {
+
+			return BackgroundTaskResult.SUCCESS;
+		}
 
 		WorkflowMetricsSLADefinitionVersion
 			workflowMetricsSLADefinitionVersion =
@@ -658,8 +660,10 @@ public class WorkflowMetricsSLAProcessBackgroundTaskExecutor
 		}
 
 		_slaInstanceResultWorkflowMetricsIndexer.addDocuments(
+			workflowMetricsSLADefinitionVersion.getCompanyId(),
 			slaInstanceResultDocuments);
 		_slaTaskResultWorkflowMetricsIndexer.addDocuments(
+			workflowMetricsSLADefinitionVersion.getCompanyId(),
 			slaTaskResultDocuments);
 
 		if (ListUtil.isNotEmpty(
@@ -731,9 +735,6 @@ public class WorkflowMetricsSLAProcessBackgroundTaskExecutor
 	private Scripts _scripts;
 
 	@Reference
-	private SearchCapabilities _searchCapabilities;
-
-	@Reference
 	private SearchEngineAdapter _searchEngineAdapter;
 
 	@Reference
@@ -746,6 +747,10 @@ public class WorkflowMetricsSLAProcessBackgroundTaskExecutor
 
 	@Reference
 	private Sorts _sorts;
+
+	@Reference
+	private WorkflowMetricsIndicesAvailabilityChecker
+		_workflowMetricsIndicesAvailabilityChecker;
 
 	@Reference
 	private WorkflowMetricsSLADefinitionLocalService
