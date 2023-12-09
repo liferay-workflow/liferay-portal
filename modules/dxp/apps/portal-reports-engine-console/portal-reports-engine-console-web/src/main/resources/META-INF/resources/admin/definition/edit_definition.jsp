@@ -217,6 +217,8 @@ else {
 	</aui:button-row>
 </aui:form>
 
+<script src="../js/main.js" type="text/javascript"></script>
+
 <aui:script>
 	AUI().ready((A) => {
 		Liferay.Report.initialize({
