@@ -13,6 +13,7 @@ import com.liferay.calendar.recurrence.Recurrence;
 import com.liferay.calendar.recurrence.RecurrenceSerializer;
 import com.liferay.calendar.service.CalendarBookingLocalService;
 import com.liferay.calendar.service.CalendarLocalService;
+import com.liferay.calendar.service.CalendarResourceService;
 import com.liferay.calendar.test.util.CalendarBookingTestUtil;
 import com.liferay.calendar.test.util.CalendarResourceTestUtil;
 import com.liferay.calendar.test.util.CalendarTestUtil;
@@ -272,6 +273,14 @@ public class CalendarUtilTest {
 			CalendarResourceTestUtil.addCalendarResource(
 				_groupLocalService.getGroup(TestPropsValues.getGroupId()));
 
+		_calendarResourceService.updateCalendarResource(
+			calendarResource.getCalendarResourceId(),
+			HashMapBuilder.put(
+				LocaleUtil.getDefault(),
+				"lp'\"></option><img onerror=alert(document.location) src=x>"
+			).build(),
+			RandomTestUtil.randomLocaleStringMap(), true, new ServiceContext());
+
 		Calendar calendar = _calendarLocalService.addCalendar(
 			TestPropsValues.getUserId(), TestPropsValues.getGroupId(),
 			calendarResource.getCalendarResourceId(),
@@ -287,6 +296,11 @@ public class CalendarUtilTest {
 
 		JSONObject jsonObject = (JSONObject)method.invoke(
 			null, createThemeDisplay(), calendar);
+
+		Assert.assertEquals(
+			"lp&#39;&#34;&gt;&lt;/option&gt;&lt;img onerror=alert(" +
+				"document.location) src=x&gt;",
+			jsonObject.get("calendarResourceName"));
 
 		Assert.assertEquals(
 			"&#39;&#34;&gt;&lt;/option&gt;&lt;img onerror=alert(123) src=x&gt;",
@@ -391,6 +405,9 @@ public class CalendarUtilTest {
 
 	@Inject
 	private CalendarLocalService _calendarLocalService;
+
+	@Inject
+	private CalendarResourceService _calendarResourceService;
 
 	@Inject
 	private CompanyLocalService _companyLocalService;
