@@ -7,13 +7,11 @@ package com.liferay.portal.workflow.metrics.internal.background.task;
 
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.background.task.service.BackgroundTaskLocalService;
-import com.liferay.portal.kernel.backgroundtask.BackgroundTaskExecutor;
 import com.liferay.portal.kernel.backgroundtask.constants.BackgroundTaskContextMapConstants;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.Property;
 import com.liferay.portal.kernel.dao.orm.PropertyFactoryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.module.framework.ModuleServiceLifecycle;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
@@ -107,9 +105,6 @@ public class WorkflowMetricsSLAProcessBackgroundTaskHelper {
 	@Reference
 	private BackgroundTaskLocalService _backgroundTaskLocalService;
 
-	@Reference(target = ModuleServiceLifecycle.PORTLETS_INITIALIZED)
-	private ModuleServiceLifecycle _moduleServiceLifecycle;
-
 	@Reference
 	private WorkflowMetricsReindexStatusMessageSender
 		_workflowMetricsReindexStatusMessageSender;
@@ -117,11 +112,5 @@ public class WorkflowMetricsSLAProcessBackgroundTaskHelper {
 	@Reference
 	private WorkflowMetricsSLADefinitionLocalService
 		_workflowMetricsSLADefinitionLocalService;
-
-	@Reference(
-		target = "(background.task.executor.class.name=com.liferay.portal.workflow.metrics.internal.background.task.WorkflowMetricsSLAProcessBackgroundTaskExecutor)"
-	)
-	private BackgroundTaskExecutor
-		_workflowMetricsSLAProcessBackgroundTaskExecutor;
-
+	
 }

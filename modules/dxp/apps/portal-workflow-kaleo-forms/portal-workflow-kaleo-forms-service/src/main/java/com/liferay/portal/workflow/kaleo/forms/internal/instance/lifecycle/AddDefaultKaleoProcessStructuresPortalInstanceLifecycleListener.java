@@ -10,13 +10,11 @@ import com.liferay.portal.instance.lifecycle.BasePortalInstanceLifecycleListener
 import com.liferay.portal.instance.lifecycle.PortalInstanceLifecycleListener;
 import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.Group;
-import com.liferay.portal.kernel.module.framework.ModuleServiceLifecycle;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.workflow.kaleo.forms.model.KaleoProcess;
-import com.liferay.portal.workflow.kaleo.forms.service.KaleoProcessLocalService;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -61,12 +59,6 @@ public class AddDefaultKaleoProcessStructuresPortalInstanceLifecycleListener
 
 	@Reference
 	private GroupLocalService _groupLocalService;
-
-	@Reference
-	private KaleoProcessLocalService _kaleoProcessLocalService;
-
-	@Reference(target = ModuleServiceLifecycle.PORTAL_INITIALIZED)
-	private ModuleServiceLifecycle _moduleServiceLifecycle;
 
 	@Reference
 	private Portal _portal;
