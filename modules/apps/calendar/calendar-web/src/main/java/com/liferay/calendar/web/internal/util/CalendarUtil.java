@@ -24,6 +24,7 @@ import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
+import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.module.service.Snapshot;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
@@ -259,11 +260,12 @@ public class CalendarUtil {
 	}
 
 	public static JSONArray toCalendarBookingsJSONArray(
-			ThemeDisplay themeDisplay, List<CalendarBooking> calendarBookings,
-			TimeZone timeZone)
+			ThemeDisplay themeDisplay, List<CalendarBooking> calendarBookings)
 		throws PortalException {
 
 		JSONArray jsonArray = JSONFactoryUtil.createJSONArray();
+
+		User user = themeDisplay.getUser();
 
 		for (CalendarBooking calendarBooking : calendarBookings) {
 			if ((calendarBooking.getStatus() ==
@@ -276,7 +278,8 @@ public class CalendarUtil {
 			JSONObject jsonObject = toCalendarBookingJSONObject(
 				themeDisplay, calendarBooking,
 				calendarBooking.isAllDay() ?
-					TimeZoneUtil.getTimeZone(StringPool.UTC) : timeZone);
+					TimeZoneUtil.getTimeZone(StringPool.UTC) :
+						user.getTimeZone());
 
 			jsonArray.put(jsonObject);
 		}
