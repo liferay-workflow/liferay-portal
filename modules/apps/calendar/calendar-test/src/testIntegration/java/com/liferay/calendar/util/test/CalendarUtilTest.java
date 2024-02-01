@@ -9,6 +9,7 @@ import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.calendar.model.Calendar;
 import com.liferay.calendar.model.CalendarBooking;
 import com.liferay.calendar.model.CalendarResource;
+import com.liferay.calendar.recurrence.Frequency;
 import com.liferay.calendar.recurrence.Recurrence;
 import com.liferay.calendar.recurrence.RecurrenceSerializer;
 import com.liferay.calendar.service.CalendarBookingLocalService;
@@ -18,7 +19,10 @@ import com.liferay.calendar.service.CalendarResourceService;
 import com.liferay.calendar.test.util.CalendarBookingTestUtil;
 import com.liferay.calendar.test.util.CalendarTestUtil;
 import com.liferay.calendar.test.util.RecurrenceTestUtil;
+import com.liferay.calendar.util.JCalendarUtil;
+import com.liferay.calendar.util.comparator.CalendarBookingStartTimeComparator;
 import com.liferay.petra.string.StringPool;
+import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONObject;
@@ -41,12 +45,16 @@ import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
+import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.kernel.util.TimeZoneUtil;
+import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.SynchronousMailTestRule;
 
 import java.lang.reflect.Method;
+
+import java.time.LocalDateTime;
 
 import java.util.HashSet;
 import java.util.List;
@@ -290,12 +298,10 @@ public class CalendarUtilTest {
 			approved, sameUserDraft, anotherUserDraft);
 
 		Method method = _calendarUtilClass.getMethod(
-			"toCalendarBookingsJSONArray", ThemeDisplay.class, List.class,
-			TimeZone.class);
+			"toCalendarBookingsJSONArray", ThemeDisplay.class, List.class);
 
 		JSONArray jsonArray = (JSONArray)method.invoke(
-			null, createThemeDisplay(), calendarBookings,
-			TimeZoneUtil.getDefault());
+			null, createThemeDisplay(), calendarBookings);
 
 		Assert.assertEquals(2, jsonArray.length());
 
@@ -309,6 +315,56 @@ public class CalendarUtilTest {
 
 		Assert.assertEquals(
 			expectedCalendarBookingIds, actualCalendarBookingIds);
+
+		LocalDateTime currentDate = LocalDateTime.now();
+
+		TimeZone timeZone = TimeZoneUtil.getTimeZone("America/Los_Angeles");
+
+		java.util.Calendar startTimeJCalendar = JCalendarUtil.getJCalendar(
+			currentDate.getYear() + 1, 2, 1, 8, 0, 0, 0, timeZone);
+
+		long startTime = startTimeJCalendar.getTimeInMillis();
+
+		long endTime = startTime + Time.HOUR;
+
+		ServiceContext serviceContext = createServiceContext();
+
+		CalendarBooking calendarBooking =
+			CalendarBookingTestUtil.addCalendarBooking(
+				_user,
+				CalendarTestUtil.addCalendar(_user, timeZone, serviceContext),
+				new long[0], RandomTestUtil.randomLocaleStringMap(),
+				RandomTestUtil.randomLocaleStringMap(), startTime, endTime,
+				RecurrenceTestUtil.getRecurrence(
+					2, Frequency.MONTHLY, timeZone, null),
+				0, null, 0, null, serviceContext);
+
+		calendarBookings = _calendarBookingLocalService.search(
+			_user.getCompanyId(), new long[0],
+			new long[] {calendarBooking.getCalendarId()}, new long[0], -1, null,
+			startTime, endTime + Time.DAY + Time.MONTH, timeZone, true,
+			new int[] {WorkflowConstants.STATUS_APPROVED}, QueryUtil.ALL_POS,
+			QueryUtil.ALL_POS, new CalendarBookingStartTimeComparator(true));
+
+		_user.setTimeZoneId(timeZone.getID());
+
+		jsonArray = (JSONArray)method.invoke(
+			null, createThemeDisplay(), calendarBookings);
+
+		_assertCalendarBookingsJSONArray(9, 8, 2, (JSONObject)jsonArray.get(0));
+
+		_assertCalendarBookingsJSONArray(9, 8, 3, (JSONObject)jsonArray.get(1));
+
+		_user.setTimeZoneId(StringPool.UTC);
+
+		jsonArray = (JSONArray)method.invoke(
+			null, createThemeDisplay(), calendarBookings);
+
+		_assertCalendarBookingsJSONArray(
+			17, 16, 2, (JSONObject)jsonArray.get(0));
+
+		_assertCalendarBookingsJSONArray(
+			16, 15, 3, (JSONObject)jsonArray.get(1));
 	}
 
 	@Test
@@ -438,6 +494,17 @@ public class CalendarUtilTest {
 		CalendarBooking... calendarBookings) {
 
 		return ListUtil.fromArray(calendarBookings);
+	}
+
+	private void _assertCalendarBookingsJSONArray(
+		int expectedEndTimeHour, int expectedStartTimeHour,
+		int expectedStartTimeMonth, JSONObject jsonObject) {
+
+		Assert.assertEquals(expectedEndTimeHour, jsonObject.get("endTimeHour"));
+		Assert.assertEquals(
+			expectedStartTimeHour, jsonObject.get("startTimeHour"));
+		Assert.assertEquals(
+			expectedStartTimeMonth, jsonObject.get("startTimeMonth"));
 	}
 
 	private static Class<?> _calendarUtilClass;
