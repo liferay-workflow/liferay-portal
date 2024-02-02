@@ -259,7 +259,34 @@ public class CalendarUtil {
 	}
 
 	public static JSONArray toCalendarBookingsJSONArray(
-		ThemeDisplay themeDisplay, long parentCalendarBookingId, int[] statuses)
+			ThemeDisplay themeDisplay, List<CalendarBooking> calendarBookings,
+			TimeZone timeZone)
+		throws PortalException {
+
+		JSONArray jsonArray = JSONFactoryUtil.createJSONArray();
+
+		for (CalendarBooking calendarBooking : calendarBookings) {
+			if ((calendarBooking.getStatus() ==
+					WorkflowConstants.STATUS_DRAFT) &&
+				(calendarBooking.getUserId() != themeDisplay.getUserId())) {
+
+				continue;
+			}
+
+			JSONObject jsonObject = toCalendarBookingJSONObject(
+				themeDisplay, calendarBooking,
+				calendarBooking.isAllDay() ?
+					TimeZoneUtil.getTimeZone(StringPool.UTC) : timeZone);
+
+			jsonArray.put(jsonObject);
+		}
+
+		return jsonArray;
+	}
+
+	public static JSONArray toCalendarBookingsJSONArray(
+			ThemeDisplay themeDisplay, long parentCalendarBookingId,
+			int[] statuses)
 		throws PortalException {
 
 		List<CalendarBooking> calendarBookings = new ArrayList<>();
@@ -279,32 +306,6 @@ public class CalendarUtil {
 		for (CalendarBooking calendarBooking : calendarBookings) {
 			JSONObject jsonObject = toCalendarJSONObject(
 				themeDisplay, calendarBooking.getCalendar());
-
-			jsonArray.put(jsonObject);
-		}
-
-		return jsonArray;
-	}
-
-	public static JSONArray toCalendarBookingsJSONArray(
-			ThemeDisplay themeDisplay, List<CalendarBooking> calendarBookings,
-			TimeZone timeZone)
-		throws PortalException {
-
-		JSONArray jsonArray = JSONFactoryUtil.createJSONArray();
-
-		for (CalendarBooking calendarBooking : calendarBookings) {
-			if ((calendarBooking.getStatus() ==
-					WorkflowConstants.STATUS_DRAFT) &&
-				(calendarBooking.getUserId() != themeDisplay.getUserId())) {
-
-				continue;
-			}
-
-			JSONObject jsonObject = toCalendarBookingJSONObject(
-				themeDisplay, calendarBooking,
-				calendarBooking.isAllDay() ?
-					TimeZoneUtil.getTimeZone(StringPool.UTC) : timeZone);
 
 			jsonArray.put(jsonObject);
 		}
