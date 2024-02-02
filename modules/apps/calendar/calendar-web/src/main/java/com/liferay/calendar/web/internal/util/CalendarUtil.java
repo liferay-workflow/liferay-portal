@@ -12,6 +12,7 @@ import com.liferay.calendar.model.CalendarResource;
 import com.liferay.calendar.recurrence.Recurrence;
 import com.liferay.calendar.recurrence.RecurrenceSerializer;
 import com.liferay.calendar.service.CalendarBookingService;
+import com.liferay.calendar.service.CalendarBookingServiceUtil;
 import com.liferay.calendar.service.CalendarResourceLocalService;
 import com.liferay.calendar.service.CalendarService;
 import com.liferay.calendar.util.JCalendarUtil;
@@ -258,12 +259,20 @@ public class CalendarUtil {
 	}
 
 	public static JSONArray toCalendarBookingsJSONArray(
-			ThemeDisplay themeDisplay, List<CalendarBooking> calendarBookings)
+		ThemeDisplay themeDisplay, long parentCalendarBookingId, int[] statuses)
 		throws PortalException {
+
+		List<CalendarBooking> calendarBookings = new ArrayList<>();
+
+		for (int status : statuses) {
+			calendarBookings.addAll(
+				CalendarBookingServiceUtil.getChildCalendarBookings(
+					parentCalendarBookingId, status));
+		}
 
 		JSONArray jsonArray = JSONFactoryUtil.createJSONArray();
 
-		if (calendarBookings == null) {
+		if (calendarBookings.isEmpty()) {
 			return jsonArray;
 		}
 
