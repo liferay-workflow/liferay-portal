@@ -95,17 +95,10 @@ boolean recurring = false;
 Calendar calendar = CalendarServiceUtil.fetchCalendar(calendarId);
 
 if (calendarBooking != null) {
-	acceptedCalendarsJSONArray = CalendarUtil.toCalendarBookingsJSONArray(themeDisplay, CalendarBookingServiceUtil.getChildCalendarBookings(calendarBooking.getParentCalendarBookingId(), WorkflowConstants.STATUS_APPROVED));
-	declinedCalendarsJSONArray = CalendarUtil.toCalendarBookingsJSONArray(themeDisplay, CalendarBookingServiceUtil.getChildCalendarBookings(calendarBooking.getParentCalendarBookingId(), WorkflowConstants.STATUS_DENIED));
-	maybeCalendarsJSONArray = CalendarUtil.toCalendarBookingsJSONArray(themeDisplay, CalendarBookingServiceUtil.getChildCalendarBookings(calendarBooking.getParentCalendarBookingId(), CalendarBookingWorkflowConstants.STATUS_MAYBE));
-
-	List<CalendarBooking> pendingCalendarBookings = new ArrayList<CalendarBooking>();
-
-	pendingCalendarBookings.addAll(CalendarBookingServiceUtil.getChildCalendarBookings(calendarBooking.getParentCalendarBookingId(), WorkflowConstants.STATUS_PENDING));
-	pendingCalendarBookings.addAll(CalendarBookingServiceUtil.getChildCalendarBookings(calendarBooking.getParentCalendarBookingId(), WorkflowConstants.STATUS_DRAFT));
-	pendingCalendarBookings.addAll(CalendarBookingServiceUtil.getChildCalendarBookings(calendarBooking.getParentCalendarBookingId(), CalendarBookingWorkflowConstants.STATUS_MASTER_PENDING));
-
-	pendingCalendarsJSONArray = CalendarUtil.toCalendarBookingsJSONArray(themeDisplay, pendingCalendarBookings);
+	acceptedCalendarsJSONArray = CalendarUtil.toCalendarBookingsJSONArray(themeDisplay, calendarBooking.getParentCalendarBookingId(), new int[] {WorkflowConstants.STATUS_APPROVED});
+	declinedCalendarsJSONArray = CalendarUtil.toCalendarBookingsJSONArray(themeDisplay, calendarBooking.getParentCalendarBookingId(), new int[] {WorkflowConstants.STATUS_DENIED});
+	maybeCalendarsJSONArray = CalendarUtil.toCalendarBookingsJSONArray(themeDisplay, calendarBooking.getParentCalendarBookingId(), new int[] {CalendarBookingWorkflowConstants.STATUS_MAYBE});
+	pendingCalendarsJSONArray = CalendarUtil.toCalendarBookingsJSONArray(themeDisplay, calendarBooking.getParentCalendarBookingId(), new int[] {WorkflowConstants.STATUS_PENDING, WorkflowConstants.STATUS_DRAFT, CalendarBookingWorkflowConstants.STATUS_MASTER_PENDING});
 
 	if (calendarBooking.isMasterBooking()) {
 		List<CalendarBooking> childCalendarBookings = CalendarBookingServiceUtil.getChildCalendarBookings(calendarBooking.getParentCalendarBookingId());
