@@ -192,6 +192,7 @@ public class RulesEngineImpl implements RulesEngine {
 		_resourceTypeMap = null;
 
 		MVELRuntime.resetDebugger();
+		
 	}
 
 	protected void execute(List<Fact<?>> facts, KnowledgeBase knowledgeBase) {
