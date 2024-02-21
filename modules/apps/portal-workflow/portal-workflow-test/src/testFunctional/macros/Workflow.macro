@@ -407,11 +407,17 @@ definition {
 
 		Click(locator1 = "Icon#SIDEBAR_HEADER_ACTION_VERTICAL_ELLIPSIS_BUTTON");
 
-		MenuItem.click(menuItem = "Edit");
+		MenuItem.clickNoError(menuItem = "Edit");
 
-		Select(
-			locator1 = "AssetWorkflow#ALL_STRUCTURES_WORKFLOW_SELECT",
-			value1 = ${workflowDefinition});
+		while ((IsElementNotPresent(locator1 = "AssetWorkflow#ALL_STRUCTURES_WORKFLOW_SELECT")) && (maxIterations = "10")) {
+			Refresh();
+
+			WaitForSPARefresh();
+
+			Select(
+				locator1 = "AssetWorkflow#ALL_STRUCTURES_WORKFLOW_SELECT",
+				value1 = ${workflowDefinition});
+		}
 
 		PortletEntry.save();
 	}
