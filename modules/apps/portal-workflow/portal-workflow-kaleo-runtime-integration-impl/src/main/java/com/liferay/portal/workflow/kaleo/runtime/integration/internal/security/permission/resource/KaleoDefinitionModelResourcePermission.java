@@ -5,22 +5,29 @@
 
 package com.liferay.portal.workflow.kaleo.runtime.integration.internal.security.permission.resource;
 
+import com.liferay.portal.configuration.metatype.bnd.util.ConfigurableUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
 import com.liferay.portal.kernel.security.permission.resource.PortletResourcePermission;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
+import com.liferay.portal.workflow.configuration.WorkflowDefinitionConfiguration;
 import com.liferay.portal.workflow.kaleo.model.KaleoDefinition;
 import com.liferay.portal.workflow.kaleo.service.KaleoDefinitionLocalService;
 
+import java.util.Map;
+
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Rafael Praxedes
  */
 @Component(
+	configurationPid = "com.liferay.portal.workflow.configuration.WorkflowDefinitionConfiguration",
 	property = "model.class.name=com.liferay.portal.workflow.kaleo.model.KaleoDefinition",
 	service = ModelResourcePermission.class
 )
@@ -57,8 +64,23 @@ public class KaleoDefinitionModelResourcePermission
 			KaleoDefinition kaleoDefinition, String actionId)
 		throws PortalException {
 
-		return _portletResourcePermission.contains(
-			permissionChecker, kaleoDefinition.getGroupId(), actionId);
+		if (permissionChecker.isOmniadmin() ||
+			(_companyAdministratorCanPublish &&
+			 permissionChecker.isCompanyAdmin())) {
+
+			return true;
+		}
+
+		if (permissionChecker.hasOwnerPermission(
+				permissionChecker.getCompanyId(),
+				KaleoDefinition.class.getName(),
+				kaleoDefinition.getKaleoDefinitionId(),
+				kaleoDefinition.getUserId(), actionId)) {
+
+			return true;
+		}
+
+		return false;
 	}
 
 	@Override
@@ -82,6 +104,19 @@ public class KaleoDefinitionModelResourcePermission
 	public PortletResourcePermission getPortletResourcePermission() {
 		return _portletResourcePermission;
 	}
+
+	@Activate
+	@Modified
+	protected void activate(Map<String, Object> properties) {
+		WorkflowDefinitionConfiguration workflowDefinitionConfiguration =
+			ConfigurableUtil.createConfigurable(
+				WorkflowDefinitionConfiguration.class, properties);
+
+		_companyAdministratorCanPublish =
+			workflowDefinitionConfiguration.companyAdministratorCanPublish();
+	}
+
+	private volatile boolean _companyAdministratorCanPublish;
 
 	@Reference
 	private KaleoDefinitionLocalService _kaleoDefinitionLocalService;
