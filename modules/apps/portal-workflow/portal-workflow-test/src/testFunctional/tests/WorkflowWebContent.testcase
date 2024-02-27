@@ -543,7 +543,9 @@ definition {
 		}
 
 		task ("Then the image appears in the new tab and should be seen without being overflowed") {
-			SelectWindow(value1 = "WC Title - Liferay DXP");
+			var siteName = TestCase.getSiteName(siteName = ${siteName});
+
+			SelectWindow(value1 = "WC Title - ${siteName}");
 
 			OcularAssertElementImage(
 				locator1 = "PageEditor#CONTENT_PAGE_WEB_CONTENT_CONTENT",
