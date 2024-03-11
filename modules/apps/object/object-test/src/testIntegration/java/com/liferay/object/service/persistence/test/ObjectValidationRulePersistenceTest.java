@@ -240,6 +240,15 @@ public class ObjectValidationRulePersistenceTest {
 	}
 
 	@Test
+	public void testCountByA_E() throws Exception {
+		_persistence.countByA_E(RandomTestUtil.randomBoolean(), "");
+
+		_persistence.countByA_E(RandomTestUtil.randomBoolean(), "null");
+
+		_persistence.countByA_E(RandomTestUtil.randomBoolean(), (String)null);
+	}
+
+	@Test
 	public void testCountByODI_A() throws Exception {
 		_persistence.countByODI_A(
 			RandomTestUtil.nextLong(), RandomTestUtil.randomBoolean());

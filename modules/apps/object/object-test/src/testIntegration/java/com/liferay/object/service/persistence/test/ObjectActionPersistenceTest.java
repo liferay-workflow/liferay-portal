@@ -245,6 +245,16 @@ public class ObjectActionPersistenceTest {
 	}
 
 	@Test
+	public void testCountByA_OAEK() throws Exception {
+		_persistence.countByA_OAEK(RandomTestUtil.randomBoolean(), "");
+
+		_persistence.countByA_OAEK(RandomTestUtil.randomBoolean(), "null");
+
+		_persistence.countByA_OAEK(
+			RandomTestUtil.randomBoolean(), (String)null);
+	}
+
+	@Test
 	public void testCountByODI_N() throws Exception {
 		_persistence.countByODI_N(RandomTestUtil.nextLong(), "");
 
