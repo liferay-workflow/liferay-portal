@@ -8,7 +8,9 @@ package com.liferay.portal.workflow.kaleo.runtime.internal.notification.recipien
 import com.liferay.depot.constants.DepotRolesConstants;
 import com.liferay.osgi.service.tracker.collections.list.ServiceTrackerList;
 import com.liferay.osgi.service.tracker.collections.list.ServiceTrackerListFactory;
+import com.liferay.portal.configuration.module.configuration.ConfigurationProvider;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
+import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Organization;
 import com.liferay.portal.kernel.model.Role;
@@ -16,6 +18,7 @@ import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.model.UserGroupGroupRole;
 import com.liferay.portal.kernel.model.UserGroupRole;
 import com.liferay.portal.kernel.model.role.RoleConstants;
+import com.liferay.portal.kernel.module.configuration.ConfigurationException;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.OrganizationLocalService;
 import com.liferay.portal.kernel.service.RoleLocalService;
@@ -23,6 +26,7 @@ import com.liferay.portal.kernel.service.UserGroupGroupRoleLocalService;
 import com.liferay.portal.kernel.service.UserGroupRoleLocalService;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
+import com.liferay.portal.workflow.configuration.WorkflowDefinitionConfiguration;
 import com.liferay.portal.workflow.kaleo.definition.NotificationReceptionType;
 import com.liferay.portal.workflow.kaleo.model.KaleoInstanceToken;
 import com.liferay.portal.workflow.kaleo.model.KaleoNotificationRecipient;
@@ -48,6 +52,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Michael C. Han
  */
 @Component(
+	configurationPid = "com.liferay.portal.workflow.configuration.WorkflowDefinitionConfiguration",
 	property = "recipient.type=ROLE",
 	service = NotificationRecipientBuilder.class
 )
@@ -112,6 +117,9 @@ public class RoleNotificationRecipientBuilder
 	}
 
 	@Reference
+	protected ConfigurationProvider configurationProvider;
+
+	@Reference
 	protected GroupLocalService groupLocalService;
 
 	@Reference
@@ -128,6 +136,25 @@ public class RoleNotificationRecipientBuilder
 
 	@Reference
 	protected UserLocalService userLocalService;
+
+	private boolean _allowAncestorSites() {
+		if (FeatureFlagManagerUtil.isEnabled("LPD-23210")) {
+			try {
+				WorkflowDefinitionConfiguration
+					workflowDefinitionConfiguration =
+						configurationProvider.getSystemConfiguration(
+							WorkflowDefinitionConfiguration.class);
+
+				return !workflowDefinitionConfiguration.
+					preventNotifyingAncestorSites();
+			}
+			catch (ConfigurationException configurationException) {
+				throw new RuntimeException(configurationException);
+			}
+		}
+
+		return true;
+	}
 
 	private List<Long> _getAncestorGroupIds(Group group, Role role)
 		throws Exception {
@@ -170,7 +197,7 @@ public class RoleNotificationRecipientBuilder
 				groupIds.addAll(_getAncestorOrganizationGroupIds(group, role));
 			}
 
-			if (group.isSite()) {
+			if (group.isSite() && _allowAncestorSites()) {
 				groupIds.addAll(_getAncestorGroupIds(group, role));
 			}
 
