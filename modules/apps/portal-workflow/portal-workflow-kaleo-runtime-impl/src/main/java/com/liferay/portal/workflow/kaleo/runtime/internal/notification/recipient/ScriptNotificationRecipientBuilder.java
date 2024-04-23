@@ -94,7 +94,9 @@ public class ScriptNotificationRecipientBuilder
 
 	@Activate
 	@Override
-	protected void activate(BundleContext bundleContext) {
+	protected void activate(
+		BundleContext bundleContext, Map<String, Object> properties) {
+
 		_serviceTrackerMap = ServiceTrackerMapFactory.openMultiValueMap(
 			bundleContext, NotificationRecipientEvaluator.class,
 			"scripting.language");
