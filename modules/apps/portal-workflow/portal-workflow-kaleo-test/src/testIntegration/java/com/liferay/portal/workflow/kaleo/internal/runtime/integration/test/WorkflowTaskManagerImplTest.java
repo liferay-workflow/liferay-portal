@@ -60,6 +60,7 @@ import com.liferay.journal.model.JournalFolder;
 import com.liferay.journal.service.JournalArticleLocalService;
 import com.liferay.journal.service.JournalFolderLocalService;
 import com.liferay.petra.string.StringPool;
+import com.liferay.portal.configuration.module.configuration.ConfigurationProvider;
 import com.liferay.portal.configuration.test.util.ConfigurationTestUtil;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -124,9 +125,11 @@ import com.liferay.portal.kernel.workflow.WorkflowTaskManager;
 import com.liferay.portal.kernel.workflow.search.WorkflowModelSearchResult;
 import com.liferay.portal.search.test.util.SearchTestRule;
 import com.liferay.portal.security.permission.SimplePermissionChecker;
+import com.liferay.portal.test.rule.FeatureFlags;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.util.PortalInstances;
 import com.liferay.portal.workflow.comparator.WorkflowComparatorFactory;
+import com.liferay.portal.workflow.configuration.WorkflowDefinitionConfiguration;
 import com.liferay.portal.workflow.kaleo.definition.util.WorkflowDefinitionContentUtil;
 import com.liferay.portal.workflow.manager.WorkflowDefinitionManager;
 
@@ -176,6 +179,8 @@ public class WorkflowTaskManagerImplTest extends BaseWorkflowManagerTestCase {
 			_configuration,
 			HashMapDictionaryBuilder.<String, Object>put(
 				"company.administrator.can.publish", true
+			).put(
+				"preventNotifyingAncestorSites", false
 			).build());
 
 		_originalName = PrincipalThreadLocal.getName();
@@ -663,25 +668,46 @@ public class WorkflowTaskManagerImplTest extends BaseWorkflowManagerTestCase {
 			_group.getGroupId());
 	}
 
+	@FeatureFlags("LPD-23210")
 	@Test
 	public void testApproveSiteMember() throws Exception {
+		Group childGroup = GroupTestUtil.addGroup(_group.getGroupId());
+
 		_activateWorkflow(
-			JournalFolder.class.getName(),
+			childGroup.getGroupId(), JournalFolder.class.getName(),
 			JournalFolderConstants.DEFAULT_PARENT_FOLDER_ID,
 			JournalArticleConstants.DDM_STRUCTURE_ID_ALL,
 			_SITE_MEMBER_SINGLE_APPROVER, 1);
 
-		JournalArticle article = _addJournalArticle(
-			JournalFolderConstants.DEFAULT_PARENT_FOLDER_ID);
+		User childSiteMemberUser = _createUser(
+			RoleConstants.SITE_MEMBER, childGroup);
+
+		DDMStructure ddmStructure = DDMStructureTestUtil.addStructure(
+			_group.getGroupId(), JournalArticle.class.getName());
+
+		Map<Locale, String> map = HashMapBuilder.put(
+			LocaleUtil.getDefault(), RandomTestUtil.randomString()
+		).build();
+
+		// "preventNotifyingAncestorSites" disabled
+
+		JournalArticle article = _journalArticleLocalService.addArticle(
+			null, _adminUser.getUserId(), childGroup.getGroupId(),
+			JournalFolderConstants.DEFAULT_PARENT_FOLDER_ID, map, map,
+			DDMStructureTestUtil.getSampleStructuredContent(),
+			ddmStructure.getStructureId(), StringPool.BLANK, _serviceContext);
 
 		Assert.assertEquals(
 			WorkflowConstants.STATUS_PENDING, article.getStatus());
 
-		_checkUserNotificationEventsByUsers(1, _siteMemberUser);
+		_checkUserNotificationEventsByUsers(
+			1, childSiteMemberUser, _siteMemberUser);
 
 		Assert.assertTrue(_hasAssignableUsers(_adminUser));
 
 		_assignWorkflowTaskToUser(_adminUser, _siteMemberUser);
+
+		_checkUserNotificationEventsByUsers(1, _siteMemberUser);
 
 		_completeWorkflowTask(_siteMemberUser, Constants.APPROVE);
 
@@ -691,6 +717,38 @@ public class WorkflowTaskManagerImplTest extends BaseWorkflowManagerTestCase {
 
 		Assert.assertEquals(
 			WorkflowConstants.STATUS_APPROVED, article.getStatus());
+
+		// "preventNotifyingAncestorSites" enabled
+
+		_configurationProvider.saveSystemConfiguration(
+			WorkflowDefinitionConfiguration.class,
+			HashMapDictionaryBuilder.<String, Object>put(
+				"company.administrator.can.publish", true
+			).put(
+				"preventNotifyingAncestorSites", true
+			).build());
+
+		article = _journalArticleLocalService.addArticle(
+			null, _adminUser.getUserId(), childGroup.getGroupId(),
+			JournalFolderConstants.DEFAULT_PARENT_FOLDER_ID, map, map,
+			DDMStructureTestUtil.getSampleStructuredContent(),
+			ddmStructure.getStructureId(), StringPool.BLANK, _serviceContext);
+
+		Assert.assertEquals(
+			WorkflowConstants.STATUS_PENDING, article.getStatus());
+
+		_checkUserNotificationEventsByUsers(0, _siteMemberUser);
+		_checkUserNotificationEventsByUsers(1, childSiteMemberUser);
+
+		Assert.assertTrue(_hasAssignableUsers(_adminUser));
+
+		_assignWorkflowTaskToUser(_adminUser, childSiteMemberUser);
+
+		_checkUserNotificationEventsByUsers(1, childSiteMemberUser);
+
+		_completeWorkflowTask(childSiteMemberUser, Constants.APPROVE);
+
+		_getWorkflowInstance(JournalArticle.class.getName(), article.getId());
 
 		_deactivateWorkflow(
 			JournalFolder.class.getName(),
@@ -2192,6 +2250,9 @@ public class WorkflowTaskManagerImplTest extends BaseWorkflowManagerTestCase {
 
 	@Inject
 	private CommerceOrderLocalService _commerceOrderLocalService;
+
+	@Inject
+	private ConfigurationProvider _configurationProvider;
 
 	@Inject
 	private DDLRecordLocalService _ddlRecordLocalService;
