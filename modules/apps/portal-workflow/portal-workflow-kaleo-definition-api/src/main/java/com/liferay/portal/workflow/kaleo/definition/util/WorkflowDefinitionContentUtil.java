@@ -18,6 +18,9 @@ import com.liferay.portal.kernel.workflow.WorkflowException;
 
 import java.io.StringReader;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
@@ -50,8 +53,18 @@ public class WorkflowDefinitionContentUtil {
 			DocumentBuilder documentBuilder =
 				documentBuilderFactory.newDocumentBuilder();
 
+			Matcher matcher = _pattern.matcher(content);
+
+			StringBuffer sb = new StringBuffer();
+
+			while (matcher.find()) {
+				matcher.appendReplacement(sb, "&amp;");
+			}
+
+			matcher.appendTail(sb);
+
 			Document document = documentBuilder.parse(
-				new InputSource(new StringReader(content)));
+				new InputSource(new StringReader(sb.toString())));
 
 			JSONObject jsonObject = _toJSONObject(
 				document.getDocumentElement());
@@ -242,5 +255,9 @@ public class WorkflowDefinitionContentUtil {
 		sb.append(jsonObject.getString("#tag-name"));
 		sb.append(StringPool.GREATER_THAN);
 	}
+
+	private static final Pattern _pattern = Pattern.compile(
+		"&(?![a-zA-Z0-9]+;|#[0-9]+;|#x[0-9a-fA-F]+;)(?!(?:(?!<script\b)." +
+			")*</script>)(?!(?:(?!<!\\[CDATA\\[).)*\\]\\]>)");
 
 }
