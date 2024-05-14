@@ -236,6 +236,14 @@ public class WorkflowDefinitionContentUtilTest {
 		Assert.assertEquals("en_US", attributeNode.getNodeValue());
 	}
 
+	@Test
+	public void testValueWithAmpersandToJSON() throws Exception {
+		JSONObject jsonObject = _toJSONObject("value-with-ampersand.xml");
+
+		Assert.assertEquals("test", jsonObject.getString("#tag-name"));
+		Assert.assertEquals("Value &", jsonObject.getString("#value"));
+	}
+
 	private String _read(String fileName) throws Exception {
 		Class<?> clazz = getClass();
 
