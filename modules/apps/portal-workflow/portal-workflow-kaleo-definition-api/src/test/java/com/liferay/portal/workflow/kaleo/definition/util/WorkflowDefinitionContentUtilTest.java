@@ -61,6 +61,36 @@ public class WorkflowDefinitionContentUtilTest {
 	}
 
 	@Test
+	public void testAmpersandUsagesToJSON() throws Exception {
+		JSONObject jsonObject = _toJSONObject("ampersand-usages.xml");
+
+		JSONArray jsonArray = jsonObject.getJSONArray("#child-nodes");
+
+		jsonObject = (JSONObject)jsonArray.get(0);
+
+		Assert.assertEquals("test", jsonObject.getString("#tag-name"));
+		Assert.assertEquals(
+			"This is a & symbol", jsonObject.getString("#value"));
+
+		jsonObject = (JSONObject)jsonArray.get(1);
+
+		Assert.assertEquals(
+			"[\"This is a CDATA section with an & symbol\"]",
+			jsonObject.getString("#cdata-value"));
+		Assert.assertEquals(
+			"This is a & symbol in the tag attribute.",
+			jsonObject.getString("description"));
+		Assert.assertEquals("metadata", jsonObject.getString("#tag-name"));
+
+		jsonObject = (JSONObject)jsonArray.get(2);
+
+		Assert.assertEquals("reference", jsonObject.getString("#tag-name"));
+		Assert.assertEquals(
+			"This is an ampersand symbol in an entity reference <",
+			jsonObject.getString("#value"));
+	}
+
+	@Test
 	public void testCDATAToJSON() throws Exception {
 		JSONObject jsonObject = _toJSONObject("cdata.xml");
 
