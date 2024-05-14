@@ -1,0 +1,20 @@
+{
+	"#child-nodes": [
+		{
+			"#tag-name": "test",
+			"#value": "This is a & symbol"
+		},
+		{
+			"#cdata-value": [
+				"This is a CDATA section with an & symbol"
+			],
+			"#tag-name": "metadata",
+			"description": "This is a & symbol in the tag attribute."
+		},
+		{
+			"#tag-name": "reference",
+			"#value": "This is an ampersand symbol in an entity reference <"
+		}
+	],
+	"#tag-name": "root"
+}

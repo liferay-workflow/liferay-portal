@@ -1,0 +1,11 @@
+<root>
+	<test>
+		This is a & symbol
+	</test>
+	<metadata description="This is a & symbol in the tag attribute.">
+		<![CDATA[This is a CDATA section with an & symbol]]>
+	</metadata>
+	<reference>
+		This is an ampersand symbol in an entity reference &lt;
+	</reference>
+</root>
