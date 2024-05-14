@@ -13,6 +13,7 @@ import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.security.xml.SecureXMLFactoryProviderUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowException;
 
@@ -49,6 +50,8 @@ public class WorkflowDefinitionContentUtil {
 
 			DocumentBuilder documentBuilder =
 				documentBuilderFactory.newDocumentBuilder();
+
+			content = StringUtil.replace(content, '&', "&amp;");
 
 			Document document = documentBuilder.parse(
 				new InputSource(new StringReader(content)));
