@@ -36,7 +36,7 @@ import com.liferay.portal.kernel.workflow.WorkflowTask;
 import com.liferay.portal.kernel.workflow.WorkflowTaskManagerUtil;
 import com.liferay.portal.workflow.comparator.WorkflowComparatorFactory;
 import com.liferay.portal.workflow.manager.WorkflowLogManager;
-import com.liferay.portal.workflow.util.WorkflowDefinitionManagerUtil;
+import com.liferay.portal.workflow.util.WorkflowDefinitionManagerSkipResourcePermission;
 
 import java.io.Serializable;
 
@@ -388,10 +388,11 @@ public class WorkflowInstanceEditDisplayContext
 		WorkflowInstance workflowInstance = _getWorkflowInstance();
 
 		WorkflowDefinition workflowDefinition =
-			WorkflowDefinitionManagerUtil.getWorkflowDefinition(
-				workflowInstanceRequestHelper.getCompanyId(),
-				workflowInstance.getWorkflowDefinitionName(),
-				workflowInstance.getWorkflowDefinitionVersion());
+			WorkflowDefinitionManagerSkipResourcePermission.
+				getWorkflowDefinition(
+					workflowInstanceRequestHelper.getCompanyId(),
+					workflowInstance.getWorkflowDefinitionName(),
+					workflowInstance.getWorkflowDefinitionVersion());
 
 		return HtmlUtil.escape(
 			workflowDefinition.getTitle(

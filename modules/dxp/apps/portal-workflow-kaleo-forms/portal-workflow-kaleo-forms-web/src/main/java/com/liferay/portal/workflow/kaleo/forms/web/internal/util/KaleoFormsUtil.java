@@ -25,7 +25,7 @@ import com.liferay.portal.workflow.kaleo.forms.model.KaleoTaskFormPair;
 import com.liferay.portal.workflow.kaleo.forms.model.KaleoTaskFormPairs;
 import com.liferay.portal.workflow.kaleo.forms.service.KaleoProcessLinkLocalServiceUtil;
 import com.liferay.portal.workflow.kaleo.forms.service.KaleoProcessServiceUtil;
-import com.liferay.portal.workflow.util.WorkflowDefinitionManagerUtil;
+import com.liferay.portal.workflow.util.WorkflowDefinitionManagerSkipResourcePermission;
 
 import java.util.Collections;
 import java.util.Enumeration;
@@ -375,8 +375,8 @@ public class KaleoFormsUtil {
 		long companyId, String name, int version) {
 
 		try {
-			return WorkflowDefinitionManagerUtil.getWorkflowDefinition(
-				companyId, name, version);
+			return WorkflowDefinitionManagerSkipResourcePermission.
+				getWorkflowDefinition(companyId, name, version);
 		}
 		catch (Exception exception) {
 			if (_log.isDebugEnabled()) {
@@ -461,8 +461,10 @@ public class KaleoFormsUtil {
 		throws Exception {
 
 		WorkflowDefinition workflowDefinition =
-			WorkflowDefinitionManagerUtil.getWorkflowDefinition(
-				companyId, workflowDefinitionName, workflowDefinitionVersion);
+			WorkflowDefinitionManagerSkipResourcePermission.
+				getWorkflowDefinition(
+					companyId, workflowDefinitionName,
+					workflowDefinitionVersion);
 
 		return TransformUtil.transform(
 			workflowDefinition.getWorkflowNodes(),
