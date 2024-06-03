@@ -35,7 +35,7 @@ public class WorkflowDefinitionManagerUtil {
 			companyId, userId, title, name, bytes);
 	}
 
-	public static List<WorkflowDefinition> getActiveWorkflowDefinitions(
+	public static List<WorkflowDefinition> liberalGetActiveWorkflowDefinitions(
 			long companyId, int start, int end,
 			OrderByComparator<WorkflowDefinition> orderByComparator)
 		throws WorkflowException {
@@ -43,7 +43,7 @@ public class WorkflowDefinitionManagerUtil {
 		WorkflowDefinitionManager workflowDefinitionManager =
 			_workflowDefinitionManagerSnapshot.get();
 
-		return workflowDefinitionManager.getActiveWorkflowDefinitions(
+		return workflowDefinitionManager.liberalGetActiveWorkflowDefinitions(
 			companyId, start, end, orderByComparator);
 	}
 
