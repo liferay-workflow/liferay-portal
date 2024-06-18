@@ -40,10 +40,36 @@ public abstract class BaseMBWorkflowHandler
 		ServiceContext serviceContext = (ServiceContext)workflowContext.get(
 			"serviceContext");
 
+		serviceContext.setAttribute(
+			"workflowReviewComment", isWorkflowReviewComment(workflowContext));
+
 		return mbMessageLocalService.updateStatus(
 			userId, classPK, status, serviceContext, workflowContext);
 	}
 
 	protected abstract MBMessageLocalService getMBMessageLocalService();
+
+	protected boolean isWorkflowReviewComment(
+		Map<String, Serializable> workflowContext) {
+
+		ServiceContext serviceContext = (ServiceContext)workflowContext.get(
+			"serviceContext");
+
+		String namespace = GetterUtil.getString(
+			serviceContext.getAttribute("namespace"));
+
+		for (String portletId : PORTLET_IDS) {
+			if (namespace.contains(portletId)) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	protected static final String[] PORTLET_IDS = {
+		"com_liferay_portal_workflow_task_web_portlet_MyWorkflowTaskPortlet",
+		"com_liferay_portal_workflow_web_internal_portlet_UserWorkflowPortlet"
+	};
 
 }
