@@ -821,6 +821,9 @@ public class SubscriptionSender implements Serializable {
 			"portletId", portletId
 		).put(
 			"userId", currentUserId
+		).put(
+			"workflowReviewComment",
+			serviceContext.getAttribute("workflowReviewComment")
 		);
 	}
 
