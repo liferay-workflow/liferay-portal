@@ -9,6 +9,8 @@ import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMap;
 import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMapFactory;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.json.JSONFactoryUtil;
+import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Portlet;
@@ -17,6 +19,7 @@ import com.liferay.portal.kernel.model.UserNotificationEvent;
 import com.liferay.portal.kernel.module.util.SystemBundleUtil;
 import com.liferay.portal.kernel.service.PortletLocalServiceUtil;
 import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.util.PortletKeys;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -89,8 +92,17 @@ public class UserNotificationManagerUtil {
 			return null;
 		}
 
+		String userNotificationEventType = userNotificationEvent.getType();
+
+		JSONObject jsonObject = JSONFactoryUtil.createJSONObject(
+			userNotificationEvent.getPayload());
+
+		if (jsonObject.getBoolean("workflowReviewComment")) {
+			userNotificationEventType = PortletKeys.MY_WORKFLOW_TASK;
+		}
+
 		UserNotificationHandler userNotificationHandler =
-			userNotificationHandlers.get(userNotificationEvent.getType());
+			userNotificationHandlers.get(userNotificationEventType);
 
 		if (userNotificationHandler == null) {
 			if (_log.isWarnEnabled()) {
