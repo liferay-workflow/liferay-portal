@@ -5,13 +5,19 @@
 
 package com.liferay.portal.workflow.task.web.internal.notifications;
 
+import com.liferay.asset.kernel.AssetRendererFactoryRegistryUtil;
+import com.liferay.asset.kernel.model.AssetRenderer;
+import com.liferay.asset.kernel.model.AssetRendererFactory;
 import com.liferay.change.tracking.constants.CTConstants;
 import com.liferay.change.tracking.model.CTCollection;
 import com.liferay.change.tracking.service.CTCollectionLocalService;
+import com.liferay.message.boards.model.MBDiscussion;
+import com.liferay.message.boards.service.MBDiscussionLocalService;
 import com.liferay.petra.lang.SafeCloseable;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.change.tracking.CTCollectionThreadLocal;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.json.JSONException;
 import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.language.Language;
@@ -19,7 +25,8 @@ import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.model.UserNotificationEvent;
-import com.liferay.portal.kernel.notifications.BaseUserNotificationHandler;
+import com.liferay.portal.kernel.notifications.BaseModelUserNotificationHandler;
+import com.liferay.portal.kernel.notifications.UserNotificationDefinition;
 import com.liferay.portal.kernel.notifications.UserNotificationFeedEntry;
 import com.liferay.portal.kernel.notifications.UserNotificationHandler;
 import com.liferay.portal.kernel.service.ServiceContext;
@@ -28,6 +35,7 @@ import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.HtmlUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.MapUtil;
+import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.PortletKeys;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
@@ -39,6 +47,8 @@ import com.liferay.portal.workflow.security.permission.WorkflowTaskPermission;
 
 import java.util.Locale;
 import java.util.Objects;
+
+import javax.portlet.WindowState;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -52,7 +62,7 @@ import org.osgi.service.component.annotations.Reference;
 	service = UserNotificationHandler.class
 )
 public class WorkflowTaskUserNotificationHandler
-	extends BaseUserNotificationHandler {
+	extends BaseModelUserNotificationHandler {
 
 	public WorkflowTaskUserNotificationHandler() {
 		setOpenDialog(true);
@@ -70,7 +80,8 @@ public class WorkflowTaskUserNotificationHandler
 
 		if (Objects.nonNull(
 				WorkflowHandlerRegistryUtil.getWorkflowHandler(
-					jsonObject.getString("entryClassName")))) {
+					jsonObject.getString("entryClassName"))) ||
+			_workflowReviewComment(userNotificationEvent)) {
 
 			return super.interpret(userNotificationEvent, serviceContext);
 		}
@@ -93,10 +104,47 @@ public class WorkflowTaskUserNotificationHandler
 	}
 
 	@Override
+	protected AssetRenderer<?> getAssetRenderer(JSONObject jsonObject) {
+		MBDiscussion mbDiscussion = _mbDiscussionLocalService.fetchDiscussion(
+			jsonObject.getLong("classPK"));
+
+		if (mbDiscussion == null) {
+			return null;
+		}
+
+		AssetRenderer<?> assetRenderer = getAssetRenderer(
+			mbDiscussion.getClassName(), mbDiscussion.getClassPK());
+
+		if (assetRenderer == null) {
+			try {
+				AssetRendererFactory<?> assetRendererFactory =
+					AssetRendererFactoryRegistryUtil.
+						getAssetRendererFactoryByClassName(
+							mbDiscussion.getClassName());
+
+				assetRenderer = assetRendererFactory.getAssetRenderer(
+					mbDiscussion.getClassPK(),
+					AssetRendererFactory.TYPE_LATEST);
+			}
+			catch (Exception exception) {
+				if (_log.isDebugEnabled()) {
+					_log.debug(exception);
+				}
+			}
+		}
+
+		return assetRenderer;
+	}
+
+	@Override
 	protected String getBody(
 			UserNotificationEvent userNotificationEvent,
 			ServiceContext serviceContext)
 		throws Exception {
+
+		if (_workflowReviewComment(userNotificationEvent)) {
+			return super.getBody(userNotificationEvent, serviceContext);
+		}
 
 		return _getMessage(userNotificationEvent, serviceContext);
 	}
@@ -106,6 +154,10 @@ public class WorkflowTaskUserNotificationHandler
 			UserNotificationEvent userNotificationEvent,
 			ServiceContext serviceContext)
 		throws Exception {
+
+		if (_workflowReviewComment(userNotificationEvent)) {
+			return _getSubscriptionLink(userNotificationEvent, serviceContext);
+		}
 
 		if (!_isNotifiable(userNotificationEvent, serviceContext)) {
 			return StringPool.BLANK;
@@ -152,6 +204,15 @@ public class WorkflowTaskUserNotificationHandler
 			UserNotificationEvent userNotificationEvent,
 			ServiceContext serviceContext)
 		throws Exception {
+
+		if (_workflowReviewComment(userNotificationEvent)) {
+			JSONObject jsonObject = _jsonFactory.createJSONObject(
+				userNotificationEvent.getPayload());
+
+			return _getSubscriptionTitle(
+				getAssetRenderer(jsonObject), userNotificationEvent,
+				serviceContext);
+		}
 
 		return _getMessage(userNotificationEvent, serviceContext);
 	}
@@ -233,6 +294,89 @@ public class WorkflowTaskUserNotificationHandler
 		return HtmlUtil.escape(notificationMessage);
 	}
 
+	private String _getSubscriptionLink(
+			UserNotificationEvent userNotificationEvent,
+			ServiceContext serviceContext)
+		throws Exception {
+
+		JSONObject jsonObject = _jsonFactory.createJSONObject(
+			userNotificationEvent.getPayload());
+
+		AssetRenderer<?> assetRenderer = getAssetRenderer(jsonObject);
+
+		return assetRenderer.getURLView(
+			_portal.getLiferayPortletResponse(
+				serviceContext.getLiferayPortletResponse()),
+			WindowState.MAXIMIZED);
+	}
+
+	private String _getSubscriptionTitle(
+			AssetRenderer<?> assetRenderer,
+			UserNotificationEvent userNotificationEvent,
+			ServiceContext serviceContext)
+		throws Exception {
+
+		JSONObject jsonObject = _jsonFactory.createJSONObject(
+			userNotificationEvent.getPayload());
+
+		MBDiscussion mbDiscussion = _mbDiscussionLocalService.fetchDiscussion(
+			jsonObject.getLong("classPK"));
+
+		if (mbDiscussion == null) {
+			return null;
+		}
+
+		String message = StringPool.BLANK;
+
+		int notificationType = jsonObject.getInt("notificationType");
+
+		if (notificationType ==
+				UserNotificationDefinition.NOTIFICATION_TYPE_ADD_ENTRY) {
+
+			if (assetRenderer != null) {
+				message = "x-added-a-new-comment-to-x";
+			}
+			else {
+				message = "x-added-a-new-comment";
+			}
+		}
+		else if (notificationType ==
+					UserNotificationDefinition.NOTIFICATION_TYPE_UPDATE_ENTRY) {
+
+			if (assetRenderer != null) {
+				message = "x-updated-a-comment-to-x";
+			}
+			else {
+				message = "x-updated-a-comment";
+			}
+		}
+
+		if (assetRenderer != null) {
+			message = _language.format(
+				serviceContext.getLocale(), message,
+				new String[] {
+					HtmlUtil.escape(
+						_portal.getUserName(
+							jsonObject.getLong("userId"), StringPool.BLANK)),
+					HtmlUtil.escape(
+						assetRenderer.getTitle(serviceContext.getLocale()))
+				},
+				false);
+		}
+		else {
+			message = _language.format(
+				serviceContext.getLocale(), message,
+				new String[] {
+					HtmlUtil.escape(
+						_portal.getUserName(
+							jsonObject.getLong("userId"), StringPool.BLANK))
+				},
+				false);
+		}
+
+		return message;
+	}
+
 	private boolean _hasPermission(
 			long ctCollectionId, long workflowTaskId,
 			ServiceContext serviceContext)
@@ -293,6 +437,22 @@ public class WorkflowTaskUserNotificationHandler
 		return false;
 	}
 
+	private boolean _workflowReviewComment(
+			UserNotificationEvent userNotificationEvent)
+		throws JSONException {
+
+		JSONObject jsonObject = _jsonFactory.createJSONObject(
+			userNotificationEvent.getPayload());
+
+		if (jsonObject.has("workflowReviewComment") &&
+			jsonObject.getBoolean("workflowReviewComment")) {
+
+			return true;
+		}
+
+		return false;
+	}
+
 	private static final String _BODY_TEMPLATE_DEFAULT =
 		"<div class=\"title\">[$TITLE$]</div><div class=\"body\">[$BODY$]" +
 			"</div>";
@@ -308,6 +468,12 @@ public class WorkflowTaskUserNotificationHandler
 
 	@Reference
 	private Language _language;
+
+	@Reference
+	private MBDiscussionLocalService _mbDiscussionLocalService;
+
+	@Reference
+	private Portal _portal;
 
 	@Reference
 	private UserNotificationEventLocalService
