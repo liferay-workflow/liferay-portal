@@ -57,7 +57,8 @@ public class KaleoDefinitionServiceImpl extends KaleoDefinitionServiceBaseImpl {
 		KaleoDefinition kaleoDefinition =
 			_kaleoDefinitionLocalService.getKaleoDefinition(kaleoDefinitionId);
 
-		_checkViewPermissions(kaleoDefinition);
+		_kaleoDefinitionModelResourcePermission.check(
+			getPermissionChecker(), kaleoDefinition, ActionKeys.VIEW);
 
 		return kaleoDefinition;
 	}
@@ -71,7 +72,8 @@ public class KaleoDefinitionServiceImpl extends KaleoDefinitionServiceBaseImpl {
 			_kaleoDefinitionLocalService.getKaleoDefinition(
 				name, serviceContext);
 
-		_checkViewPermissions(kaleoDefinition);
+		_kaleoDefinitionModelResourcePermission.check(
+			getPermissionChecker(), kaleoDefinition, ActionKeys.VIEW);
 
 		return kaleoDefinition;
 	}
@@ -88,7 +90,8 @@ public class KaleoDefinitionServiceImpl extends KaleoDefinitionServiceBaseImpl {
 				scope, active, start, end, orderByComparator, serviceContext);
 
 		for (KaleoDefinition kaleoDefinition : kaleoDefinitions) {
-			_checkViewPermissions(kaleoDefinition);
+			_kaleoDefinitionModelResourcePermission.check(
+				getPermissionChecker(), kaleoDefinition, ActionKeys.VIEW);
 		}
 
 		return kaleoDefinitions;
@@ -106,7 +109,8 @@ public class KaleoDefinitionServiceImpl extends KaleoDefinitionServiceBaseImpl {
 				scope, start, end, orderByComparator, serviceContext);
 
 		for (KaleoDefinition kaleoDefinition : kaleoDefinitions) {
-			_checkViewPermissions(kaleoDefinition);
+			_kaleoDefinitionModelResourcePermission.check(
+				getPermissionChecker(), kaleoDefinition, ActionKeys.VIEW);
 		}
 
 		return kaleoDefinitions;
@@ -140,20 +144,6 @@ public class KaleoDefinitionServiceImpl extends KaleoDefinitionServiceBaseImpl {
 		_portletResourcePermission.check(
 			permissionChecker, serviceContext.getScopeGroupId(),
 			ActionKeys.ADD_DEFINITION);
-	}
-
-	private void _checkViewPermissions(KaleoDefinition kaleoDefinition)
-		throws PortalException {
-
-		PermissionChecker permissionChecker =
-			PermissionThreadLocal.getPermissionChecker();
-
-		if (permissionChecker == null) {
-			return;
-		}
-
-		_kaleoDefinitionModelResourcePermission.check(
-			permissionChecker, kaleoDefinition, ActionKeys.VIEW);
 	}
 
 	@Reference
