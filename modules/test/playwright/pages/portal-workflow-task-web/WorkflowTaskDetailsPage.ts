@@ -15,6 +15,7 @@ export class WorkflowTaskDetailsPage {
 	readonly doneAssigneeButton: Locator;
 	readonly doneButton: Locator;
 	readonly page: Page;
+	readonly rejectMenuItem: Locator;
 	readonly reviewActionMenu: Locator;
 	readonly reviewComment: Locator;
 	readonly workflowTasksPage: WorkflowTasksPage;
@@ -28,6 +29,7 @@ export class WorkflowTaskDetailsPage {
 			)
 			.getByRole('button', {name: 'Done'});
 		this.doneButton = page.getByRole('button', {name: 'Done'});
+		this.rejectMenuItem = page.getByRole('menuitem', {name: 'reject'});
 		this.reviewActionMenu = page.locator(
 			'[id="_com_liferay_portal_workflow_task_web_portlet_MyWorkflowTaskPortlet_kldx___menu"]'
 		);

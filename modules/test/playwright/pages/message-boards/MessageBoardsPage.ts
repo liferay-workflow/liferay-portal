@@ -66,4 +66,23 @@ export class MessageBoardsPage {
 
 		await this.page.getByLabel('close', {exact: true}).click();
 	}
+
+	async setRoleCategoryPermissions(roleName: string, siteUrl?: Site['friendlyUrlPath']) {
+		await this.goto(siteUrl);
+
+		await this.optionsMenu.click();
+		await this.homeCategoryPermissionsMenuItem.click();
+
+		await this.homeCategoryPermissionsFrame.locator(
+			`#${roleName}_ACTION_ADD_MESSAGE`
+		).check();
+
+		await this.homeCategoryPermissionsFrame.locator(
+			`#${roleName}_ACTION_REPLY_TO_MESSAGE`
+		).check();
+
+		await this.saveButton.click();
+
+		await this.page.getByLabel('close', {exact: true}).click();
+	}
 }
