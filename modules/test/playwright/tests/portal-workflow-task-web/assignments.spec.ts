@@ -15,6 +15,7 @@ import performLogin, {performLogout} from '../../utils/performLogin';
 import {blogsPagesTest} from '../blogs-web/fixtures/blogsPagesTest';
 import {messageBoardsPagesTest} from '../../fixtures/messageBoardsTest';
 import { isolatedSiteTest } from '../../fixtures/isolatedSiteTest';
+import {userPersonalBarPagesTest} from '../../fixtures/userPersonalBarPagesTest'
 
 export const test = mergeTests(
 	isolatedSiteTest,
@@ -22,8 +23,8 @@ export const test = mergeTests(
 	blogsPagesTest,
 	loginTest(),
 	workflowPagesTest,
-	messageBoardsPagesTest
-
+	messageBoardsPagesTest,
+	userPersonalBarPagesTest
 );
 
 let assetType: string;
@@ -169,7 +170,6 @@ test('user must be able to read workflow task from a notification if contained o
 	userPersonalBarPage,
 	workflowTaskDetailsPage,
 	workflowTasksPage,
-	workflowReviewTaskPage,
 }) => {
 	await messageBoardsWidgetPage.addMessageBoardsPortlet(site);
 
@@ -182,7 +182,8 @@ test('user must be able to read workflow task from a notification if contained o
 	);
 
 	const role = await apiHelpers.headlessAdminUser.postRole({
-		name: 'workflowReviewer'
+		name: 'workflowReviewer',
+		roleType: 'regular'
 	});
 
 	await apiHelpers.headlessAdminUser.assignUserToRole(role.name, user.id);
@@ -232,19 +233,19 @@ test('user must be able to read workflow task from a notification if contained o
 
 	await workflowTaskDetailsPage.selectAsset(threadTitle);
 
-	await workflowReviewTaskPage.reviewActionMenu.click();
+	await workflowTaskDetailsPage.reviewActionMenu.click();
 
-	await workflowReviewTaskPage.assignToMenuItem.click();
+	await workflowTaskDetailsPage.assignToMenuItem.click();
 
 	await page.waitForTimeout(3000);
 
-	await workflowReviewTaskPage.selectAssignee(defaultUser.id.toString());
+	await workflowTaskDetailsPage.selectAssignee(defaultUser.id.toString());
 
-	await workflowReviewTaskPage.clickDoneAssigneeButton();
+	await workflowTaskDetailsPage.clickDoneAssigneeButton();
 
-	await workflowReviewTaskPage.reviewActionMenu.click();
+	await workflowTaskDetailsPage.reviewActionMenu.click();
 
-	await workflowReviewTaskPage.rejectMenuItem.click();
+	await workflowTaskDetailsPage.rejectMenuItem.click();
 
 	await performLogout(page);
 
@@ -258,7 +259,7 @@ test('user must be able to read workflow task from a notification if contained o
 		name: `Your submission was rejected by ${defaultUser.name}, please modify and resubmit.`,
 	})
 
-	await workflowReviewTaskPage.subscribeTaskComments()
+	await workflowTaskDetailsPage.subscribeButton.click()
 
 	await performLogout(page);
 
@@ -266,9 +267,9 @@ test('user must be able to read workflow task from a notification if contained o
 
 	await workflowTaskDetailsPage.selectAsset(threadTitle);
 
-	await workflowReviewTaskPage.reviewComment.fill("Random");
+	await workflowTaskDetailsPage.fillReviewComment("Random");
 
-	await workflowReviewTaskPage.reply();
+	await workflowTaskDetailsPage.reply.click();
 
 	await performLogout(page);
 

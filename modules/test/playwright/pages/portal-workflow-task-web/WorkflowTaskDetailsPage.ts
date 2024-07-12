@@ -12,6 +12,8 @@ export class WorkflowTaskDetailsPage {
 	readonly approveMenuItem: Locator;
 	readonly assignee: FrameLocator;
 	readonly assignToMenuItem: Locator;
+	readonly comments: Locator;
+	readonly subscribeButton: Locator;
 	readonly doneAssigneeButton: Locator;
 	readonly doneButton: Locator;
 	readonly page: Page;
@@ -36,12 +38,19 @@ export class WorkflowTaskDetailsPage {
 		this.reviewComment = page.getByRole('textbox', {name: 'Comment'});
 		this.page = page;
 		this.workflowTasksPage = new WorkflowTasksPage(page);
+		this.comments = page.getByRole('button',{name: 'Comments'})
+		this.subscribeButton = page.getByLabel('Subscribe to Comments');
+
 	}
 
 	async clickDoneButton() {
 		await this.doneButton.click();
 
 		await waitForSuccessAlert(this.page);
+	}
+
+	async fillReviewComment(comment: string) {
+		await this.reviewComment.fill(comment);
 	}
 
 	async goTo(assetTitle: string) {
@@ -62,5 +71,16 @@ export class WorkflowTaskDetailsPage {
 			)
 			.getByLabel('Assign to')
 			.selectOption(assignee);
+	}
+
+	async clickDoneAssigneeButton() {
+		await this.page
+			.frameLocator(
+				'iframe[name="_com_liferay_portal_workflow_task_web_portlet_MyWorkflowTaskPortlet_assignToDialog_iframe_"]'
+			)
+			.getByRole('button', {name: 'Done'})
+			.click();
+
+		await waitForSuccessAlert(this.page);
 	}
 }
