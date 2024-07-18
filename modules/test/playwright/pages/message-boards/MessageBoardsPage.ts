@@ -81,6 +81,10 @@ export class MessageBoardsPage {
 			`#${roleName}_ACTION_REPLY_TO_MESSAGE`
 		).check();
 
+		await this.homeCategoryPermissionsFrame.locator(
+			`#${roleName}_ACTION_VIEW`
+		).check();
+
 		await this.saveButton.click();
 
 		await this.page.getByLabel('close', {exact: true}).click();

@@ -48,8 +48,8 @@ export class MessageBoardsEditThreadPage {
 
 		await this.subjectSelector.fill(subject);
 		await this.bodyTextBox.fill(body);
-
-		if(this.publishButton){
+		
+		if(await this.publishButton.isVisible()){
 			await this.publishButton.click()
 		} else {
 			await this.submitForWorkflowButton.click()

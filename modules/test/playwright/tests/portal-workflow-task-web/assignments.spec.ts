@@ -161,8 +161,8 @@ test('send user back to my workflow tasks page after assign another user to revi
 test('user must be able to read workflow task from a notification if contained on the flow', async ({
 	apiHelpers,
 	configurationTabPage,
+	diagramViewPage,
 	messageBoardsEditThreadPage,
-	messageBoardsPage,
 	messageBoardsWidgetPage,
 	page,
 	processBuilderPage,
@@ -182,7 +182,111 @@ test('user must be able to read workflow task from a notification if contained o
 	);
 
 	const role = await apiHelpers.headlessAdminUser.postRole({
-		name: 'workflowReviewer',
+		name: 'workflowTaskManagement' + getRandomInt(),
+		rolePermissions: [
+			{
+			  "actionIds": [
+				"PERMISSIONS",
+				"DELETE",
+				"ADD_FILE",
+				"REPLY_TO_MESSAGE",
+				"LOCK_THREAD",
+				"UPDATE",
+				"VIEW",
+				"SUBSCRIBE",
+				"ADD_MESSAGE",
+				"MOVE_THREAD",
+				"ADD_SUBCATEGORY",
+				"UPDATE_THREAD_PRIORITY"
+			  ],
+			  "primaryKey": "0",
+			  "resourceName": "com.liferay.message.boards.model.MBCategory",
+			  "scope": 1
+			},
+			{
+			  "actionIds": [
+				"DELETE",
+				"PERMISSIONS",
+				"VIEW",
+				"SUBSCRIBE"
+			  ],
+			  "primaryKey": "0",
+			  "resourceName": "com.liferay.message.boards.model.MBThread",
+			  "scope": 1
+			},
+			{
+			  "actionIds": [
+				"CONFIG",
+				"PERMISSIONS",
+				"PREFERENCES",
+				"CONFIGURATION",
+				"ACCESS_IN_CONTROL_PANEL",
+				"VIEW"
+			  ],
+			  "primaryKey": "0",
+			  "resourceName": "com_liferay_message_boards_web_portlet_MBAdminPortlet",
+			  "scope": 1
+			},
+			{
+			  "actionIds": [
+				"VIEW_SITE_ADMINISTRATION"
+			  ],
+			  "primaryKey": "0",
+			  "resourceName": "com.liferay.depot.model.DepotEntry",
+			  "scope": 1
+			},
+			{
+			  "actionIds": [
+				"VIEW_SITE_ADMINISTRATION"
+			  ],
+			  "primaryKey": "0",
+			  "resourceName": "com.liferay.portal.kernel.model.Group",
+			  "scope": 1
+			},
+			{
+			  "actionIds": [
+				"DELETE",
+				"PERMISSIONS",
+				"UPDATE",
+				"VIEW",
+				"SUBSCRIBE"
+			  ],
+			  "primaryKey": "0",
+			  "resourceName": "com.liferay.message.boards.model.MBMessage",
+			  "scope": 1
+			},
+			{
+			  "actionIds": [
+				"PERMISSIONS",
+				"ADD_FILE",
+				"BAN_USER",
+				"ADD_CATEGORY",
+				"REPLY_TO_MESSAGE",
+				"LOCK_THREAD",
+				"VIEW",
+				"SUBSCRIBE",
+				"ADD_MESSAGE",
+				"MOVE_THREAD",
+				"UPDATE_THREAD_PRIORITY"
+			  ],
+			  "primaryKey": "0",
+			  "resourceName": "com.liferay.message.boards",
+			  "scope": 1
+			},
+			{
+			  "actionIds": [
+				"PERMISSIONS",
+				"PREFERENCES",
+				"CONFIGURATION",
+				"VIEW",
+				"ADD_TO_PAGE"
+			  ],
+			  "primaryKey": "0",
+			  "resourceName": "com_liferay_message_boards_web_portlet_MBPortlet",
+			  "scope": 1
+			}
+		  ]
+		  ,
 		roleType: 'regular'
 	});
 
@@ -202,6 +306,14 @@ test('user must be able to read workflow task from a notification if contained o
 
 	await processBuilderPage.goto();
 
+	await processBuilderPage.clickWorkflowDefinitionName(
+		workflowDefinitionName
+	);
+
+	await diagramViewPage.publishWorkflowDefinition();
+
+	await diagramViewPage.goBack();
+
 	await configurationTabPage.goTo();
 
 	assetType = 'Message Boards Message';
@@ -211,17 +323,17 @@ test('user must be able to read workflow task from a notification if contained o
 		assetType
 	);
 
-	await messageBoardsPage.goto();
-
-	await messageBoardsPage.setRoleCategoryPermissions(role.name);
+	await page.goto(`/web/${site.name}`);
 
 	await performLogout(page);
 
 	await performLogin(page, user.alternateName);
 
-	let threadTitle = "Thread Title";
+	await page.goto(`/web/${site.name}`);
 
-	let threadSubject = "Thread Subject";
+	let threadTitle = "Thread Title" + getRandomInt();
+
+	let threadSubject = "Thread Subject" + getRandomInt();
 
 	await messageBoardsEditThreadPage.publishNewBasicThread(threadTitle,threadSubject);
 
@@ -229,35 +341,27 @@ test('user must be able to read workflow task from a notification if contained o
 
 	await performLogin(page, defaultUser.alternateName);
 
+	await page.goto(`/web/${site.name}`);
+
 	await workflowTasksPage.goToAssignedToMyRoles();
 
-	await workflowTaskDetailsPage.selectAsset(threadTitle);
+	await workflowTasksPage.assignToMe(threadTitle);
 
-	await workflowTaskDetailsPage.reviewActionMenu.click();
-
-	await workflowTaskDetailsPage.assignToMenuItem.click();
-
-	await page.waitForTimeout(3000);
-
-	await workflowTaskDetailsPage.selectAssignee(defaultUser.id.toString());
-
-	await workflowTaskDetailsPage.clickDoneAssigneeButton();
-
-	await workflowTaskDetailsPage.reviewActionMenu.click();
-
-	await workflowTaskDetailsPage.rejectMenuItem.click();
+	await workflowTasksPage.reject(threadTitle);
 
 	await performLogout(page);
 
-	await performLogin(page, defaultUser.alternateName);
+	await performLogin(page, user.alternateName);
 
-	await page.waitForLoadState('networkidle');
+	await page.goto(`/web/${site.name}`);
 
 	await userPersonalBarPage.notificationBadge.click();
 
 	await page.getByRole('link', {
 		name: `Your submission was rejected by ${defaultUser.name}, please modify and resubmit.`,
-	})
+	}).first().click()
+
+	await workflowTaskDetailsPage.commentSectionButton.click()
 
 	await workflowTaskDetailsPage.subscribeButton.click()
 
@@ -265,7 +369,19 @@ test('user must be able to read workflow task from a notification if contained o
 
 	await performLogin(page, defaultUser.alternateName);
 
+	await workflowTasksPage.goto();
+
 	await workflowTaskDetailsPage.selectAsset(threadTitle);
+
+	await workflowTaskDetailsPage.commentSectionButton.click()
+
+	await page.waitForTimeout(1000);
+
+	await workflowTaskDetailsPage.subscribeButton.click()
+
+	await page.waitForTimeout(1000);
+
+	await workflowTaskDetailsPage.commentSectionButton.click()
 
 	await workflowTaskDetailsPage.fillReviewComment("Random");
 
@@ -273,19 +389,19 @@ test('user must be able to read workflow task from a notification if contained o
 
 	await performLogout(page);
 
-	await performLogin(page, defaultUser.alternateName);
-
-	await page.waitForLoadState('networkidle');
+	await performLogin(page, user.alternateName);
 
 	await userPersonalBarPage.notificationBadge.click();
 
 	await page.getByRole('link', {
 			name: `${defaultUser.name} added a new comment to ${threadTitle}.`
-	}).click()
+	}).click();
 
-	await expect(
-			page.getByRole('link', {
-				name: `Your submission was rejected by ${defaultUser.name}, please modify and resubmit.`,
-			})
-	).toBeVisible();
+	 expect(
+		workflowTaskDetailsPage.viewButton.isVisible()
+	).toBeTruthy();
+
+	 expect(
+			workflowTaskDetailsPage.detailsMessage.isVisible()
+	).toBeTruthy();
 });

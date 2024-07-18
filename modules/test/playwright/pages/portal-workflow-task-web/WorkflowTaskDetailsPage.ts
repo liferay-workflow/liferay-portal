@@ -16,11 +16,16 @@ export class WorkflowTaskDetailsPage {
 	readonly subscribeButton: Locator;
 	readonly doneAssigneeButton: Locator;
 	readonly doneButton: Locator;
+	readonly commentBox: Locator;
+	readonly commentSectionButton: Locator;
 	readonly page: Page;
 	readonly rejectMenuItem: Locator;
+	readonly reply: Locator;
+	readonly viewButton: Locator;
 	readonly reviewActionMenu: Locator;
 	readonly reviewComment: Locator;
 	readonly workflowTasksPage: WorkflowTasksPage;
+	readonly detailsMessage;
 
 	constructor(page: Page) {
 		this.approveMenuItem = page.getByRole('menuitem', {name: 'approve'});
@@ -32,15 +37,19 @@ export class WorkflowTaskDetailsPage {
 			.getByRole('button', {name: 'Done'});
 		this.doneButton = page.getByRole('button', {name: 'Done'});
 		this.rejectMenuItem = page.getByRole('menuitem', {name: 'reject'});
+		this.reply = page.getByRole('button', { name: 'Reply' });
 		this.reviewActionMenu = page.locator(
 			'[id="_com_liferay_portal_workflow_task_web_portlet_MyWorkflowTaskPortlet_kldx___menu"]'
 		);
+		this.viewButton = page.getByRole('link', { name: 'View', exact: true });
+		this.commentBox = page.frameLocator('iframe').getByRole('textbox');
 		this.reviewComment = page.getByRole('textbox', {name: 'Comment'});
 		this.page = page;
 		this.workflowTasksPage = new WorkflowTasksPage(page);
+		this.detailsMessage = page.getByLabel('Ask a user to work on the item.');
 		this.comments = page.getByRole('button',{name: 'Comments'})
 		this.subscribeButton = page.getByLabel('Subscribe to Comments');
-
+		this.commentSectionButton = page.getByRole('button', { name: 'Comments' });
 	}
 
 	async clickDoneButton() {
@@ -50,7 +59,7 @@ export class WorkflowTaskDetailsPage {
 	}
 
 	async fillReviewComment(comment: string) {
-		await this.reviewComment.fill(comment);
+		await this.commentBox.fill(comment);
 	}
 
 	async goTo(assetTitle: string) {
