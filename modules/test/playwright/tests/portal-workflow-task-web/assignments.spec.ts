@@ -164,6 +164,7 @@ test('user must be able to read workflow task from a notification if contained o
 	diagramViewPage,
 	messageBoardsEditThreadPage,
 	messageBoardsWidgetPage,
+	messageBoardsPage,
 	page,
 	processBuilderPage,
 	site,
@@ -171,8 +172,6 @@ test('user must be able to read workflow task from a notification if contained o
 	workflowTaskDetailsPage,
 	workflowTasksPage,
 }) => {
-	await messageBoardsWidgetPage.addMessageBoardsPortlet(site);
-
 	let user = await apiHelpers.headlessAdminUser.getUserAccountByEmailAddress(
 		'demo.unprivileged@liferay.com'
 	);
@@ -182,7 +181,7 @@ test('user must be able to read workflow task from a notification if contained o
 	);
 
 	const role = await apiHelpers.headlessAdminUser.postRole({
-		name: 'workflowTaskManagement' + getRandomInt(),
+		name: 'AdminWorkflowTask' + getRandomInt(),
 		rolePermissions: [
 			{
 			  "actionIds": [
@@ -284,7 +283,17 @@ test('user must be able to read workflow task from a notification if contained o
 			  "primaryKey": "0",
 			  "resourceName": "com_liferay_message_boards_web_portlet_MBPortlet",
 			  "scope": 1
-			}
+			},
+			{
+				"actionIds": [
+				  "REPLY_TO_MESSAGE",
+				  "VIEW",
+				  "ADD_MESSAGE"
+				],
+				"primaryKey": site.id,
+				"resourceName": "com.liferay.message.boards",
+				"scope": 4
+			  },
 		  ]
 		  ,
 		roleType: 'regular'
@@ -292,8 +301,18 @@ test('user must be able to read workflow task from a notification if contained o
 
 	await apiHelpers.headlessAdminUser.assignUserToRole(role.name, user.id);
 
-	workflowDefinitionName = 'Workflow Definition' + getRandomInt();
-	workflowXMLDefinition = readFileSync(
+	await messageBoardsWidgetPage.addMessageBoardsPortlet(site);
+
+	let roleName : String = role.name;
+
+	await page.waitForLoadState("networkidle")
+
+	await messageBoardsPage.setRoleCategoryPermissions(roleName.toLowerCase(),site.friendlyUrlPath)
+
+	await page.waitForLoadState("networkidle")
+
+	workflowDefinitionName = 'WorkflowDefinition' + getRandomInt();
+	 workflowXMLDefinition = readFileSync(
 		__dirname +
 			'/dependencies/administrator-role-assignments-workflow-definition.xml',
 		'utf-8'
@@ -323,19 +342,17 @@ test('user must be able to read workflow task from a notification if contained o
 		assetType
 	);
 
-	await page.goto(`/web/${site.name}`);
-
 	await performLogout(page);
 
 	await performLogin(page, user.alternateName);
 
 	await page.goto(`/web/${site.name}`);
 
-	let threadTitle = "Thread Title" + getRandomInt();
+	let threadTitle = "ThreadTitle" + getRandomInt();
 
-	let threadSubject = "Thread Subject" + getRandomInt();
+	let threadSubject = "ThreadSubject" + getRandomInt();
 
-	await messageBoardsEditThreadPage.publishNewBasicThread(threadTitle,threadSubject);
+	await messageBoardsEditThreadPage.publishNewThreadForWorkflow(threadTitle,threadSubject);
 
 	await performLogout(page);
 
@@ -397,11 +414,11 @@ test('user must be able to read workflow task from a notification if contained o
 			name: `${defaultUser.name} added a new comment to ${threadTitle}.`
 	}).click();
 
-	 expect(
+	await expect(
 		workflowTaskDetailsPage.viewButton.isVisible()
 	).toBeTruthy();
 
-	 expect(
+	await expect(
 			workflowTaskDetailsPage.detailsMessage.isVisible()
 	).toBeTruthy();
 });

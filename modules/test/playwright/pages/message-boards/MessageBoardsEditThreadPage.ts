@@ -49,10 +49,17 @@ export class MessageBoardsEditThreadPage {
 		await this.subjectSelector.fill(subject);
 		await this.bodyTextBox.fill(body);
 		
-		if(await this.publishButton.isVisible()){
-			await this.publishButton.click()
-		} else {
-			await this.submitForWorkflowButton.click()
-		}
+		
+		await this.publishButton.click()
+	}
+
+	async publishNewThreadForWorkflow(
+		subject: string,
+		body: string,
+	) {
+		await this.messageBoardsPage.newThreadButton.click()
+		await this.subjectSelector.fill(subject);
+		await this.bodyTextBox.fill(body);
+		await this.submitForWorkflowButton.click()
 	}
 }

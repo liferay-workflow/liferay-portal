@@ -16,6 +16,7 @@ export class MessageBoardsPage {
 	readonly page: Page;
 	readonly optionsMenu: Locator;
 	readonly saveButton: Locator;
+	readonly newThreadButton: Locator;
 
 	constructor(page: Page) {
 		this.homeCategoryPermissionsFrame = page.frameLocator(
@@ -37,6 +38,7 @@ export class MessageBoardsPage {
 			'button',
 			{name: 'Save'}
 		);
+		this.newThreadButton = page.getByRole('link', { name: 'New Thread' })
 	}
 
 	async goto(siteUrl?: Site['friendlyUrlPath']) {
@@ -75,15 +77,15 @@ export class MessageBoardsPage {
 
 		await this.homeCategoryPermissionsFrame.locator(
 			`#${roleName}_ACTION_ADD_MESSAGE`
-		).check();
+		).first().check();
 
 		await this.homeCategoryPermissionsFrame.locator(
 			`#${roleName}_ACTION_REPLY_TO_MESSAGE`
-		).check();
+		).first().check();
 
 		await this.homeCategoryPermissionsFrame.locator(
 			`#${roleName}_ACTION_VIEW`
-		).check();
+		).first().check();
 
 		await this.saveButton.click();
 
