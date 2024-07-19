@@ -133,7 +133,7 @@ public class MyWorkflowTaskPortlet extends MVCPortlet {
 		return false;
 	}
 
-	private boolean _checkWorkflowTaskViewPermission(
+	private boolean _hasWorkflowTaskViewPermission(
 		ThemeDisplay themeDisplay, WorkflowTask workflowTask) {
 
 		long groupId = MapUtil.getLong(
@@ -170,16 +170,10 @@ public class MyWorkflowTaskPortlet extends MVCPortlet {
 			WorkflowTask workflowTask = WorkflowTaskManagerUtil.getWorkflowTask(
 				themeDisplay.getCompanyId(), workflowTaskId);
 
-			if (_checkWorkflowTaskViewPermission(themeDisplay, workflowTask)) {
-				renderRequest.setAttribute(WebKeys.WORKFLOW_TASK, workflowTask);
-				renderRequest.setAttribute(
-					WebKeys.WORKFLOW_TASK_READ_ONLY, Boolean.FALSE);
-			}
-			else {
-				renderRequest.setAttribute(WebKeys.WORKFLOW_TASK, workflowTask);
-				renderRequest.setAttribute(
-					WebKeys.WORKFLOW_TASK_READ_ONLY, Boolean.TRUE);
-			}
+			renderRequest.setAttribute(WebKeys.WORKFLOW_TASK, workflowTask);
+			renderRequest.setAttribute(
+				WebKeys.WORKFLOW_TASK_READ_ONLY,
+				!_hasWorkflowTaskViewPermission(themeDisplay, workflowTask));
 		}
 	}
 
