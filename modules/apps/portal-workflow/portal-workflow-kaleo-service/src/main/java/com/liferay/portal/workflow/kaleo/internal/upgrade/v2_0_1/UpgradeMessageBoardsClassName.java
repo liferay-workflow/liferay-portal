@@ -5,6 +5,7 @@
 
 package com.liferay.portal.workflow.kaleo.internal.upgrade.v2_0_1;
 
+import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.LoggingTimer;
 import com.liferay.portal.upgrade.util.Table;
@@ -20,6 +21,15 @@ import java.util.Objects;
  * @author Inácio Nery
  */
 public class UpgradeMessageBoardsClassName extends BaseUpgradeClassNames {
+
+	@Override
+	protected String getWhereClause() {
+		return StringBundler.concat(
+			" where workflowContext like ",
+			"'%com.liferay.message.boards.kernel.model.MBDiscussion%' or ",
+			"workflowContext like ",
+			"'%com.liferay.message.boards.kernel.model.MBMessage%'");
+	}
 
 	@Override
 	protected void updateClassName(String tableName, String columnName) {
