@@ -13,14 +13,7 @@ import {getRandomInt} from '../../utils/getRandomInt';
 import performLogin, {performLogout} from '../../utils/performLogin';
 import {toLocalDateTimeFormatted} from './utils/toLocalDateTimeFormatted';
 
-export const test = mergeTests(
-	apiHelpersTest,
-	featureFlagsTest({
-		'LPD-29635': true,
-	}),
-	loginTest(),
-	workflowPagesTest
-);
+export const test = mergeTests(apiHelpersTest, loginTest(), workflowPagesTest);
 
 let workflowDefinitionId: number;
 let workflowDefinitionName: string;
