@@ -230,9 +230,9 @@ definition {
 
 		UserBar.gotoDropdownItem(dropdownItem = "My Workflow Tasks");
 
-		Navigator.gotoNavTab(navTab = "Assigned to My Roles");
-
 		while (${iterator} != ${numberOfBlogInstances}) {
+			Navigator.gotoNavTab(navTab = "Assigned to My Roles");
+
 			if (${userCount} == ${numberOfUsers}) {
 				var userCount = 1;
 			}
