@@ -50,6 +50,9 @@ public class WorkflowDefinitionContentUtil {
 			DocumentBuilder documentBuilder =
 				documentBuilderFactory.newDocumentBuilder();
 
+			content = content.replaceAll(
+				"&(?!lt;|gt;)(?![^<]*\\]\\]>)", StringPool.AMPERSAND_ENCODED);
+
 			Document document = documentBuilder.parse(
 				new InputSource(new StringReader(content)));
 
