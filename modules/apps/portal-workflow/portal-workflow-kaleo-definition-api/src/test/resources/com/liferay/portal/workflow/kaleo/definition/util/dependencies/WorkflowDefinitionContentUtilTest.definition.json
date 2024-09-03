@@ -1,0 +1,198 @@
+{
+	"#child-nodes": [
+		{
+			"#tag-name": "name",
+			"#value": "Workflow Definition with & characters"
+		},
+		{
+			"#tag-name": "description",
+			"#value": "Sample to a workflow content with & inside."
+		},
+		{
+			"#child-nodes": [
+				{
+					"#tag-name": "name",
+					"#value": "created"
+				},
+				{
+					"#tag-name": "initial",
+					"#value": "true"
+				},
+				{
+					"#child-nodes": [
+						{
+							"#child-nodes": [
+								{
+									"#tag-name": "name",
+									"#value": "created_review_review"
+								},
+								{
+									"#tag-name": "target",
+									"#value": "review"
+								},
+								{
+									"#tag-name": "default",
+									"#value": "true"
+								}
+							],
+							"#tag-name": "transition"
+						}
+					],
+					"#tag-name": "transitions"
+				}
+			],
+			"#tag-name": "state"
+		},
+		{
+			"#child-nodes": [
+				{
+					"#tag-name": "name",
+					"#value": "approved"
+				},
+				{
+					"#child-nodes": [
+						{
+							"#child-nodes": [
+								{
+									"#tag-name": "name",
+									"#value": "approve"
+								},
+								{
+									"#tag-name": "status",
+									"#value": "0"
+								},
+								{
+									"#tag-name": "execution-type",
+									"#value": "onEntry"
+								}
+							],
+							"#tag-name": "action"
+						},
+						{
+							"#cdata-value": [
+								"String document = \"This & shouldn't be mapped by the regex\""
+							],
+							"#tag-name": "script"
+						},
+						{
+							"#tag-name": "script-language",
+							"#value": "groovy"
+						}
+					],
+					"#tag-name": "actions"
+				},
+				{
+					"#child-nodes": [
+						{
+							"#tag-name": "label",
+							"#value": "approved",
+							"language-id": "en_US"
+						}
+					],
+					"#tag-name": "labels"
+				}
+			],
+			"#tag-name": "state"
+		},
+		{
+			"#child-nodes": [
+				{
+					"#tag-name": "name",
+					"#value": "review"
+				},
+				{
+					"#child-nodes": [
+						{
+							"#child-nodes": [
+								{
+									"#tag-name": "name",
+									"#value": "Review Notification"
+								},
+								{
+									"#cdata-value": [
+										"${userName} sent you a ${entryType} for r&view "
+									],
+									"#tag-name": "template"
+								},
+								{
+									"#tag-name": "template-language",
+									"#value": "freemarker"
+								},
+								{
+									"#tag-name": "notification-type",
+									"#value": "email"
+								},
+								{
+									"#tag-name": "notification-type",
+									"#value": "user-notification"
+								},
+								{
+									"#child-nodes": [
+										{
+											"#tag-name": "assignees"
+										}
+									],
+									"#tag-name": "recipients",
+									"receptionType": "to"
+								},
+								{
+									"#tag-name": "execution-type",
+									"#value": "onAssignment"
+								}
+							],
+							"#tag-name": "notification"
+						}
+					],
+					"#tag-name": "actions"
+				},
+				{
+					"#child-nodes": [
+						{
+							"#child-nodes": [
+								{
+									"#child-nodes": [
+										{
+											"#tag-name": "role-type",
+											"#value": "account"
+										},
+										{
+											"#tag-name": "name",
+											"#value": "Account Administrator &"
+										}
+									],
+									"#tag-name": "role"
+								}
+							],
+							"#tag-name": "roles"
+						}
+					],
+					"#tag-name": "assignments"
+				},
+				{
+					"#child-nodes": [
+						{
+							"#child-nodes": [
+								{
+									"#tag-name": "name",
+									"#value": "approve"
+								},
+								{
+									"#tag-name": "target",
+									"#value": "approved"
+								},
+								{
+									"#tag-name": "default",
+									"#value": "true"
+								}
+							],
+							"#tag-name": "transition"
+						}
+					],
+					"#tag-name": "transitions"
+				}
+			],
+			"#tag-name": "task"
+		}
+	],
+	"#tag-name": "workflow-definition"
+}

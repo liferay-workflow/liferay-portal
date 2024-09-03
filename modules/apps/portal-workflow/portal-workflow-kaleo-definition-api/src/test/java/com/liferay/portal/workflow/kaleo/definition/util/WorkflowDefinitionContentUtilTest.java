@@ -5,6 +5,9 @@
 
 package com.liferay.portal.workflow.kaleo.definition.util;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.json.JSONFactoryImpl;
 import com.liferay.portal.kernel.json.JSONArray;
@@ -16,6 +19,12 @@ import com.liferay.portal.security.xml.SecureXMLFactoryProviderImpl;
 import com.liferay.portal.test.rule.LiferayUnitTestRule;
 
 import java.io.StringReader;
+
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
+import java.util.Objects;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -162,6 +171,22 @@ public class WorkflowDefinitionContentUtilTest {
 	}
 
 	@Test
+	public void testJSONToXML() throws Exception {
+		String definition = _read("definition.json");
+
+		definition = definition.replaceAll(
+			"&(?![^\\[]*\\]\\]>)(?!\\w+;|\\d+;)", StringPool.AMPERSAND_ENCODED);
+
+		_write(definition, "definition.json");
+
+		Document expectedXML = _toDocument("definition.json");
+
+		String actualXML = _read("definition.xml");
+
+		Assert.assertEquals(expectedXML.toString(), actualXML);
+	}
+
+	@Test
 	public void testRepeatableTagToJSON() throws Exception {
 		JSONObject jsonObject = _toJSONObject("repeatable-tag.xml");
 
@@ -266,6 +291,22 @@ public class WorkflowDefinitionContentUtilTest {
 		Assert.assertEquals("en_US", attributeNode.getNodeValue());
 	}
 
+	@Test
+	public void testXMLToJSON() throws Exception {
+		JSONObject expectedJSONObject = _toJSONObject("definition.xml");
+		JSONObject actualJSONObject = JSONFactoryUtil.createJSONObject(
+			_read("definition.json"));
+
+		ObjectMapper objectMapper = new ObjectMapper();
+
+		JsonNode expectedJsonNode = objectMapper.readTree(
+			expectedJSONObject.toString());
+		JsonNode actualJsonNode = objectMapper.readTree(
+			actualJSONObject.toString());
+
+		Assert.assertEquals(expectedJsonNode, actualJsonNode);
+	}
+
 	private String _read(String fileName) throws Exception {
 		Class<?> clazz = getClass();
 
@@ -290,6 +331,19 @@ public class WorkflowDefinitionContentUtilTest {
 	private JSONObject _toJSONObject(String xmlFileName) throws Exception {
 		return JSONFactoryUtil.createJSONObject(
 			WorkflowDefinitionContentUtil.toJSON(_read(xmlFileName)));
+	}
+
+	private void _write(String content, String fileName) throws Exception {
+		Class<?> clazz = getClass();
+
+		Files.write(
+			Paths.get(
+				Objects.requireNonNull(
+					clazz.getResourceAsStream(
+						"dependencies/WorkflowDefinitionContentUtilTest." +
+							fileName)
+				).toString()),
+			content.getBytes(StandardCharsets.UTF_8));
 	}
 
 }
